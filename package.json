@@ -48,6 +48,10 @@
         "to": "icon.ico"
       },
       {
+        "from": "resources/tray",
+        "to": "tray"
+      },
+      {
         "from": "whisper-engine/whisper.cpp/build/bin",
         "to": "whisper-engine/whisper.cpp/build/bin"
       },
