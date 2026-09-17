@@ -29,6 +29,24 @@
         </div>
       </section>
 
+      <section class="panel" aria-labelledby="section-microphone">
+        <h2 id="section-microphone">Microphone</h2>
+        <div class="field">
+          <label for="microphone">Périphérique</label>
+          <select id="microphone">
+            <option value="">Périphérique par défaut du système</option>
+          </select>
+          <p class="field__hint">
+            Utile si un micro Bluetooth fait planter ton casque (bascule vers le profil mains-libres) : choisis ici un
+            autre micro pour l'éviter.
+          </p>
+        </div>
+        <button id="detect-microphones" type="button" class="button button--ghost">
+          Détecter les micros disponibles
+        </button>
+        <p id="microphone-status" class="field__hint"></p>
+      </section>
+
       <section class="panel" aria-labelledby="section-model">
         <h2 id="section-model">Modèle de transcription</h2>
         <div class="field">

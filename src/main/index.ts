@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, systemPreferences, screen, session } from 'electron'
+import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, session } from 'electron'
 import { join } from 'node:path'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
@@ -208,9 +208,6 @@ function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.GetDictionary, () => loadDictionary())
   ipcMain.handle(IpcChannel.SetDictionary, (_event, entries) => {
     saveDictionary(entries)
-  })
-  ipcMain.handle(IpcChannel.GetMicrophones, async () => {
-    return systemPreferences.getMediaAccessStatus('microphone')
   })
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)

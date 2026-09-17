@@ -23,7 +23,13 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 }
 
 async function openMicrophone(): Promise<MediaStream> {
-  const stream = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 5000, 'getUserMedia')
+  const deviceId = await window.recorderApi.getMicrophoneDeviceId()
+  const audioConstraints: MediaTrackConstraints | boolean = deviceId ? { deviceId: { exact: deviceId } } : true
+  const stream = await withTimeout(
+    navigator.mediaDevices.getUserMedia({ audio: audioConstraints }),
+    5000,
+    'getUserMedia'
+  )
   activeStream = stream
   return stream
 }

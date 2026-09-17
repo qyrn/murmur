@@ -3,12 +3,56 @@ import type { DictationSettings, DictionaryEntry, WhisperModel } from '../../sha
 const hotkeyInput = document.querySelector<HTMLInputElement>('#hotkey')!
 const autoPasteInput = document.querySelector<HTMLInputElement>('#auto-paste')!
 const modelSelect = document.querySelector<HTMLSelectElement>('#model')!
+const microphoneSelect = document.querySelector<HTMLSelectElement>('#microphone')!
+const detectMicrophonesButton = document.querySelector<HTMLButtonElement>('#detect-microphones')!
+const microphoneStatus = document.querySelector<HTMLParagraphElement>('#microphone-status')!
 const dictionaryList = document.querySelector<HTMLDivElement>('#dictionary-list')!
 const addTermButton = document.querySelector<HTMLButtonElement>('#add-term')!
 const saveButton = document.querySelector<HTMLButtonElement>('#save')!
 const saveStatus = document.querySelector<HTMLSpanElement>('#save-status')!
 
 let dictionary: DictionaryEntry[] = []
+let storedMicrophoneDeviceId: string | null = null
+
+async function populateMicrophoneList(): Promise<void> {
+  const devices = await navigator.mediaDevices.enumerateDevices()
+  const inputs = devices.filter((device) => device.kind === 'audioinput')
+
+  microphoneSelect.innerHTML = ''
+  const defaultOption = document.createElement('option')
+  defaultOption.value = ''
+  defaultOption.textContent = 'Périphérique par défaut du système'
+  microphoneSelect.append(defaultOption)
+
+  for (const device of inputs) {
+    const option = document.createElement('option')
+    option.value = device.deviceId
+    option.textContent = device.label || `Microphone (${device.deviceId.slice(0, 8)})`
+    microphoneSelect.append(option)
+  }
+
+  if (storedMicrophoneDeviceId && inputs.some((device) => device.deviceId === storedMicrophoneDeviceId)) {
+    microphoneSelect.value = storedMicrophoneDeviceId
+  }
+}
+
+detectMicrophonesButton.addEventListener('click', () => {
+  void (async () => {
+    microphoneStatus.textContent = 'Détection en cours…'
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach((track) => track.stop())
+      await populateMicrophoneList()
+      microphoneStatus.textContent = 'Liste mise à jour.'
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      microphoneStatus.textContent = `Impossible d'accéder au micro : ${message}`
+    }
+    setTimeout(() => {
+      microphoneStatus.textContent = ''
+    }, 3000)
+  })()
+})
 
 function renderDictionary(): void {
   dictionaryList.innerHTML = ''
@@ -57,7 +101,7 @@ saveButton.addEventListener('click', () => {
       hotkey: hotkeyInput.value.trim(),
       model: modelSelect.value as WhisperModel,
       autoPaste: autoPasteInput.checked,
-      microphoneDeviceId: null
+      microphoneDeviceId: microphoneSelect.value || null
     }
     await window.settingsApi.setSettings(settings)
     await window.settingsApi.setDictionary(dictionary.filter((entry) => entry.term.trim().length > 0))
@@ -73,6 +117,8 @@ async function init(): Promise<void> {
   hotkeyInput.value = settings.hotkey
   autoPasteInput.checked = settings.autoPaste
   modelSelect.value = settings.model
+  storedMicrophoneDeviceId = settings.microphoneDeviceId
+  await populateMicrophoneList()
 
   dictionary = await window.settingsApi.getDictionary()
   renderDictionary()

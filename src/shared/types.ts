@@ -28,6 +28,5 @@ export const IpcChannel = {
   GetSettings: 'settings:get',
   SetSettings: 'settings:set',
   GetDictionary: 'dictionary:get',
-  SetDictionary: 'dictionary:set',
-  GetMicrophones: 'settings:get-microphones'
+  SetDictionary: 'dictionary:set'
 } as const
