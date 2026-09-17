@@ -152,6 +152,7 @@ function createSettingsWindow(): void {
     width: 640,
     height: 720,
     title: 'Réglages — murmur',
+    icon: join(__dirname, '../../resources/icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/settings.mjs'),

@@ -36,7 +36,7 @@ function chunk(type, data) {
   return Buffer.concat([lenBuf, typeBuf, data, crcBuf])
 }
 
-function buildPng(size, colorAt) {
+function encodePng(size, rgba) {
   const ihdr = Buffer.alloc(13)
   ihdr.writeUInt32BE(size, 0)
   ihdr.writeUInt32BE(size, 4)
@@ -47,63 +47,113 @@ function buildPng(size, colorAt) {
   for (let y = 0; y < size; y++) {
     const rowStart = y * (1 + size * 4)
     raw[rowStart] = 0
-    for (let x = 0; x < size; x++) {
-      const [r, g, b, a] = colorAt(x, y, size)
-      const px = rowStart + 1 + x * 4
-      raw[px] = r
-      raw[px + 1] = g
-      raw[px + 2] = b
-      raw[px + 3] = a
-    }
+    rgba.copy(raw, rowStart + 1, y * size * 4, (y + 1) * size * 4)
   }
-  const idat = deflateSync(raw)
-
+  const idat = deflateSync(raw, { level: 9 })
   const signature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
   return Buffer.concat([signature, chunk('IHDR', ihdr), chunk('IDAT', idat), chunk('IEND', Buffer.alloc(0))])
 }
 
-const BG = [0x17, 0x16, 0x13]
-const ACCENT = [0xe0, 0xa2, 0x48]
-const BAR_SHAPE = [0.45, 0.7, 0.95, 1, 0.95, 0.7, 0.45]
+function clamp01(v) {
+  return Math.max(0, Math.min(1, v))
+}
 
-function iconColorer(x, y, size) {
-  const cornerRadius = size * 0.22
-  const inCorner = (cx, cy) => Math.hypot(x - cx, y - cy) > cornerRadius
-  const nearLeft = x < cornerRadius
-  const nearRight = x > size - cornerRadius
-  const nearTop = y < cornerRadius
-  const nearBottom = y > size - cornerRadius
-  if (nearLeft && nearTop && inCorner(cornerRadius, cornerRadius)) return [0, 0, 0, 0]
-  if (nearRight && nearTop && inCorner(size - cornerRadius, cornerRadius)) return [0, 0, 0, 0]
-  if (nearLeft && nearBottom && inCorner(cornerRadius, size - cornerRadius)) return [0, 0, 0, 0]
-  if (nearRight && nearBottom && inCorner(size - cornerRadius, size - cornerRadius)) return [0, 0, 0, 0]
+function mix(a, b, t) {
+  return a + (b - a) * t
+}
+
+// Signed distance to an axis-aligned rounded rectangle centered at (cx, cy).
+function sdRoundedBox(px, py, cx, cy, halfW, halfH, radius) {
+  const dx = Math.abs(px - cx) - halfW + radius
+  const dy = Math.abs(py - cy) - halfH + radius
+  const outside = Math.hypot(Math.max(dx, 0), Math.max(dy, 0))
+  const inside = Math.min(Math.max(dx, dy), 0)
+  return outside + inside - radius
+}
+
+function hexToRgb(hex) {
+  const value = hex.replace('#', '')
+  return [parseInt(value.slice(0, 2), 16), parseInt(value.slice(2, 4), 16), parseInt(value.slice(4, 6), 16)]
+}
+
+const BG_TOP = hexToRgb('#211d17')
+const BG_BOTTOM = hexToRgb('#100e0b')
+const ACCENT_TOP = hexToRgb('#f2b767')
+const ACCENT_BOTTOM = hexToRgb('#c97f2e')
+
+const BAR_SHAPE = [0.4, 0.62, 0.85, 1, 0.85, 0.62, 0.4]
+
+function renderIcon(size) {
+  const rgba = Buffer.alloc(size * size * 4)
+  const bgRadius = size * 0.222
+  const bgHalf = size / 2 - size * 0.02
+  const center = size / 2
 
   const barCount = BAR_SHAPE.length
-  const barWidth = size * 0.06
+  const barWidth = size * 0.072
   const gap = size * 0.045
   const totalWidth = barCount * barWidth + (barCount - 1) * gap
   const startX = (size - totalWidth) / 2
+  const barRadius = barWidth / 2
 
+  const bars = []
   for (let i = 0; i < barCount; i++) {
-    const barX = startX + i * (barWidth + gap)
-    if (x >= barX && x < barX + barWidth) {
-      const barHeight = size * 0.5 * BAR_SHAPE[i]
-      const top = (size - barHeight) / 2
-      const bottom = top + barHeight
-      if (y >= top && y <= bottom) {
-        return [...ACCENT, 255]
+    const barHeight = size * 0.52 * BAR_SHAPE[i]
+    const barCx = startX + i * (barWidth + gap) + barWidth / 2
+    bars.push({ cx: barCx, halfW: barWidth / 2, halfH: barHeight / 2 })
+  }
+
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const px = x + 0.5
+      const py = y + 0.5
+
+      const bgDist = sdRoundedBox(px, py, center, center, bgHalf, bgHalf, bgRadius)
+      const bgAlpha = clamp01(0.5 - bgDist)
+
+      const vertical = clamp01(py / size)
+      const glowDist = Math.hypot(px - center, py - center * 0.95) / (size * 0.55)
+      const glow = clamp01(1 - glowDist) * 0.12
+      let r = mix(BG_TOP[0], BG_BOTTOM[0], vertical) + glow * ACCENT_TOP[0] * 0.3
+      let g = mix(BG_TOP[1], BG_BOTTOM[1], vertical) + glow * ACCENT_TOP[1] * 0.3
+      let b = mix(BG_TOP[2], BG_BOTTOM[2], vertical) + glow * ACCENT_TOP[2] * 0.3
+
+      let bestBarAlpha = 0
+      let bestBarT = 0
+      for (const bar of bars) {
+        const barDist = sdRoundedBox(px, py, bar.cx, center, bar.halfW, bar.halfH, barRadius)
+        const barAlpha = clamp01(0.5 - barDist)
+        if (barAlpha > bestBarAlpha) {
+          bestBarAlpha = barAlpha
+          bestBarT = clamp01((py - (center - bar.halfH)) / (bar.halfH * 2))
+        }
       }
+
+      if (bestBarAlpha > 0) {
+        const barR = mix(ACCENT_TOP[0], ACCENT_BOTTOM[0], bestBarT)
+        const barG = mix(ACCENT_TOP[1], ACCENT_BOTTOM[1], bestBarT)
+        const barB = mix(ACCENT_TOP[2], ACCENT_BOTTOM[2], bestBarT)
+        r = mix(r, barR, bestBarAlpha)
+        g = mix(g, barG, bestBarAlpha)
+        b = mix(b, barB, bestBarAlpha)
+      }
+
+      const idx = (y * size + x) * 4
+      rgba[idx] = Math.round(clamp01(r / 255) * 255)
+      rgba[idx + 1] = Math.round(clamp01(g / 255) * 255)
+      rgba[idx + 2] = Math.round(clamp01(b / 255) * 255)
+      rgba[idx + 3] = Math.round(bgAlpha * 255)
     }
   }
 
-  return [...BG, 255]
+  return rgba
 }
 
-function chunkIco(sizes) {
-  const images = sizes.map((size) => buildPng(size, iconColorer))
+function buildIcoBuffer(sizes) {
+  const images = sizes.map((size) => encodePng(size, renderIcon(size)))
   const dirEntries = []
   let offset = 6 + sizes.length * 16
-  const buffers = [Buffer.alloc(0)]
+  const buffers = []
 
   for (let i = 0; i < sizes.length; i++) {
     const size = sizes[i]
@@ -127,13 +177,11 @@ function chunkIco(sizes) {
   header.writeUInt16LE(1, 2)
   header.writeUInt16LE(sizes.length, 4)
 
-  return Buffer.concat([header, ...dirEntries, ...buffers.slice(1)])
+  return Buffer.concat([header, ...dirEntries, ...buffers])
 }
 
-const ico = chunkIco([16, 32, 48, 64, 128, 256])
-writeFileSync(join(outDir, 'icon.ico'), ico)
-
-const previewPng = buildPng(256, iconColorer)
-writeFileSync(join(outDir, 'icon.png'), previewPng)
+const sizes = [16, 24, 32, 48, 64, 128, 256]
+writeFileSync(join(outDir, 'icon.ico'), buildIcoBuffer(sizes))
+writeFileSync(join(outDir, 'icon.png'), encodePng(512, renderIcon(512)))
 
 console.log(`Icone generee : ${join(outDir, 'icon.ico')}`)
