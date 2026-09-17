@@ -162,12 +162,18 @@ async function toggleDictation(): Promise<void> {
 async function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
   try {
     setAppState('transcribing')
+    console.log(`[debug] audio recu du renderer : ${audio.byteLength} octets`)
     const wav = await convertToWav16kMono(Buffer.from(audio))
+    console.log(`[debug] wav converti : ${wav.byteLength} octets`)
     const wavArrayBuffer = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer
     const dictionary = loadDictionary()
     const text = await transcribeAudio(wavArrayBuffer, dictionary)
+    console.log(`[debug] texte transcrit (${text.length} caractères) : ${JSON.stringify(text)}`)
     if (settings.autoPaste && text.trim().length > 0) {
       await pasteIntoActiveWindow(text)
+      console.log('[debug] pasteIntoActiveWindow termine')
+    } else {
+      console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', text.trim().length === 0)
     }
   } catch (err) {
     console.error(err)

@@ -5,6 +5,7 @@ let chunks: Blob[] = []
 let audioContext: AudioContext | null = null
 let analyser: AnalyserNode | null = null
 let levelTimer: number | null = null
+let levelEnvelope = 0
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   return new Promise((resolvePromise, rejectPromise) => {
@@ -40,6 +41,7 @@ function closeMicrophone(): void {
 }
 
 function startLevelMetering(stream: MediaStream): void {
+  levelEnvelope = 0
   audioContext = new AudioContext()
   const source = audioContext.createMediaStreamSource(stream)
   analyser = audioContext.createAnalyser()
@@ -58,8 +60,10 @@ function startLevelMetering(stream: MediaStream): void {
       sumSquares += normalized * normalized
     }
     const rms = Math.sqrt(sumSquares / data.length)
-    const perceptual = Math.pow(rms, 0.5) * 2.2
-    window.recorderApi.sendAudioLevel(Math.min(1, perceptual))
+    const target = Math.min(1, Math.pow(rms, 0.5) * 2.2)
+    const rate = target > levelEnvelope ? 0.55 : 0.12
+    levelEnvelope += (target - levelEnvelope) * rate
+    window.recorderApi.sendAudioLevel(levelEnvelope)
   }, 50)
 }
 

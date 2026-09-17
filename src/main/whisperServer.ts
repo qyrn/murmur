@@ -66,6 +66,8 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
       { stdio: 'pipe' }
     )
     serverProcess = proc
+    proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
+    proc.stderr.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
 
     proc.on('error', (err) => rejectPromise(err))
     proc.on('exit', (code) => {

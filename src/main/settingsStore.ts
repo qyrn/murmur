@@ -14,7 +14,8 @@ const defaultDictionary: DictionaryEntry[] = [
   { term: 'JavaScript', note: 'toujours avec un J et un S majuscules' },
   { term: 'TypeScript', note: 'toujours avec un T et un S majuscules' },
   { term: 'pull request', note: 'terme anglais courant, ne pas traduire' },
-  { term: 'deadline', note: 'terme anglais courant, ne pas traduire' }
+  { term: 'deadline', note: 'terme anglais courant, ne pas traduire' },
+  { term: 'overlay', note: 'terme anglais courant, ne pas traduire' }
 ]
 
 function userDataDir(): string {
