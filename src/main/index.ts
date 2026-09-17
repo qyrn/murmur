@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, systemPreferences, screen } from 'electron'
+import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, systemPreferences, screen, session } from 'electron'
 import { join } from 'node:path'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
@@ -6,6 +6,22 @@ import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
 import { IpcChannel, type AppState, type DictationSettings } from '../shared/types'
+
+process.on('uncaughtException', (err) => {
+  console.error('[debug] uncaughtException', err)
+})
+process.on('unhandledRejection', (err) => {
+  console.error('[debug] unhandledRejection', err)
+})
+app.on('before-quit', () => {
+  console.error('[debug] before-quit', new Error('stack').stack)
+})
+app.on('render-process-gone', (_event, contents, details) => {
+  console.error('[debug] render-process-gone', contents.getURL(), details)
+})
+app.on('child-process-gone', (_event, details) => {
+  console.error('[debug] child-process-gone', details)
+})
 
 let tray: Tray | null = null
 let recorderWindow: BrowserWindow | null = null
@@ -29,6 +45,7 @@ function trayIconPath(state: AppState): string {
 }
 
 function setAppState(state: AppState): void {
+  console.log(`[debug] setAppState(${state})`)
   appState = state
   tray?.setImage(nativeImage.createFromPath(trayIconPath(state)))
   tray?.setToolTip(`Dictée : ${state}`)
@@ -44,9 +61,15 @@ function createRecorderWindow(): BrowserWindow {
   const win = new BrowserWindow({
     show: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/recorder.js'),
+      preload: join(__dirname, '../preload/recorder.mjs'),
       sandbox: false
     }
+  })
+  win.webContents.on('did-fail-load', (_event, errorCode, errorDescription) => {
+    console.error(`[recorder] did-fail-load ${errorCode} ${errorDescription}`)
+  })
+  win.webContents.on('render-process-gone', (_event, details) => {
+    console.error('[recorder] render-process-gone', details)
   })
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/recorder/index.html`)
@@ -77,7 +100,7 @@ function createOverlayWindow(): BrowserWindow {
     focusable: false,
     show: false,
     webPreferences: {
-      preload: join(__dirname, '../preload/overlay.js'),
+      preload: join(__dirname, '../preload/overlay.mjs'),
       sandbox: false
     }
   })
@@ -102,7 +125,7 @@ function createSettingsWindow(): void {
     title: 'Réglages — Dictée',
     autoHideMenuBar: true,
     webPreferences: {
-      preload: join(__dirname, '../preload/settings.js'),
+      preload: join(__dirname, '../preload/settings.mjs'),
       sandbox: false
     }
   })
@@ -155,11 +178,21 @@ async function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
   setAppState('idle')
 }
 
+const HOTKEY_DEBOUNCE_MS = 400
+let lastHotkeyTriggerAt = 0
+
 function registerHotkey(): void {
   globalShortcut.unregisterAll()
   const ok = globalShortcut.register(settings.hotkey, () => {
+    const now = Date.now()
+    if (now - lastHotkeyTriggerAt < HOTKEY_DEBOUNCE_MS) {
+      return
+    }
+    lastHotkeyTriggerAt = now
+    console.log(`[debug] raccourci ${settings.hotkey} déclenché, état actuel : ${appState}`)
     void toggleDictation()
   })
+  console.log(`[debug] enregistrement du raccourci ${settings.hotkey} : ${ok ? 'OK' : 'ECHEC'}`)
   if (!ok) {
     console.error(`Impossible d'enregistrer le raccourci ${settings.hotkey}`)
   }
@@ -182,6 +215,11 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)
   })
+  ipcMain.on(IpcChannel.RecordingError, (_event, message: string) => {
+    console.error('[debug] erreur de capture micro :', message)
+    setAppState('error')
+    setTimeout(() => setAppState('idle'), 2500)
+  })
   ipcMain.on(IpcChannel.AudioLevel, (_event, level: number) => {
     overlayWindow?.webContents.send(IpcChannel.AudioLevel, level)
   })
@@ -201,6 +239,11 @@ function createTray(): void {
 }
 
 app.whenReady().then(async () => {
+  session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
+    callback(permission === 'media')
+  })
+  session.defaultSession.setPermissionCheckHandler((_webContents, permission) => permission === 'media')
+
   registerIpcHandlers()
   createTray()
   recorderWindow = createRecorderWindow()

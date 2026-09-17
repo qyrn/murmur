@@ -6,11 +6,27 @@ let audioContext: AudioContext | null = null
 let analyser: AnalyserNode | null = null
 let levelTimer: number | null = null
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise((resolvePromise, rejectPromise) => {
+    const timer = setTimeout(() => rejectPromise(new Error(`Timeout: ${label} (${ms}ms)`)), ms)
+    promise.then(
+      (value) => {
+        clearTimeout(timer)
+        resolvePromise(value)
+      },
+      (err: unknown) => {
+        clearTimeout(timer)
+        rejectPromise(err)
+      }
+    )
+  })
+}
+
 async function ensureStream(): Promise<MediaStream> {
   if (mediaStream) {
     return mediaStream
   }
-  mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+  mediaStream = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 5000, 'getUserMedia')
   return mediaStream
 }
 
@@ -74,7 +90,7 @@ async function stopRecording(): Promise<void> {
     recorder.onstop = () => resolvePromise()
   })
   recorder.stop()
-  await finished
+  await withTimeout(finished, 5000, 'recorder.onstop').catch(() => undefined)
 
   const blob = new Blob(chunks, { type: 'audio/webm' })
   const buffer = await blob.arrayBuffer()
@@ -84,7 +100,10 @@ async function stopRecording(): Promise<void> {
 
 window.recorderApi.onToggle((action) => {
   if (action === 'start') {
-    void startRecording()
+    startRecording().catch((err: unknown) => {
+      const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
+      window.recorderApi.sendRecordingError(message)
+    })
   } else {
     void stopRecording()
   }

@@ -10,6 +10,9 @@ const recorderApi = {
   },
   sendAudioLevel: (level: number): void => {
     ipcRenderer.send(IpcChannel.AudioLevel, level)
+  },
+  sendRecordingError: (message: string): void => {
+    ipcRenderer.send(IpcChannel.RecordingError, message)
   }
 }
 
