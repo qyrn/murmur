@@ -11,7 +11,7 @@ const engineRoot = app.isPackaged
   ? join(process.resourcesPath, 'whisper-engine')
   : join(__dirname, '../../whisper-engine')
 
-const serverBinary = join(engineRoot, 'whisper.cpp/build/bin/Release/whisper-server.exe')
+const serverBinary = join(engineRoot, 'whisper.cpp/build/bin/whisper-server.exe')
 
 function modelPath(model: WhisperModel): string {
   return join(engineRoot, `models/ggml-${model}.bin`)
