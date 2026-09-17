@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import type { DictationSettings, DictionaryEntry } from '../shared/types'
 
 const defaultSettings: DictationSettings = {
-  hotkey: 'Control+Alt+Space',
+  hotkey: 'Control+Space',
   model: 'large-v3-turbo',
   autoPaste: true,
   microphoneDeviceId: null

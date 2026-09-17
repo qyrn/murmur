@@ -22,6 +22,8 @@ export const IpcChannel = {
   ToggleDictation: 'dictation:toggle',
   StateChanged: 'dictation:state-changed',
   RecordingStopped: 'recorder:recording-stopped',
+  AudioLevel: 'recorder:audio-level',
+  OverlayState: 'overlay:state',
   GetSettings: 'settings:get',
   SetSettings: 'settings:set',
   GetDictionary: 'dictionary:get',

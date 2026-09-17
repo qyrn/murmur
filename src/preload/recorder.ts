@@ -7,6 +7,9 @@ const recorderApi = {
   },
   sendRecordingStopped: (audio: ArrayBuffer): void => {
     ipcRenderer.send(IpcChannel.RecordingStopped, audio)
+  },
+  sendAudioLevel: (level: number): void => {
+    ipcRenderer.send(IpcChannel.AudioLevel, level)
   }
 }
 

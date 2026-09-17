@@ -36,7 +36,7 @@ Ce script clone whisper.cpp dans `whisper-engine/whisper.cpp` et le compile avec
 pnpm dev
 ```
 
-L'application tourne dans la barre système. Le raccourci par défaut (`Ctrl+Alt+Espace`) démarre puis arrête l'enregistrement ; le texte transcrit est collé automatiquement dans l'application active.
+L'application tourne dans la barre système. Le raccourci par défaut (`Ctrl+Espace`) démarre puis arrête l'enregistrement ; le texte transcrit est collé automatiquement dans l'application active. Une pastille flottante façon Superwhisper apparaît en bas de l'écran pendant l'enregistrement et la transcription.
 
 ## Réglages
 

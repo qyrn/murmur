@@ -1,4 +1,4 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, systemPreferences } from 'electron'
+import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, systemPreferences, screen } from 'electron'
 import { join } from 'node:path'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
@@ -10,8 +10,11 @@ import { IpcChannel, type AppState, type DictationSettings } from '../shared/typ
 let tray: Tray | null = null
 let recorderWindow: BrowserWindow | null = null
 let settingsWindow: BrowserWindow | null = null
+let overlayWindow: BrowserWindow | null = null
 let appState: AppState = 'idle'
 let settings: DictationSettings = loadSettings()
+
+const overlayVisibleStates: ReadonlySet<AppState> = new Set(['recording', 'transcribing', 'loading-model', 'error'])
 
 const trayIconFor: Record<AppState, string> = {
   idle: 'idle.png',
@@ -29,6 +32,12 @@ function setAppState(state: AppState): void {
   appState = state
   tray?.setImage(nativeImage.createFromPath(trayIconPath(state)))
   tray?.setToolTip(`Dictée : ${state}`)
+  overlayWindow?.webContents.send(IpcChannel.OverlayState, state)
+  if (overlayVisibleStates.has(state)) {
+    overlayWindow?.showInactive()
+  } else {
+    overlayWindow?.hide()
+  }
 }
 
 function createRecorderWindow(): BrowserWindow {
@@ -43,6 +52,41 @@ function createRecorderWindow(): BrowserWindow {
     win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/recorder/index.html`)
   } else {
     win.loadFile(join(__dirname, '../renderer/recorder/index.html'))
+  }
+  return win
+}
+
+function createOverlayWindow(): BrowserWindow {
+  const width = 220
+  const height = 64
+  const { workArea } = screen.getPrimaryDisplay()
+
+  const win = new BrowserWindow({
+    width,
+    height,
+    x: Math.round(workArea.x + (workArea.width - width) / 2),
+    y: Math.round(workArea.y + workArea.height - height - 64),
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    resizable: false,
+    movable: false,
+    hasShadow: false,
+    focusable: false,
+    show: false,
+    webPreferences: {
+      preload: join(__dirname, '../preload/overlay.js'),
+      sandbox: false
+    }
+  })
+  win.setAlwaysOnTop(true, 'screen-saver')
+  win.setIgnoreMouseEvents(true)
+  if (process.env['ELECTRON_RENDERER_URL']) {
+    win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/overlay/index.html`)
+  } else {
+    win.loadFile(join(__dirname, '../renderer/overlay/index.html'))
   }
   return win
 }
@@ -138,6 +182,9 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)
   })
+  ipcMain.on(IpcChannel.AudioLevel, (_event, level: number) => {
+    overlayWindow?.webContents.send(IpcChannel.AudioLevel, level)
+  })
 }
 
 function createTray(): void {
@@ -157,6 +204,7 @@ app.whenReady().then(async () => {
   registerIpcHandlers()
   createTray()
   recorderWindow = createRecorderWindow()
+  overlayWindow = createOverlayWindow()
   registerHotkey()
   try {
     await ensureWhisperServer(settings.model)
