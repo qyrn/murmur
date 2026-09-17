@@ -6,7 +6,8 @@ const settingsApi = {
   getSettings: (): Promise<DictationSettings> => ipcRenderer.invoke(IpcChannel.GetSettings),
   setSettings: (settings: DictationSettings): Promise<void> => ipcRenderer.invoke(IpcChannel.SetSettings, settings),
   getDictionary: (): Promise<DictionaryEntry[]> => ipcRenderer.invoke(IpcChannel.GetDictionary),
-  setDictionary: (entries: DictionaryEntry[]): Promise<void> => ipcRenderer.invoke(IpcChannel.SetDictionary, entries)
+  setDictionary: (entries: DictionaryEntry[]): Promise<void> => ipcRenderer.invoke(IpcChannel.SetDictionary, entries),
+  isPackaged: (): Promise<boolean> => ipcRenderer.invoke(IpcChannel.IsPackaged)
 }
 
 contextBridge.exposeInMainWorld('settingsApi', settingsApi)

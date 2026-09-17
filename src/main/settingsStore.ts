@@ -7,7 +7,12 @@ const defaultSettings: DictationSettings = {
   hotkey: 'Control+Space',
   model: 'large-v3-turbo',
   autoPaste: true,
-  microphoneDeviceId: null
+  microphoneDeviceId: null,
+  launchAtStartup: false,
+  startMinimized: false,
+  overlayPosition: 'bottom-center',
+  accentColor: '#e0a248',
+  showWaveform: true
 }
 
 const defaultDictionary: DictionaryEntry[] = [

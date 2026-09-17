@@ -3,69 +3,120 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Réglages — Dictée</title>
+    <title>Réglages — murmur</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
-    <header class="app-header">
-      <div class="app-header__mark" aria-hidden="true"></div>
-      <div>
-        <h1>Dictée</h1>
-        <p class="app-header__subtitle">Reconnaissance vocale locale, français + anglais</p>
-      </div>
-    </header>
-
-    <main>
-      <section class="panel" aria-labelledby="section-hotkey">
-        <h2 id="section-hotkey">Déclenchement</h2>
-        <div class="field">
-          <label for="hotkey">Raccourci clavier</label>
-          <input id="hotkey" type="text" placeholder="Control+Space" spellcheck="false" />
-          <p class="field__hint">Un appui démarre l'enregistrement, un second l'arrête.</p>
+    <div class="app-shell">
+      <nav class="sidebar">
+        <div class="sidebar__brand">
+          <div class="sidebar__mark" aria-hidden="true"></div>
+          <span>murmur</span>
         </div>
-        <div class="field field--row">
-          <label for="auto-paste">Coller automatiquement le résultat</label>
-          <input id="auto-paste" type="checkbox" />
-        </div>
-      </section>
+        <ul class="nav-list" role="tablist">
+          <li class="nav-item is-active" data-section="general" role="tab">Général</li>
+          <li class="nav-item" data-section="microphone" role="tab">Microphone</li>
+          <li class="nav-item" data-section="model" role="tab">Modèle</li>
+          <li class="nav-item" data-section="dictionary" role="tab">Dictionnaire</li>
+          <li class="nav-item" data-section="appearance" role="tab">Apparence</li>
+          <li class="nav-item" data-section="about" role="tab">À propos</li>
+        </ul>
+      </nav>
 
-      <section class="panel" aria-labelledby="section-microphone">
-        <h2 id="section-microphone">Microphone</h2>
-        <div class="field">
-          <label for="microphone">Périphérique</label>
-          <select id="microphone">
-            <option value="">Périphérique par défaut du système</option>
-          </select>
-          <p class="field__hint">
-            Utile si un micro Bluetooth fait planter ton casque (bascule vers le profil mains-libres) : choisis ici un
-            autre micro pour l'éviter.
-          </p>
-        </div>
-        <button id="detect-microphones" type="button" class="button button--ghost">
-          Détecter les micros disponibles
-        </button>
-        <p id="microphone-status" class="field__hint"></p>
-      </section>
+      <main class="content">
+        <section id="section-general" class="pane is-active">
+          <h2>Général</h2>
+          <div class="field">
+            <label for="hotkey">Raccourci clavier</label>
+            <input id="hotkey" type="text" placeholder="Control+Space" spellcheck="false" />
+            <p class="field__hint">Un appui démarre l'enregistrement, un second l'arrête.</p>
+          </div>
+          <label class="toggle-row">
+            <span>Coller automatiquement le résultat</span>
+            <span class="toggle">
+              <input id="auto-paste" type="checkbox" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </span>
+          </label>
+          <label class="toggle-row">
+            <span>Lancer au démarrage de Windows</span>
+            <span class="toggle">
+              <input id="launch-at-startup" type="checkbox" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </span>
+          </label>
+          <p id="launch-at-startup-hint" class="field__hint"></p>
+        </section>
 
-      <section class="panel" aria-labelledby="section-model">
-        <h2 id="section-model">Modèle de transcription</h2>
-        <div class="field">
-          <label for="model">Modèle Whisper</label>
-          <select id="model">
-            <option value="large-v3-turbo">large-v3-turbo — rapide (par défaut)</option>
-            <option value="large-v3">large-v3 — précision maximale</option>
-          </select>
-          <p class="field__hint">Le changement de modèle prend effet à la prochaine dictée.</p>
-        </div>
-      </section>
+        <section id="section-microphone" class="pane">
+          <h2>Microphone</h2>
+          <div class="field">
+            <label for="microphone">Périphérique</label>
+            <select id="microphone">
+              <option value="">Périphérique par défaut du système</option>
+            </select>
+            <p class="field__hint">
+              Utile si un micro Bluetooth fait planter ton casque (bascule vers le profil mains-libres) : choisis ici
+              un autre micro pour l'éviter.
+            </p>
+          </div>
+          <button id="detect-microphones" type="button" class="button button--ghost">
+            Détecter les micros disponibles
+          </button>
+          <p id="microphone-status" class="field__hint"></p>
+        </section>
 
-      <section class="panel" aria-labelledby="section-dictionary">
-        <h2 id="section-dictionary">Dictionnaire personnel</h2>
-        <p class="field__hint">Termes techniques, noms propres et mots anglais que la dictée doit reconnaître tels quels.</p>
-        <div id="dictionary-list" class="dictionary-list"></div>
-        <button id="add-term" type="button" class="button button--ghost">Ajouter un terme</button>
-      </section>
-    </main>
+        <section id="section-model" class="pane">
+          <h2>Modèle</h2>
+          <div class="field">
+            <label for="model">Modèle Whisper</label>
+            <select id="model">
+              <option value="large-v3-turbo">large-v3-turbo — rapide (par défaut)</option>
+              <option value="large-v3">large-v3 — précision maximale</option>
+            </select>
+            <p class="field__hint">Le changement de modèle prend effet à la prochaine dictée.</p>
+          </div>
+        </section>
+
+        <section id="section-dictionary" class="pane">
+          <h2>Dictionnaire</h2>
+          <p class="field__hint">Termes techniques, noms propres et mots anglais que la dictée doit reconnaître tels quels.</p>
+          <div id="dictionary-list" class="dictionary-list"></div>
+          <button id="add-term" type="button" class="button button--ghost">Ajouter un terme</button>
+        </section>
+
+        <section id="section-appearance" class="pane">
+          <h2>Apparence</h2>
+          <div class="field">
+            <label for="overlay-position">Position de la pastille</label>
+            <select id="overlay-position">
+              <option value="bottom-center">Bas — centre</option>
+              <option value="bottom-left">Bas — gauche</option>
+              <option value="bottom-right">Bas — droite</option>
+              <option value="top-center">Haut — centre</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Couleur d'accent</label>
+            <div id="accent-swatches" class="swatches"></div>
+          </div>
+          <label class="toggle-row">
+            <span>Afficher la forme d'onde</span>
+            <span class="toggle">
+              <input id="show-waveform" type="checkbox" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </span>
+          </label>
+        </section>
+
+        <section id="section-about" class="pane">
+          <h2>À propos</h2>
+          <p class="about-name">murmur</p>
+          <p class="field__hint">Dictée vocale privée et locale, pour le français mêlé d'anglais.</p>
+          <p class="field__hint">Transcription : whisper.cpp (modèles ggml de OpenAI Whisper), accélérée par CUDA.</p>
+        </section>
+      </main>
+    </div>
 
     <footer class="app-footer">
       <span id="save-status" class="save-status" role="status"></span>

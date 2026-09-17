@@ -5,7 +5,7 @@ import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
-import { IpcChannel, type AppState, type DictationSettings } from '../shared/types'
+import { IpcChannel, type AppState, type DictationSettings, type OverlayPosition } from '../shared/types'
 
 process.on('uncaughtException', (err) => {
   console.error('[debug] uncaughtException', err)
@@ -48,7 +48,7 @@ function setAppState(state: AppState): void {
   console.log(`[debug] setAppState(${state})`)
   appState = state
   tray?.setImage(nativeImage.createFromPath(trayIconPath(state)))
-  tray?.setToolTip(`Dictée : ${state}`)
+  tray?.setToolTip(`murmur : ${state}`)
   overlayWindow?.webContents.send(IpcChannel.OverlayState, state)
   if (overlayVisibleStates.has(state)) {
     overlayWindow?.showInactive()
@@ -79,16 +79,44 @@ function createRecorderWindow(): BrowserWindow {
   return win
 }
 
-function createOverlayWindow(): BrowserWindow {
-  const width = 220
-  const height = 64
+const OVERLAY_WIDTH = 220
+const OVERLAY_HEIGHT = 64
+const OVERLAY_MARGIN = 64
+
+function overlayCoords(position: OverlayPosition): { x: number; y: number } {
   const { workArea } = screen.getPrimaryDisplay()
+  const centerX = Math.round(workArea.x + (workArea.width - OVERLAY_WIDTH) / 2)
+  switch (position) {
+    case 'bottom-left':
+      return { x: workArea.x + OVERLAY_MARGIN, y: workArea.y + workArea.height - OVERLAY_HEIGHT - OVERLAY_MARGIN }
+    case 'bottom-right':
+      return {
+        x: workArea.x + workArea.width - OVERLAY_WIDTH - OVERLAY_MARGIN,
+        y: workArea.y + workArea.height - OVERLAY_HEIGHT - OVERLAY_MARGIN
+      }
+    case 'top-center':
+      return { x: centerX, y: workArea.y + OVERLAY_MARGIN }
+    case 'bottom-center':
+    default:
+      return { x: centerX, y: workArea.y + workArea.height - OVERLAY_HEIGHT - OVERLAY_MARGIN }
+  }
+}
+
+function pushOverlayConfig(): void {
+  overlayWindow?.webContents.send(IpcChannel.OverlayConfig, {
+    accentColor: settings.accentColor,
+    showWaveform: settings.showWaveform
+  })
+}
+
+function createOverlayWindow(): BrowserWindow {
+  const { x, y } = overlayCoords(settings.overlayPosition)
 
   const win = new BrowserWindow({
-    width,
-    height,
-    x: Math.round(workArea.x + (workArea.width - width) / 2),
-    y: Math.round(workArea.y + workArea.height - height - 64),
+    width: OVERLAY_WIDTH,
+    height: OVERLAY_HEIGHT,
+    x,
+    y,
     frame: false,
     transparent: true,
     backgroundColor: '#00000000',
@@ -106,6 +134,7 @@ function createOverlayWindow(): BrowserWindow {
   })
   win.setAlwaysOnTop(true, 'screen-saver')
   win.setIgnoreMouseEvents(true)
+  win.webContents.on('did-finish-load', () => pushOverlayConfig())
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/overlay/index.html`)
   } else {
@@ -122,7 +151,7 @@ function createSettingsWindow(): void {
   settingsWindow = new BrowserWindow({
     width: 640,
     height: 720,
-    title: 'Réglages — Dictée',
+    title: 'Réglages — murmur',
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/settings.mjs'),
@@ -204,12 +233,27 @@ function registerHotkey(): void {
   }
 }
 
+function applyLaunchAtStartup(): void {
+  if (!app.isPackaged) {
+    return
+  }
+  app.setLoginItemSettings({ openAtLogin: settings.launchAtStartup })
+}
+
 function registerIpcHandlers(): void {
+  ipcMain.handle(IpcChannel.IsPackaged, () => app.isPackaged)
   ipcMain.handle(IpcChannel.GetSettings, () => settings)
   ipcMain.handle(IpcChannel.SetSettings, (_event, next: DictationSettings) => {
+    const previousPosition = settings.overlayPosition
     settings = next
     saveSettings(settings)
     registerHotkey()
+    applyLaunchAtStartup()
+    pushOverlayConfig()
+    if (overlayWindow && next.overlayPosition !== previousPosition) {
+      const { x, y } = overlayCoords(next.overlayPosition)
+      overlayWindow.setPosition(x, y)
+    }
   })
   ipcMain.handle(IpcChannel.GetDictionary, () => loadDictionary())
   ipcMain.handle(IpcChannel.SetDictionary, (_event, entries) => {
@@ -237,7 +281,7 @@ function createTray(): void {
     { label: 'Quitter', click: () => app.quit() }
   ])
   tray.setContextMenu(menu)
-  tray.setToolTip('Dictée : idle')
+  tray.setToolTip('murmur : idle')
   tray.on('click', () => void toggleDictation())
 }
 
@@ -252,6 +296,7 @@ app.whenReady().then(async () => {
   recorderWindow = createRecorderWindow()
   overlayWindow = createOverlayWindow()
   registerHotkey()
+  applyLaunchAtStartup()
   try {
     await ensureWhisperServer(settings.model)
   } catch (err) {

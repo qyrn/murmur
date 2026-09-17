@@ -12,6 +12,11 @@ window.overlayApi.onStateChange((state) => {
   }
 })
 
+window.overlayApi.onConfig((config) => {
+  document.documentElement.style.setProperty('--accent', config.accentColor)
+  document.documentElement.classList.toggle('waveform-off', !config.showWaveform)
+})
+
 window.overlayApi.onAudioLevel((level) => {
   const clamped = Math.max(0, Math.min(1, level))
   bars.forEach((bar, index) => {

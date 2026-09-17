@@ -8,6 +8,7 @@ declare global {
     setSettings: (settings: DictationSettings) => Promise<void>
     getDictionary: () => Promise<DictionaryEntry[]>
     setDictionary: (entries: DictionaryEntry[]) => Promise<void>
+    isPackaged: () => Promise<boolean>
   }
 
   interface Window {

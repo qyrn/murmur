@@ -1,7 +1,7 @@
 {
-  "name": "dictee-perso",
+  "name": "murmur",
   "version": "1.0.0",
-  "description": "Dictee privee en francais avec transcription locale (whisper.cpp + CUDA)",
+  "description": "Dictee vocale privee et locale pour le francais (whisper.cpp + CUDA)",
   "private": true,
   "type": "module",
   "main": "./out/main/index.js",
