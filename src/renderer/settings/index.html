@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Réglages — Dictée</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="app-header__mark" aria-hidden="true"></div>
+      <div>
+        <h1>Dictée</h1>
+        <p class="app-header__subtitle">Reconnaissance vocale locale, français + anglais</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" aria-labelledby="section-hotkey">
+        <h2 id="section-hotkey">Déclenchement</h2>
+        <div class="field">
+          <label for="hotkey">Raccourci clavier</label>
+          <input id="hotkey" type="text" placeholder="Control+Alt+Space" spellcheck="false" />
+          <p class="field__hint">Un appui démarre l'enregistrement, un second l'arrête.</p>
+        </div>
+        <div class="field field--row">
+          <label for="auto-paste">Coller automatiquement le résultat</label>
+          <input id="auto-paste" type="checkbox" />
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="section-model">
+        <h2 id="section-model">Modèle de transcription</h2>
+        <div class="field">
+          <label for="model">Modèle Whisper</label>
+          <select id="model">
+            <option value="large-v3-turbo">large-v3-turbo — rapide (par défaut)</option>
+            <option value="large-v3">large-v3 — précision maximale</option>
+          </select>
+          <p class="field__hint">Le changement de modèle prend effet à la prochaine dictée.</p>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="section-dictionary">
+        <h2 id="section-dictionary">Dictionnaire personnel</h2>
+        <p class="field__hint">Termes techniques, noms propres et mots anglais que la dictée doit reconnaître tels quels.</p>
+        <div id="dictionary-list" class="dictionary-list"></div>
+        <button id="add-term" type="button" class="button button--ghost">Ajouter un terme</button>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <span id="save-status" class="save-status" role="status"></span>
+      <button id="save" type="button" class="button button--primary">Enregistrer</button>
+    </footer>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

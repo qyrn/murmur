@@ -1,0 +1,7 @@
+node_modules
+out
+dist
+whisper-engine
+.env
+*.log
+*.tsbuildinfo
