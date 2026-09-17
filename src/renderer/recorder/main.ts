@@ -1,4 +1,4 @@
-let mediaStream: MediaStream | null = null
+let activeStream: MediaStream | null = null
 let recorder: MediaRecorder | null = null
 let chunks: Blob[] = []
 
@@ -22,12 +22,15 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
   })
 }
 
-async function ensureStream(): Promise<MediaStream> {
-  if (mediaStream) {
-    return mediaStream
-  }
-  mediaStream = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 5000, 'getUserMedia')
-  return mediaStream
+async function openMicrophone(): Promise<MediaStream> {
+  const stream = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 5000, 'getUserMedia')
+  activeStream = stream
+  return stream
+}
+
+function closeMicrophone(): void {
+  activeStream?.getTracks().forEach((track) => track.stop())
+  activeStream = null
 }
 
 function startLevelMetering(stream: MediaStream): void {
@@ -49,7 +52,8 @@ function startLevelMetering(stream: MediaStream): void {
       sumSquares += normalized * normalized
     }
     const rms = Math.sqrt(sumSquares / data.length)
-    window.recorderApi.sendAudioLevel(Math.min(1, rms * 4))
+    const perceptual = Math.pow(rms, 0.5) * 2.2
+    window.recorderApi.sendAudioLevel(Math.min(1, perceptual))
   }, 50)
 }
 
@@ -64,7 +68,7 @@ function stopLevelMetering(): void {
 }
 
 async function startRecording(): Promise<void> {
-  const stream = await ensureStream()
+  const stream = await openMicrophone()
   chunks = []
   recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' })
   recorder.ondataavailable = (event) => {
@@ -91,6 +95,7 @@ async function stopRecording(): Promise<void> {
   })
   recorder.stop()
   await withTimeout(finished, 5000, 'recorder.onstop').catch(() => undefined)
+  closeMicrophone()
 
   const blob = new Blob(chunks, { type: 'audio/webm' })
   const buffer = await blob.arrayBuffer()
@@ -98,9 +103,14 @@ async function stopRecording(): Promise<void> {
   recorder = null
 }
 
+window.addEventListener('beforeunload', () => {
+  closeMicrophone()
+})
+
 window.recorderApi.onToggle((action) => {
   if (action === 'start') {
     startRecording().catch((err: unknown) => {
+      closeMicrophone()
       const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
       window.recorderApi.sendRecordingError(message)
     })
