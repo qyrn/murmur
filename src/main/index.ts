@@ -40,8 +40,16 @@ const trayIconFor: Record<AppState, string> = {
   error: 'error.png'
 }
 
+function resourcesRoot(): string {
+  return app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources')
+}
+
 function trayIconPath(state: AppState): string {
-  return join(__dirname, '../../resources/tray', trayIconFor[state])
+  return join(resourcesRoot(), 'tray', trayIconFor[state])
+}
+
+function appIconPath(): string {
+  return join(resourcesRoot(), 'icon.ico')
 }
 
 function setAppState(state: AppState): void {
@@ -152,7 +160,7 @@ function createSettingsWindow(): void {
     width: 640,
     height: 720,
     title: 'Réglages — murmur',
-    icon: join(__dirname, '../../resources/icon.ico'),
+    icon: appIconPath(),
     autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/settings.mjs'),

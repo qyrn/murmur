@@ -44,6 +44,10 @@
     "files": ["out/**/*"],
     "extraResources": [
       {
+        "from": "resources/icon.ico",
+        "to": "icon.ico"
+      },
+      {
         "from": "whisper-engine/whisper.cpp/build/bin",
         "to": "whisper-engine/whisper.cpp/build/bin"
       },
