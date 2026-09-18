@@ -8,11 +8,11 @@ interface InferenceResponse {
 
 function normalizeFrenchTypography(text: string): string {
   return text
+    .replace(/\s+/g, ' ')
     .trim()
     .replace(/\s+([?!;:])/g, ' $1')
     .replace(/«\s*/g, '« ')
     .replace(/\s*»/g, ' »')
-    .replace(/[ \t]{2,}/g, ' ')
 }
 
 export async function transcribeAudio(wavBuffer: ArrayBuffer, dictionary: DictionaryEntry[]): Promise<string> {
