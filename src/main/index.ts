@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, session } from 'electron'
 import { join } from 'node:path'
 import { initFileLogging } from './logger'
+import { checkForUpdatesAtLaunch, checkForUpdatesManually } from './updater'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
@@ -290,6 +291,7 @@ function createTray(): void {
     { label: 'Démarrer / arrêter la dictée', click: () => void toggleDictation() },
     { label: 'Réglages', click: () => createSettingsWindow() },
     { label: 'Réessayer de démarrer le moteur', click: () => void startWhisperServerAtLaunch() },
+    { label: 'Vérifier les mises à jour', click: () => checkForUpdatesManually() },
     { type: 'separator' },
     { label: 'Quitter', click: () => app.quit() }
   ])
@@ -330,6 +332,7 @@ app.whenReady().then(async () => {
   overlayWindow = createOverlayWindow()
   registerHotkey()
   applyLaunchAtStartup()
+  checkForUpdatesAtLaunch()
   await startWhisperServerAtLaunch()
 })
 

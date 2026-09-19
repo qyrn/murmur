@@ -35,7 +35,8 @@
     "vite": "^7.3.6"
   },
   "dependencies": {
-    "@nut-tree-fork/nut-js": "^4.2.6"
+    "@nut-tree-fork/nut-js": "^4.2.6",
+    "electron-updater": "^6.8.9"
   },
   "build": {
     "appId": "dev.qyrn.murmur",
@@ -43,7 +44,9 @@
     "directories": {
       "output": "dist"
     },
-    "files": ["out/**/*"],
+    "files": [
+      "out/**/*"
+    ],
     "extraResources": [
       {
         "from": "resources/icon.ico",
@@ -60,17 +63,27 @@
       {
         "from": "whisper-engine/models",
         "to": "whisper-engine/models",
-        "filter": ["ggml-large-v3-turbo.bin"]
+        "filter": [
+          "ggml-large-v3-turbo.bin"
+        ]
       }
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "resources/icon.ico"
     },
     "nsis": {
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "murmur"
+      "shortcutName": "murmur",
+      "differentialPackage": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "qyrn",
+      "repo": "murmur"
     }
   }
 }
