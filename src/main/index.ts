@@ -1,11 +1,14 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, session } from 'electron'
 import { join } from 'node:path'
+import { initFileLogging } from './logger'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
 import { IpcChannel, type AppState, type DictationSettings, type OverlayPosition } from '../shared/types'
+
+initFileLogging()
 
 process.on('uncaughtException', (err) => {
   console.error('[debug] uncaughtException', err)
@@ -286,12 +289,33 @@ function createTray(): void {
   const menu = Menu.buildFromTemplate([
     { label: 'Démarrer / arrêter la dictée', click: () => void toggleDictation() },
     { label: 'Réglages', click: () => createSettingsWindow() },
+    { label: 'Réessayer de démarrer le moteur', click: () => void startWhisperServerAtLaunch() },
     { type: 'separator' },
     { label: 'Quitter', click: () => app.quit() }
   ])
   tray.setContextMenu(menu)
   tray.setToolTip('murmur : idle')
   tray.on('click', () => void toggleDictation())
+}
+
+const STARTUP_RETRY_DELAYS_MS = [2000, 4000, 8000, 15000]
+
+async function startWhisperServerAtLaunch(): Promise<void> {
+  for (let attempt = 0; attempt <= STARTUP_RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      await ensureWhisperServer(settings.model)
+      console.log(`[debug] whisper-server prêt (tentative ${attempt + 1})`)
+      return
+    } catch (err) {
+      console.error(`[debug] échec démarrage whisper-server (tentative ${attempt + 1}) :`, err)
+      const delay = STARTUP_RETRY_DELAYS_MS[attempt]
+      if (delay === undefined) {
+        console.error('[debug] abandon après plusieurs tentatives, réessai à la prochaine dictée ou manuellement')
+        return
+      }
+      await new Promise((resolvePromise) => setTimeout(resolvePromise, delay))
+    }
+  }
 }
 
 app.whenReady().then(async () => {
@@ -306,11 +330,7 @@ app.whenReady().then(async () => {
   overlayWindow = createOverlayWindow()
   registerHotkey()
   applyLaunchAtStartup()
-  try {
-    await ensureWhisperServer(settings.model)
-  } catch (err) {
-    console.error('Impossible de démarrer whisper-server au lancement :', err)
-  }
+  await startWhisperServerAtLaunch()
 })
 
 app.on('window-all-closed', () => {

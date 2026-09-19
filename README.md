@@ -94,6 +94,7 @@ Produit `dist/murmur Setup <version>.exe`. Seul `large-v3-turbo` est embarqué d
 - **`whisper-server introuvable`** : relancer `./scripts/setup-whisper.ps1`.
 - **`Modèle introuvable`** : relancer `./scripts/download-model.ps1`.
 - **Rien ne se colle dans l'app active** : certaines applications élevées (lancées en administrateur) refusent les entrées clavier simulées par un process non élevé ; éviter de dicter dans ce cas, ou lancer l'app en administrateur.
+- **Ça ne fonctionne pas juste après le démarrage automatique de Windows** : le pilote GPU n'est pas toujours prêt immédiatement au boot. L'app retente plusieurs fois automatiquement (jusqu'à ~30s) ; sinon, clic droit sur l'icône de la barre système → "Réessayer de démarrer le moteur". En cas de souci persistant, le journal est dans `%APPDATA%\murmur\logs\main.log`.
 
 ## Licence
 
