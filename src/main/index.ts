@@ -63,6 +63,11 @@ function setAppState(state: AppState): void {
   tray?.setToolTip(`murmur : ${state}`)
   overlayWindow?.webContents.send(IpcChannel.OverlayState, state)
   if (overlayVisibleStates.has(state)) {
+    if (overlayWindow) {
+      const { x, y } = overlayCoords(settings.overlayPosition)
+      overlayWindow.setPosition(x, y)
+      overlayWindow.setAlwaysOnTop(true, 'screen-saver')
+    }
     overlayWindow?.showInactive()
   } else {
     overlayWindow?.hide()
