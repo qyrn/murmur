@@ -1,6 +1,6 @@
 {
   "name": "murmur",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Dictee vocale privee et locale pour le francais (whisper.cpp + CUDA)",
   "author": "qyrn",
   "license": "MIT",

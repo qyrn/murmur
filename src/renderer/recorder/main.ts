@@ -25,12 +25,25 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 async function openMicrophone(): Promise<MediaStream> {
   const deviceId = await window.recorderApi.getMicrophoneDeviceId()
-  const audioConstraints: MediaTrackConstraints | boolean = deviceId ? { deviceId: { exact: deviceId } } : true
-  const stream = await withTimeout(
-    navigator.mediaDevices.getUserMedia({ audio: audioConstraints }),
-    5000,
-    'getUserMedia'
-  )
+
+  if (deviceId) {
+    try {
+      const stream = await withTimeout(
+        navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: deviceId } } }),
+        5000,
+        'getUserMedia'
+      )
+      activeStream = stream
+      return stream
+    } catch (err) {
+      // Le périphérique choisi dans les réglages n'existe plus (ex : casque Bluetooth
+      // qui a changé d'identifiant après une reconnexion) : on retombe sur le micro
+      // par défaut plutôt que d'échouer la dictée.
+      console.warn('microphone choisi introuvable, repli sur le micro par defaut', err)
+    }
+  }
+
+  const stream = await withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), 5000, 'getUserMedia')
   activeStream = stream
   return stream
 }
