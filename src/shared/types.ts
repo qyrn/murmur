@@ -19,6 +19,14 @@ export interface DictionaryEntry {
   note: string
 }
 
+export interface DictationRecord {
+  timestamp: number
+  wordCount: number
+  durationMs: number
+  appName: string
+  text: string
+}
+
 export type AppState = 'idle' | 'loading-model' | 'recording' | 'transcribing' | 'error'
 
 export interface OverlayConfig {
@@ -37,5 +45,10 @@ export const IpcChannel = {
   SetSettings: 'settings:set',
   GetDictionary: 'dictionary:get',
   SetDictionary: 'dictionary:set',
-  IsPackaged: 'app:is-packaged'
+  IsPackaged: 'app:is-packaged',
+  GetAppVersion: 'app:get-version',
+  GetHistory: 'history:get',
+  WindowMinimize: 'window:minimize',
+  WindowToggleMaximize: 'window:toggle-maximize',
+  WindowClose: 'window:close'
 } as const

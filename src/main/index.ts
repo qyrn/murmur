@@ -1,8 +1,10 @@
 import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, session } from 'electron'
 import { join } from 'node:path'
+import { activeWindow } from 'get-windows'
 import { initFileLogging } from './logger'
 import { checkForUpdatesAtLaunch, checkForUpdatesManually } from './updater'
 import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
+import { loadHistory, appendHistoryEntry } from './historyStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
@@ -33,6 +35,7 @@ let settingsWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
 let appState: AppState = 'idle'
 let settings: DictationSettings = loadSettings()
+let recordingStartedAt: number | null = null
 
 const overlayVisibleStates: ReadonlySet<AppState> = new Set(['recording', 'transcribing', 'loading-model', 'error'])
 
@@ -166,11 +169,15 @@ function createSettingsWindow(): void {
     return
   }
   settingsWindow = new BrowserWindow({
-    width: 640,
-    height: 720,
+    width: 700,
+    height: 780,
     title: 'Réglages — murmur',
     icon: appIconPath(),
-    autoHideMenuBar: true,
+    frame: false,
+    transparent: true,
+    backgroundColor: '#00000000',
+    hasShadow: false,
+    resizable: false,
     webPreferences: {
       preload: join(__dirname, '../preload/settings.mjs'),
       sandbox: false
@@ -192,6 +199,7 @@ async function toggleDictation(): Promise<void> {
       setAppState('loading-model')
       await ensureWhisperServer(settings.model)
       setAppState('recording')
+      recordingStartedAt = Date.now()
       recorderWindow?.webContents.send(IpcChannel.ToggleDictation, 'start')
     } catch (err) {
       console.error(err)
@@ -216,11 +224,28 @@ async function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
     const dictionary = loadDictionary()
     const text = await transcribeAudio(wavArrayBuffer, dictionary)
     console.log(`[debug] texte transcrit (${text.length} caractères) : ${JSON.stringify(text)}`)
-    if (settings.autoPaste && text.trim().length > 0) {
+
+    const trimmed = text.trim()
+    if (trimmed.length > 0) {
+      const durationMs = recordingStartedAt ? Date.now() - recordingStartedAt : 0
+      const appName = await activeWindow()
+        .then((win) => win?.owner.name ?? 'Inconnue')
+        .catch(() => 'Inconnue')
+      appendHistoryEntry({
+        timestamp: Date.now(),
+        wordCount: trimmed.split(/\s+/).filter(Boolean).length,
+        durationMs,
+        appName,
+        text: trimmed
+      })
+    }
+    recordingStartedAt = null
+
+    if (settings.autoPaste && trimmed.length > 0) {
       await pasteIntoActiveWindow(text)
       console.log('[debug] pasteIntoActiveWindow termine')
     } else {
-      console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', text.trim().length === 0)
+      console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', trimmed.length === 0)
     }
   } catch (err) {
     console.error(err)
@@ -260,6 +285,7 @@ function applyLaunchAtStartup(): void {
 
 function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.IsPackaged, () => app.isPackaged)
+  ipcMain.handle(IpcChannel.GetAppVersion, () => app.getVersion())
   ipcMain.handle(IpcChannel.GetSettings, () => settings)
   ipcMain.handle(IpcChannel.SetSettings, (_event, next: DictationSettings) => {
     const previousPosition = settings.overlayPosition
@@ -288,6 +314,19 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.AudioLevel, (_event, level: number) => {
     overlayWindow?.webContents.send(IpcChannel.AudioLevel, level)
   })
+  ipcMain.handle(IpcChannel.GetHistory, () => loadHistory())
+  ipcMain.on(IpcChannel.WindowMinimize, () => settingsWindow?.minimize())
+  ipcMain.on(IpcChannel.WindowToggleMaximize, () => {
+    if (!settingsWindow) {
+      return
+    }
+    if (settingsWindow.isMaximized()) {
+      settingsWindow.unmaximize()
+    } else {
+      settingsWindow.maximize()
+    }
+  })
+  ipcMain.on(IpcChannel.WindowClose, () => settingsWindow?.close())
 }
 
 function createTray(): void {
@@ -338,6 +377,22 @@ app.whenReady().then(async () => {
   registerHotkey()
   applyLaunchAtStartup()
   checkForUpdatesAtLaunch()
+  if (process.env['MURMUR_SCREENSHOT']) {
+    createSettingsWindow()
+    const simulateRecording = (): void => {
+      setAppState('recording')
+      let fakeLevel = 0
+      setInterval(() => {
+        fakeLevel = fakeLevel > 0.6 ? 0.15 : fakeLevel + 0.25
+        overlayWindow?.webContents.send(IpcChannel.AudioLevel, fakeLevel)
+      }, 90)
+    }
+    if (overlayWindow?.webContents.isLoadingMainFrame()) {
+      overlayWindow.webContents.once('did-finish-load', simulateRecording)
+    } else {
+      simulateRecording()
+    }
+  }
   await startWhisperServerAtLaunch()
 })
 

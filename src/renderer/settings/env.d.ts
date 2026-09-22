@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { DictationSettings, DictionaryEntry } from '../../shared/types'
+import type { DictationRecord, DictationSettings, DictionaryEntry } from '../../shared/types'
 
 declare global {
   interface SettingsApi {
@@ -9,6 +9,11 @@ declare global {
     getDictionary: () => Promise<DictionaryEntry[]>
     setDictionary: (entries: DictionaryEntry[]) => Promise<void>
     isPackaged: () => Promise<boolean>
+    getAppVersion: () => Promise<string>
+    getHistory: () => Promise<DictationRecord[]>
+    minimizeWindow: () => void
+    toggleMaximizeWindow: () => void
+    closeWindow: () => void
   }
 
   interface Window {

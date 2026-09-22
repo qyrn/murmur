@@ -1,119 +1,133 @@
 <div align="center">
 
-<img src="resources/icon.png" width="96" height="96" alt="Logo murmur" />
+<img src="resources/icon.png" width="110" height="110" alt="Icône murmur" />
 
-# murmur 🎙️
+# murmur
 
-**Dictée vocale privée, 100% locale, pensée pour le français mêlé d'anglais.**
+Dictée vocale privée, 100% locale, pour le français mêlé d'anglais.
 
-[![License: MIT](https://img.shields.io/badge/licence-MIT-e0a248.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/plateforme-Windows-e0a248.svg)](#-installer-lapplication)
-[![Powered by whisper.cpp](https://img.shields.io/badge/moteur-whisper.cpp%20%2B%20CUDA-e0a248.svg)](https://github.com/ggml-org/whisper.cpp)
+[![Télécharger](https://img.shields.io/github/v/release/qyrn/murmur?label=t%C3%A9l%C3%A9charger&color=e0a248&style=for-the-badge)](../../releases/latest)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-3a3632?style=for-the-badge)](../../releases/latest)
+
+<br />
+
+<img src="docs/screenshot-settings.png" width="600" alt="murmur ouvert sur l'écran d'accueil, avec les statistiques d'usage" />
 
 </div>
 
-Aucun audio ne quitte la machine 🔒 : la transcription tourne entièrement sur le GPU local via [whisper.cpp](https://github.com/ggml-org/whisper.cpp) compilé avec CUDA. Un raccourci clavier, tu parles, le texte se colle tout seul là où tu travailles — y compris quand tu glisses un mot anglais au milieu d'une phrase en français.
+<br />
+
+J'en avais marre de taper au clavier pour tout, surtout quand un mot anglais se glisse au milieu d'une phrase en français et que le correcteur automatique s'en mêle. Alors j'ai fait murmur : un raccourci clavier, tu parles, le texte atterrit tout seul là où tu travailles. Whisper tourne sur ton propre GPU, rien ne sort de la machine.
+
+## 🎙️ Ce qu'il y a dedans
+
+Appuie sur `Ctrl+Espace`, une pastille apparaît en bas de l'écran et t'écoute. Réappuie, elle transcrit et colle le texte à l'endroit où était ton curseur.
 
 <div align="center">
-<img src="docs/screenshot-settings.png" width="640" alt="Fenêtre de réglages de murmur" />
+<img src="docs/screenshot-overlay.png" width="360" alt="La pastille flottante pendant une dictée, avec la forme d'onde et l'état Écoute" />
 </div>
 
-## ✨ Fonctionnalités
+Elle reconnaît le français avec des mots anglais mêlés dedans sans les traduire (« il faut update le README avant la deadline »), et tu peux lui apprendre tes propres termes techniques ou noms propres dans le dictionnaire.
 
-- 🔒 **100% local** — rien n'est envoyé sur internet, la transcription tourne sur ton GPU
-- 🇫🇷🇬🇧 **Français + anglais** — reconnaît les mots et expressions anglais insérés naturellement, sans les traduire
-- 📖 **Dictionnaire personnel** — ajoute tes termes techniques, noms propres, jargon, corrigés automatiquement
-- 📋 **Collage automatique** — le texte transcrit atterrit directement dans l'application active
-- 🌊 **Pastille flottante** — retour visuel en temps réel, position et couleur personnalisables
-- 🎛️ **Réglages complets** — raccourci, modèle, micro, apparence, démarrage automatique
-- 🔄 **Mises à jour automatiques** — l'app se met à jour toute seule, sans réinstallation manuelle
+## 🏠 Un écran d'accueil qui compte pour toi
 
-## 📥 Installer l'application
-
-1. Télécharger le dernier installeur depuis la [page Releases](../../releases/latest) : `murmur Setup x.x.x.exe`
-2. Le lancer — le raccourci se crée automatiquement sur le Bureau et dans le menu Démarrer
-3. C'est tout. L'app tourne dans la barre système, prête pour `Ctrl+Espace`
-
-> ⚠️ Nécessite un GPU NVIDIA (CUDA) — testé sur RTX 5070 Laptop, architecture Blackwell.
-
-Le modèle `large-v3-turbo` est fourni directement dans l'installeur ; le modèle `large-v3` (plus précis, plus lourd) se télécharge en option depuis les Réglages.
-
-## 🎬 Utilisation
-
-`Ctrl+Espace` démarre puis arrête l'enregistrement ; le texte transcrit est collé automatiquement dans l'application active. Une pastille flottante apparaît en bas de l'écran pendant l'enregistrement et la transcription.
+Vitesse moyenne, mots dictés cette semaine, apps utilisées, temps gagné par rapport à la frappe au clavier : tout ça se calcule tout seul, à partir de l'historique de tes dictées, stocké en local.
 
 ## ⚙️ Réglages
 
-Clic droit sur l'icône de la barre système → **Réglages** ouvre une fenêtre à sections :
+Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, position et couleur de la pastille, historique des dictées.
 
-| Section | Contenu |
-|---|---|
-| 🏠 Général | raccourci clavier, collage automatique, lancement au démarrage de Windows |
-| 🎤 Microphone | choix du périphérique (utile pour éviter un casque Bluetooth qui bascule en profil mains-libres dès qu'une app demande le micro) |
-| 🧠 Modèle | `large-v3-turbo` rapide ou `large-v3` précis |
-| 📖 Dictionnaire | termes techniques, noms propres, mots anglais à reconnaître tels quels |
-| 🎨 Apparence | position de la pastille, couleur d'accent, affichage ou non de la forme d'onde |
+## 📥 Installation
 
-Le dictionnaire influence à la fois la reconnaissance (il est injecté dans le prompt donné à Whisper) et la correction post-transcription (casse, orthographe).
+1. Télécharge `murmur Setup x.x.x.exe` sur la [page des versions](../../releases/latest).
+2. Double-clique dessus. Le raccourci se crée tout seul sur le Bureau et dans le menu Démarrer.
+3. C'est parti : l'icône apparaît dans la barre système, prête pour `Ctrl+Espace`.
 
-## 🛠️ Dépannage
+> [!NOTE]
+> La première fois, Windows va sûrement afficher une fenêtre bleue « Windows a protégé votre ordinateur ». Il fait ça avec toutes les petites apps qu'il ne connaît pas encore. Clique sur « Informations complémentaires », puis sur « Exécuter quand même ».
 
-- **Le micro ne fonctionne pas** : vérifier dans Windows, Paramètres → Confidentialité et sécurité → Microphone, que l'accès micro est autorisé pour les applications de bureau.
-- **Le casque Bluetooth se déconnecte pendant la dictée** : c'est Windows qui bascule le casque du profil audio (A2DP) vers le profil mains-libres (HFP) dès qu'une app demande le micro ; certains casques gèrent mal cette bascule. Choisir un autre micro dans Réglages → Microphone si besoin.
-- **Ça ne fonctionne pas juste après le démarrage automatique de Windows** : le pilote GPU n'est pas toujours prêt immédiatement au boot. L'app retente plusieurs fois automatiquement (jusqu'à ~30s) ; sinon, clic droit sur l'icône de la barre système → "Réessayer de démarrer le moteur". En cas de souci persistant, le journal est dans `%APPDATA%\murmur\logs\main.log`.
-- **Rien ne se colle dans l'app active** : certaines applications élevées (lancées en administrateur) refusent les entrées clavier simulées par un process non élevé ; éviter de dicter dans ce cas, ou lancer l'app en administrateur.
+> [!WARNING]
+> Il faut un GPU NVIDIA (CUDA). Sans ça, la transcription ne pourra pas tourner.
+
+## 🔄 Les mises à jour
+
+Quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement.
+
+## 🔒 Et tes données ?
+
+Tout tourne en local : l'audio ne quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque. Aucun serveur à moi entre les deux.
+
+## 🛠️ Si ça coince
+
+<details>
+<summary><b>Le micro ne fonctionne pas</b></summary>
+<br />
+Vérifie dans Windows, Paramètres → Confidentialité et sécurité → Microphone, que l'accès micro est autorisé pour les applications de bureau.
+</details>
+
+<details>
+<summary><b>Mon casque Bluetooth se déconnecte pendant la dictée</b></summary>
+<br />
+C'est Windows qui bascule le casque du profil audio (A2DP) vers le profil mains-libres (HFP) dès qu'une app demande le micro ; certains casques gèrent mal cette bascule. Choisis un autre micro dans Réglages → Microphone si besoin.
+</details>
+
+<details>
+<summary><b>Ça ne fonctionne pas juste après le démarrage automatique de Windows</b></summary>
+<br />
+Le pilote GPU n'est pas toujours prêt immédiatement au boot. murmur retente plusieurs fois automatiquement (jusqu'à ~30 secondes) ; sinon, clic droit sur l'icône de la barre système → « Réessayer de démarrer le moteur ». Le journal est dans <code>%APPDATA%\murmur\logs\main.log</code>.
+</details>
+
+<details>
+<summary><b>Rien ne se colle dans l'app active</b></summary>
+<br />
+Certaines applications lancées en administrateur refusent les entrées clavier simulées par un process non élevé. Évite de dicter dans ce cas, ou lance murmur en administrateur.
+</details>
+
+<details>
+<summary><b>L'icône a disparu de la barre système</b></summary>
+<br />
+Elle se cache sûrement derrière la flèche <code>^</code> à côté de l'horloge. Fais-la glisser dans la barre des tâches pour la garder visible.
+</details>
 
 ---
 
-## 👩‍💻 Pour les développeurs
-
 <details>
-<summary>Compiler et lancer murmur depuis les sources</summary>
+<summary>🛠️ <b>Pour bidouiller le code</b></summary>
+
+<br />
+
+Electron, electron-vite et TypeScript strict. Node 24+ et pnpm 10+.
 
 ### Prérequis
 
-- Windows avec un GPU NVIDIA (testé sur RTX 5070 Laptop / architecture Blackwell)
-- Node 24+, pnpm 10+, git, ffmpeg (accessibles dans le PATH)
-- CUDA Toolkit 12.8+
-- CMake et Visual Studio 2022 Build Tools (workload "Desktop development with C++")
+- GPU NVIDIA, CUDA Toolkit 12.8+
+- CMake et Visual Studio 2022 Build Tools (workload « Desktop development with C++ »)
+- git, ffmpeg accessibles dans le PATH
 
-### Installation
+### Commandes
 
 ```bash
 pnpm install
-```
-
-### Compiler le moteur de transcription
-
-```powershell
-./scripts/setup-whisper.ps1
-```
-
-Ce script clone whisper.cpp dans `whisper-engine/whisper.cpp` et le compile avec l'accélération CUDA (`whisper-server.exe`).
-
-### Télécharger les modèles
-
-```powershell
+./scripts/setup-whisper.ps1              # clone + compile whisper.cpp avec CUDA
 ./scripts/download-model.ps1 -Model large-v3-turbo
-./scripts/download-model.ps1 -Model large-v3
+pnpm dev                                  # mode développement
+pnpm typecheck
+pnpm lint
+pnpm build:win                            # génère l'installeur dans dist/
 ```
 
-### Lancer en mode développement
+Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique ne verra pas la nouvelle version.
 
-```bash
-pnpm dev
-```
-
-### Compiler l'installeur
-
-```bash
-pnpm build:win
-```
-
-Produit `dist/murmur Setup <version>.exe`. Seul `large-v3-turbo` est embarqué dans l'installeur (limite pratique de taille de NSIS) ; `large-v3` reste un téléchargement optionnel.
-
-- **`whisper-server introuvable`** : relancer `./scripts/setup-whisper.ps1`.
-- **`Modèle introuvable`** : relancer `./scripts/download-model.ps1`.
+| Dossier                  | Rôle                                                                 |
+| ------------------------ | --------------------------------------------------------------------- |
+| `src/main`                | tray, raccourci global, moteur whisper-server, historique, mises à jour |
+| `src/preload`             | ponts entre l'app et chaque fenêtre                                   |
+| `src/renderer/recorder`   | capture micro (fenêtre cachée)                                        |
+| `src/renderer/overlay`    | la pastille flottante                                                 |
+| `src/renderer/settings`   | la fenêtre Réglages                                                   |
+| `src/shared`               | types et canaux IPC partagés                                          |
+| `whisper-engine`           | whisper.cpp compilé + modèles (généré, pas versionné)                 |
+| `scripts`                   | compilation de whisper.cpp, génération des icônes, téléchargement des modèles |
 
 </details>
 

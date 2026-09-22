@@ -1,6 +1,6 @@
 {
   "name": "murmur",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Dictee vocale privee et locale pour le francais (whisper.cpp + CUDA)",
   "author": "qyrn",
   "license": "MIT",
@@ -19,7 +19,8 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
-      "electron"
+      "electron",
+      "get-windows"
     ]
   },
   "devDependencies": {
@@ -36,7 +37,8 @@
   },
   "dependencies": {
     "@nut-tree-fork/nut-js": "^4.2.6",
-    "electron-updater": "^6.8.9"
+    "electron-updater": "^6.8.9",
+    "get-windows": "^9.3.0"
   },
   "build": {
     "appId": "dev.qyrn.murmur",
