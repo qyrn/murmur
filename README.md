@@ -29,13 +29,23 @@ Appuie sur `Ctrl+Espace`, une pastille apparaît en bas de l'écran et t'écoute
 
 Elle reconnaît le français avec des mots anglais mêlés dedans sans les traduire (« il faut update le README avant la deadline »), et tu peux lui apprendre tes propres termes techniques ou noms propres dans le dictionnaire.
 
+## 🔀 Raccourcis vocaux
+
+Tu dis un mot, murmur en écrit un autre. Dis « slash usage » et tu obtiens `/usage`, pratique pour taper une commande sans toucher au clavier. Ça sert aussi à rattraper les mots que Whisper comprend toujours de travers : s'il entend « cloud code » à chaque fois, un raccourci le remplace par « Claude Code ».
+
+<div align="center">
+<img src="docs/screenshot-shortcuts.png" width="600" alt="L'onglet Raccourcis des réglages, avec la liste des mots dits et de ce qui est écrit à la place" />
+</div>
+
+Tout se gère dans Réglages → **Raccourcis** : une ligne par raccourci, ce que tu dis à gauche, ce qui s'écrit à droite.
+
 ## 🏠 Un écran d'accueil qui compte pour toi
 
 Vitesse moyenne, mots dictés cette semaine, apps utilisées, temps gagné par rapport à la frappe au clavier : tout ça se calcule tout seul, à partir de l'historique de tes dictées, stocké en local.
 
 ## ⚙️ Réglages
 
-Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, position et couleur de la pastille, historique des dictées.
+Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, raccourcis vocaux, position et couleur de la pastille, historique des dictées.
 
 ## 📥 Installation
 
@@ -117,6 +127,8 @@ pnpm build:win                            # génère l'installeur dans dist/
 ```
 
 Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique ne verra pas la nouvelle version.
+
+Pour refaire les captures du README : `MURMUR_SCREENSHOT=docs pnpm dev`. L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, pastille) sans ouvrir le micro, enregistre les PNG dans le dossier donné, puis se ferme.
 
 | Dossier                  | Rôle                                                                 |
 | ------------------------ | --------------------------------------------------------------------- |
