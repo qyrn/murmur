@@ -80,6 +80,7 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "murmur",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
       "differentialPackage": true
     },
     "publish": {

@@ -49,7 +49,7 @@ Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la
 
 ## 📥 Installation
 
-1. Télécharge `murmur Setup x.x.x.exe` sur la [page des versions](../../releases/latest).
+1. Télécharge `murmur-Setup-x.x.x.exe` sur la [page des versions](../../releases/latest).
 2. Double-clique dessus. Le raccourci se crée tout seul sur le Bureau et dans le menu Démarrer.
 3. C'est parti : l'icône apparaît dans la barre système, prête pour `Ctrl+Espace`.
 
