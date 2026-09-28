@@ -1,7 +1,7 @@
 import { app } from 'electron'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
-import type { DictationSettings, DictionaryEntry } from '../shared/types'
+import type { DictationSettings, DictionaryEntry, VoiceShortcut } from '../shared/types'
 
 const defaultSettings: DictationSettings = {
   hotkey: 'Control+Space',
@@ -23,6 +23,8 @@ const defaultDictionary: DictionaryEntry[] = [
   { term: 'overlay', note: 'terme anglais courant, ne pas traduire' }
 ]
 
+const defaultShortcuts: VoiceShortcut[] = [{ spoken: 'slash', written: '/' }]
+
 function userDataDir(): string {
   const dir = app.getPath('userData')
   if (!existsSync(dir)) {
@@ -37,6 +39,10 @@ function settingsPath(): string {
 
 function dictionaryPath(): string {
   return join(userDataDir(), 'dictionary.json')
+}
+
+function shortcutsPath(): string {
+  return join(userDataDir(), 'shortcuts.json')
 }
 
 export function loadSettings(): DictationSettings {
@@ -65,4 +71,17 @@ export function loadDictionary(): DictionaryEntry[] {
 
 export function saveDictionary(entries: DictionaryEntry[]): void {
   writeFileSync(dictionaryPath(), JSON.stringify(entries, null, 2), 'utf-8')
+}
+
+export function loadShortcuts(): VoiceShortcut[] {
+  const path = shortcutsPath()
+  if (!existsSync(path)) {
+    writeFileSync(path, JSON.stringify(defaultShortcuts, null, 2), 'utf-8')
+    return defaultShortcuts
+  }
+  return JSON.parse(readFileSync(path, 'utf-8')) as VoiceShortcut[]
+}
+
+export function saveShortcuts(shortcuts: VoiceShortcut[]): void {
+  writeFileSync(shortcutsPath(), JSON.stringify(shortcuts, null, 2), 'utf-8')
 }

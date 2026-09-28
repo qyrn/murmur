@@ -3,7 +3,14 @@ import { join } from 'node:path'
 import { activeWindow } from 'get-windows'
 import { initFileLogging } from './logger'
 import { checkForUpdatesAtLaunch, checkForUpdatesManually } from './updater'
-import { loadSettings, saveSettings, loadDictionary, saveDictionary } from './settingsStore'
+import {
+  loadSettings,
+  saveSettings,
+  loadDictionary,
+  saveDictionary,
+  loadShortcuts,
+  saveShortcuts
+} from './settingsStore'
 import { loadHistory, appendHistoryEntry } from './historyStore'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
@@ -221,8 +228,7 @@ async function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
     const wav = await convertToWav16kMono(Buffer.from(audio))
     console.log(`[debug] wav converti : ${wav.byteLength} octets`)
     const wavArrayBuffer = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer
-    const dictionary = loadDictionary()
-    const text = await transcribeAudio(wavArrayBuffer, dictionary)
+    const text = await transcribeAudio(wavArrayBuffer, loadDictionary(), loadShortcuts())
     console.log(`[debug] texte transcrit (${text.length} caractères) : ${JSON.stringify(text)}`)
 
     const trimmed = text.trim()
@@ -302,6 +308,10 @@ function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.GetDictionary, () => loadDictionary())
   ipcMain.handle(IpcChannel.SetDictionary, (_event, entries) => {
     saveDictionary(entries)
+  })
+  ipcMain.handle(IpcChannel.GetShortcuts, () => loadShortcuts())
+  ipcMain.handle(IpcChannel.SetShortcuts, (_event, shortcuts) => {
+    saveShortcuts(shortcuts)
   })
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)

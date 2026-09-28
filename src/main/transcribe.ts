@@ -1,6 +1,6 @@
 import { serverBaseUrl } from './whisperServer'
-import { applyDictionaryCorrections, buildInitialPrompt } from './dictionary'
-import type { DictionaryEntry } from '../shared/types'
+import { applyDictionaryCorrections, applyVoiceShortcuts, buildInitialPrompt } from './dictionary'
+import type { DictionaryEntry, VoiceShortcut } from '../shared/types'
 
 interface InferenceResponse {
   text: string
@@ -15,12 +15,16 @@ function normalizeFrenchTypography(text: string): string {
     .replace(/\s*»/g, ' »')
 }
 
-export async function transcribeAudio(wavBuffer: ArrayBuffer, dictionary: DictionaryEntry[]): Promise<string> {
+export async function transcribeAudio(
+  wavBuffer: ArrayBuffer,
+  dictionary: DictionaryEntry[],
+  shortcuts: VoiceShortcut[]
+): Promise<string> {
   const form = new FormData()
   form.append('file', new Blob([wavBuffer], { type: 'audio/wav' }), 'dictation.wav')
   form.append('temperature', '0.0')
   form.append('temperature_inc', '0.2')
-  form.append('prompt', buildInitialPrompt(dictionary))
+  form.append('prompt', buildInitialPrompt(dictionary, shortcuts))
   form.append('carry_initial_prompt', 'true')
   form.append('response_format', 'json')
 
@@ -34,6 +38,7 @@ export async function transcribeAudio(wavBuffer: ArrayBuffer, dictionary: Dictio
   }
 
   const result = (await response.json()) as InferenceResponse
-  const withCorrections = applyDictionaryCorrections(result.text, dictionary)
+  const withShortcuts = applyVoiceShortcuts(result.text, shortcuts)
+  const withCorrections = applyDictionaryCorrections(withShortcuts, dictionary)
   return normalizeFrenchTypography(withCorrections)
 }

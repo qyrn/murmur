@@ -1,12 +1,14 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannel } from '../shared/types'
-import type { DictationRecord, DictationSettings, DictionaryEntry } from '../shared/types'
+import type { DictationRecord, DictationSettings, DictionaryEntry, VoiceShortcut } from '../shared/types'
 
 const settingsApi = {
   getSettings: (): Promise<DictationSettings> => ipcRenderer.invoke(IpcChannel.GetSettings),
   setSettings: (settings: DictationSettings): Promise<void> => ipcRenderer.invoke(IpcChannel.SetSettings, settings),
   getDictionary: (): Promise<DictionaryEntry[]> => ipcRenderer.invoke(IpcChannel.GetDictionary),
   setDictionary: (entries: DictionaryEntry[]): Promise<void> => ipcRenderer.invoke(IpcChannel.SetDictionary, entries),
+  getShortcuts: (): Promise<VoiceShortcut[]> => ipcRenderer.invoke(IpcChannel.GetShortcuts),
+  setShortcuts: (shortcuts: VoiceShortcut[]): Promise<void> => ipcRenderer.invoke(IpcChannel.SetShortcuts, shortcuts),
   isPackaged: (): Promise<boolean> => ipcRenderer.invoke(IpcChannel.IsPackaged),
   getAppVersion: (): Promise<string> => ipcRenderer.invoke(IpcChannel.GetAppVersion),
   getHistory: (): Promise<DictationRecord[]> => ipcRenderer.invoke(IpcChannel.GetHistory),

@@ -43,6 +43,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16" /><path d="M20.001 19A2 2 0 0022 17V5a2 2 0 00-1.999-2L16 3.002A5 5 0 0012 5a5 5 0 00-4-2H4a2 2 0 00-2 2v12a2 2 0 001.999 2H8a5 5 0 014 2 5 5 0 014-2z" /></svg>
             <span>Dictionnaire</span>
           </li>
+          <li class="nav-item" data-section="shortcuts" role="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4a1 1 0 0 1 1-1" /><path d="M15 10a1 1 0 0 1-1-1" /><path d="M21 4a1 1 0 0 0-1-1" /><path d="M21 9a1 1 0 0 1-1 1" /><path d="m3 7 3 3 3-3" /><path d="M6 10V5a2 2 0 0 1 2-2h2" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg>
+            <span>Raccourcis</span>
+          </li>
           <li class="nav-item" data-section="appearance" role="tab">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
             <span>Apparence</span>
@@ -141,6 +145,16 @@
           <p class="field__hint">Termes techniques, noms propres et mots anglais que la dictée doit reconnaître tels quels.</p>
           <div id="dictionary-list" class="dictionary-list"></div>
           <button id="add-term" type="button" class="button button--ghost">Ajouter un terme</button>
+        </section>
+
+        <section id="section-shortcuts" class="pane">
+          <h2>Raccourcis vocaux</h2>
+          <p class="field__hint">
+            Quand tu dis le mot de gauche, murmur écrit ce qu'il y a à droite. Pratique pour les symboles ("slash" donne
+            "/") ou pour les mots que Whisper comprend de travers.
+          </p>
+          <div id="shortcut-list" class="dictionary-list"></div>
+          <button id="add-shortcut" type="button" class="button button--ghost">Ajouter un raccourci</button>
         </section>
 
         <section id="section-appearance" class="pane">

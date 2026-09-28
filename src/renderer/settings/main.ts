@@ -1,4 +1,11 @@
-import type { DictationRecord, DictationSettings, DictionaryEntry, OverlayPosition, WhisperModel } from '../../shared/types'
+import type {
+  DictationRecord,
+  DictationSettings,
+  DictionaryEntry,
+  OverlayPosition,
+  VoiceShortcut,
+  WhisperModel
+} from '../../shared/types'
 
 const ACCENT_PRESETS = ['#e0a248', '#5b9279', '#c1653f', '#5b7a9d', '#8a8578']
 
@@ -36,6 +43,8 @@ const accentSwatchesContainer = document.querySelector<HTMLDivElement>('#accent-
 const showWaveformInput = document.querySelector<HTMLInputElement>('#show-waveform')!
 const dictionaryList = document.querySelector<HTMLDivElement>('#dictionary-list')!
 const addTermButton = document.querySelector<HTMLButtonElement>('#add-term')!
+const shortcutList = document.querySelector<HTMLDivElement>('#shortcut-list')!
+const addShortcutButton = document.querySelector<HTMLButtonElement>('#add-shortcut')!
 const saveButton = document.querySelector<HTMLButtonElement>('#save')!
 const saveStatus = document.querySelector<HTMLSpanElement>('#save-status')!
 const statWpm = document.querySelector<HTMLSpanElement>('#stat-wpm')!
@@ -135,6 +144,7 @@ function renderHistory(history: DictationRecord[]): void {
 }
 
 let dictionary: DictionaryEntry[] = []
+let shortcuts: VoiceShortcut[] = []
 let storedMicrophoneDeviceId: string | null = null
 let selectedAccentColor = ACCENT_PRESETS[0]!
 
@@ -195,6 +205,51 @@ addTermButton.addEventListener('click', () => {
   renderDictionary()
 })
 
+function renderShortcuts(): void {
+  shortcutList.innerHTML = ''
+  shortcuts.forEach((shortcut, index) => {
+    const row = document.createElement('div')
+    row.className = 'shortcut-row'
+
+    const spokenInput = document.createElement('input')
+    spokenInput.type = 'text'
+    spokenInput.placeholder = 'ce que tu dis'
+    spokenInput.value = shortcut.spoken
+    spokenInput.addEventListener('input', () => {
+      shortcuts[index] = { ...shortcuts[index]!, spoken: spokenInput.value }
+    })
+
+    const arrow = document.createElement('span')
+    arrow.className = 'shortcut-row__arrow'
+    arrow.textContent = '→'
+
+    const writtenInput = document.createElement('input')
+    writtenInput.type = 'text'
+    writtenInput.placeholder = 'ce qui est écrit'
+    writtenInput.value = shortcut.written
+    writtenInput.addEventListener('input', () => {
+      shortcuts[index] = { ...shortcuts[index]!, written: writtenInput.value }
+    })
+
+    const removeButton = document.createElement('button')
+    removeButton.type = 'button'
+    removeButton.className = 'button button--remove'
+    removeButton.textContent = 'Retirer'
+    removeButton.addEventListener('click', () => {
+      shortcuts.splice(index, 1)
+      renderShortcuts()
+    })
+
+    row.append(spokenInput, arrow, writtenInput, removeButton)
+    shortcutList.append(row)
+  })
+}
+
+addShortcutButton.addEventListener('click', () => {
+  shortcuts.push({ spoken: '', written: '' })
+  renderShortcuts()
+})
+
 async function populateMicrophoneList(): Promise<void> {
   const devices = await navigator.mediaDevices.enumerateDevices()
   const inputs = devices.filter((device) => device.kind === 'audioinput')
@@ -250,6 +305,9 @@ saveButton.addEventListener('click', () => {
     }
     await window.settingsApi.setSettings(settings)
     await window.settingsApi.setDictionary(dictionary.filter((entry) => entry.term.trim().length > 0))
+    await window.settingsApi.setShortcuts(
+      shortcuts.filter((shortcut) => shortcut.spoken.trim().length > 0 && shortcut.written.length > 0)
+    )
     saveStatus.textContent = 'Enregistré'
     setTimeout(() => {
       saveStatus.textContent = ''
@@ -278,6 +336,8 @@ async function init(): Promise<void> {
 
   dictionary = await window.settingsApi.getDictionary()
   renderDictionary()
+  shortcuts = await window.settingsApi.getShortcuts()
+  renderShortcuts()
 
   homeHotkey.textContent = settings.hotkey
   const history = await window.settingsApi.getHistory()

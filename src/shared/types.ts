@@ -19,6 +19,11 @@ export interface DictionaryEntry {
   note: string
 }
 
+export interface VoiceShortcut {
+  spoken: string
+  written: string
+}
+
 export interface DictationRecord {
   timestamp: number
   wordCount: number
@@ -45,6 +50,8 @@ export const IpcChannel = {
   SetSettings: 'settings:set',
   GetDictionary: 'dictionary:get',
   SetDictionary: 'dictionary:set',
+  GetShortcuts: 'shortcuts:get',
+  SetShortcuts: 'shortcuts:set',
   IsPackaged: 'app:is-packaged',
   GetAppVersion: 'app:get-version',
   GetHistory: 'history:get',
