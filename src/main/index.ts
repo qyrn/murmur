@@ -12,6 +12,7 @@ import {
   saveShortcuts
 } from './settingsStore'
 import { loadHistory, appendHistoryEntry } from './historyStore'
+import { captureScreenshots } from './screenshotMode'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
@@ -387,28 +388,24 @@ app.whenReady().then(async () => {
   registerHotkey()
   applyLaunchAtStartup()
   checkForUpdatesAtLaunch()
-  if (process.env['MURMUR_SCREENSHOT']) {
+  const screenshotDir = process.env['MURMUR_SCREENSHOT']
+  if (screenshotDir) {
     createSettingsWindow()
-    const simulateRecording = (): void => {
-      setAppState('recording')
-      let fakeLevel = 0
-      setInterval(() => {
-        fakeLevel = fakeLevel > 0.6 ? 0.15 : fakeLevel + 0.25
-        overlayWindow?.webContents.send(IpcChannel.AudioLevel, fakeLevel)
-      }, 90)
-    }
-    if (overlayWindow?.webContents.isLoadingMainFrame()) {
-      overlayWindow.webContents.once('did-finish-load', simulateRecording)
-    } else {
-      simulateRecording()
+    if (settingsWindow && overlayWindow) {
+      await captureScreenshots({
+        outputDir: screenshotDir,
+        settingsWindow,
+        overlayWindow,
+        showRecordingOverlay: () => setAppState('recording')
+      })
+      app.quit()
+      return
     }
   }
   await startWhisperServerAtLaunch()
 })
 
-app.on('window-all-closed', () => {
-  // l'app reste active dans la barre système
-})
+app.on('window-all-closed', () => undefined)
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll()
