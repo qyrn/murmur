@@ -8,9 +8,9 @@
   "type": "module",
   "main": "./out/main/index.js",
   "scripts": {
-    "dev": "electron-vite dev",
-    "build": "electron-vite build",
-    "build:win": "electron-vite build && electron-builder --win",
+    "dev": "node scripts/copy-vad-assets.mjs && electron-vite dev",
+    "build": "node scripts/copy-vad-assets.mjs && electron-vite build",
+    "build:win": "pnpm build && electron-builder --win",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "lint": "eslint ."
@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@ricky0123/vad-web": "^0.0.31",
     "@types/node": "^22.20.3",
     "electron": "^44.4.1",
     "electron-builder": "^26.15.3",

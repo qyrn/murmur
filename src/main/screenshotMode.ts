@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { BrowserWindow } from 'electron'
+import { app, type BrowserWindow } from 'electron'
 import { IpcChannel } from '../shared/types'
 
 interface ScreenshotTargets {
@@ -12,8 +12,15 @@ interface ScreenshotTargets {
 
 const SETTINGS_SECTIONS: ReadonlyArray<{ section: string; fileName: string }> = [
   { section: 'home', fileName: 'screenshot-settings.png' },
-  { section: 'shortcuts', fileName: 'screenshot-shortcuts.png' }
+  { section: 'shortcuts', fileName: 'screenshot-shortcuts.png' },
+  { section: 'hands-free', fileName: 'screenshot-hands-free.png' }
 ]
+
+export function prepareScreenshotSwitches(): void {
+  app.commandLine.appendSwitch('use-fake-device-for-media-stream')
+  app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion')
+  app.commandLine.appendSwitch('disable-backgrounding-occluded-windows')
+}
 
 function wait(ms: number): Promise<void> {
   return new Promise((resolvePromise) => setTimeout(resolvePromise, ms))

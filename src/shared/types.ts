@@ -13,6 +13,8 @@ export interface DictationSettings {
   overlayPosition: OverlayPosition
   accentColor: string
   showWaveform: boolean
+  handsFreeEnabled: boolean
+  handsFreeSilenceSeconds: number
 }
 
 export interface DictionaryEntry {
@@ -34,6 +36,20 @@ export interface DictationRecord {
 }
 
 export type AppState = 'idle' | 'loading-model' | 'recording' | 'transcribing' | 'error'
+
+export type HandsFreeMode = 'off' | 'standby'
+
+export interface HandsFreeCommand {
+  mode: HandsFreeMode
+  silenceSeconds: number
+}
+
+export type HandsFreeActivity = 'disabled' | 'paused' | 'standby' | 'hearing' | 'dictating'
+
+export interface HandsFreeStatus {
+  activity: HandsFreeActivity
+  lastHeard: string | null
+}
 
 export interface OverlayConfig {
   accentColor: string
@@ -58,5 +74,13 @@ export const IpcChannel = {
   GetHistory: 'history:get',
   WindowMinimize: 'window:minimize',
   WindowToggleMaximize: 'window:toggle-maximize',
-  WindowClose: 'window:close'
+  WindowClose: 'window:close',
+  HandsFreeMode: 'hands-free:mode',
+  HandsFreeFinish: 'hands-free:finish',
+  HandsFreeCheckWake: 'hands-free:check-wake',
+  HandsFreeCheckStop: 'hands-free:check-stop',
+  HandsFreeHearing: 'hands-free:hearing',
+  HandsFreeAudio: 'hands-free:audio',
+  HandsFreeStatus: 'hands-free:status',
+  GetHandsFreeStatus: 'hands-free:get-status'
 } as const

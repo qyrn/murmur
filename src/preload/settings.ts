@@ -1,6 +1,12 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannel } from '../shared/types'
-import type { DictationRecord, DictationSettings, DictionaryEntry, VoiceShortcut } from '../shared/types'
+import type {
+  DictationRecord,
+  DictationSettings,
+  DictionaryEntry,
+  HandsFreeStatus,
+  VoiceShortcut
+} from '../shared/types'
 
 const settingsApi = {
   getSettings: (): Promise<DictationSettings> => ipcRenderer.invoke(IpcChannel.GetSettings),
@@ -12,6 +18,10 @@ const settingsApi = {
   isPackaged: (): Promise<boolean> => ipcRenderer.invoke(IpcChannel.IsPackaged),
   getAppVersion: (): Promise<string> => ipcRenderer.invoke(IpcChannel.GetAppVersion),
   getHistory: (): Promise<DictationRecord[]> => ipcRenderer.invoke(IpcChannel.GetHistory),
+  getHandsFreeStatus: (): Promise<HandsFreeStatus> => ipcRenderer.invoke(IpcChannel.GetHandsFreeStatus),
+  onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void): void => {
+    ipcRenderer.on(IpcChannel.HandsFreeStatus, (_event, status: HandsFreeStatus) => callback(status))
+  },
   minimizeWindow: (): void => ipcRenderer.send(IpcChannel.WindowMinimize),
   toggleMaximizeWindow: (): void => ipcRenderer.send(IpcChannel.WindowToggleMaximize),
   closeWindow: (): void => ipcRenderer.send(IpcChannel.WindowClose)

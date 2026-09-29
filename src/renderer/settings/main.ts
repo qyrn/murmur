@@ -2,6 +2,8 @@ import type {
   DictationRecord,
   DictationSettings,
   DictionaryEntry,
+  HandsFreeActivity,
+  HandsFreeStatus,
   OverlayPosition,
   VoiceShortcut,
   WhisperModel
@@ -33,6 +35,11 @@ document.querySelector<HTMLButtonElement>('#win-max')!.addEventListener('click',
 const hotkeyInput = document.querySelector<HTMLInputElement>('#hotkey')!
 const autoPasteInput = document.querySelector<HTMLInputElement>('#auto-paste')!
 const disableHotkeyInFullscreenInput = document.querySelector<HTMLInputElement>('#disable-hotkey-fullscreen')!
+const handsFreeEnabledInput = document.querySelector<HTMLInputElement>('#hands-free-enabled')!
+const handsFreeSilenceSelect = document.querySelector<HTMLSelectElement>('#hands-free-silence')!
+const handsFreeStatusBox = document.querySelector<HTMLDivElement>('.listen-status')!
+const handsFreeActivityLabel = document.querySelector<HTMLSpanElement>('#hands-free-activity')!
+const handsFreeLastHeard = document.querySelector<HTMLSpanElement>('#hands-free-last-heard')!
 const launchAtStartupInput = document.querySelector<HTMLInputElement>('#launch-at-startup')!
 const launchAtStartupHint = document.querySelector<HTMLParagraphElement>('#launch-at-startup-hint')!
 const modelSelect = document.querySelector<HTMLSelectElement>('#model')!
@@ -291,6 +298,20 @@ detectMicrophonesButton.addEventListener('click', () => {
   })()
 })
 
+const HANDS_FREE_LABELS: Record<HandsFreeActivity, string> = {
+  disabled: 'Désactivé',
+  paused: 'En pause (jeu en plein écran ou dictée en cours)',
+  standby: 'En veille : dis « murmur start »',
+  hearing: "J'entends quelqu'un parler…",
+  dictating: 'Dictée en cours : dis « murmur stop » pour finir'
+}
+
+function renderHandsFreeStatus(status: HandsFreeStatus): void {
+  handsFreeStatusBox.dataset['activity'] = status.activity
+  handsFreeActivityLabel.textContent = HANDS_FREE_LABELS[status.activity]
+  handsFreeLastHeard.textContent = status.lastHeard ? `Dernière phrase entendue : «\u00a0${status.lastHeard}\u00a0»` : ''
+}
+
 saveButton.addEventListener('click', () => {
   void (async () => {
     const settings: DictationSettings = {
@@ -303,7 +324,9 @@ saveButton.addEventListener('click', () => {
       startMinimized: false,
       overlayPosition: overlayPositionSelect.value as OverlayPosition,
       accentColor: selectedAccentColor,
-      showWaveform: showWaveformInput.checked
+      showWaveform: showWaveformInput.checked,
+      handsFreeEnabled: handsFreeEnabledInput.checked,
+      handsFreeSilenceSeconds: Number(handsFreeSilenceSelect.value)
     }
     await window.settingsApi.setSettings(settings)
     await window.settingsApi.setDictionary(dictionary.filter((entry) => entry.term.trim().length > 0))
@@ -325,6 +348,10 @@ async function init(): Promise<void> {
   modelSelect.value = settings.model
   overlayPositionSelect.value = settings.overlayPosition
   showWaveformInput.checked = settings.showWaveform
+  handsFreeEnabledInput.checked = settings.handsFreeEnabled
+  handsFreeSilenceSelect.value = String(settings.handsFreeSilenceSeconds)
+  renderHandsFreeStatus(await window.settingsApi.getHandsFreeStatus())
+  window.settingsApi.onHandsFreeStatus(renderHandsFreeStatus)
   selectedAccentColor = settings.accentColor
   renderAccentSwatches()
   storedMicrophoneDeviceId = settings.microphoneDeviceId

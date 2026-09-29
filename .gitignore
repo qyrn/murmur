@@ -5,3 +5,4 @@ whisper-engine
 .env
 *.log
 *.tsbuildinfo
+src/renderer/public/vad

@@ -47,6 +47,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4a1 1 0 0 1 1-1" /><path d="M15 10a1 1 0 0 1-1-1" /><path d="M21 4a1 1 0 0 0-1-1" /><path d="M21 9a1 1 0 0 1-1 1" /><path d="m3 7 3 3 3-3" /><path d="M6 10V5a2 2 0 0 1 2-2h2" /><rect x="3" y="14" width="7" height="7" rx="1" /></svg>
             <span>Raccourcis</span>
           </li>
+          <li class="nav-item" data-section="hands-free" role="tab">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 10v3" /><path d="M6 6v11" /><path d="M10 3v18" /><path d="M14 8v7" /><path d="M18 5v13" /><path d="M22 10v3" /></svg>
+            <span>Mains libres</span>
+          </li>
           <li class="nav-item" data-section="appearance" role="tab">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" /></svg>
             <span>Apparence</span>
@@ -162,6 +166,41 @@
           </p>
           <div id="shortcut-list" class="dictionary-list"></div>
           <button id="add-shortcut" type="button" class="button button--ghost">Ajouter un raccourci</button>
+        </section>
+
+        <section id="section-hands-free" class="pane">
+          <h2>Mains libres</h2>
+          <p class="field__hint">
+            Dis «&nbsp;murmur start&nbsp;» pour lancer une dictée sans toucher au clavier, puis «&nbsp;murmur stop&nbsp;» pour la coller. Tu
+            peux enchaîner directement : «&nbsp;murmur start, je voulais te dire…&nbsp;».
+          </p>
+          <label class="toggle-row">
+            <span>Activer le mode mains libres</span>
+            <span class="toggle">
+              <input id="hands-free-enabled" type="checkbox" />
+              <span class="toggle__track"><span class="toggle__thumb"></span></span>
+            </span>
+          </label>
+          <div class="field">
+            <label for="hands-free-silence">Arrêt automatique après un silence de</label>
+            <select id="hands-free-silence">
+              <option value="2">2 secondes</option>
+              <option value="3">3 secondes</option>
+              <option value="5">5 secondes</option>
+              <option value="8">8 secondes</option>
+            </select>
+          </div>
+          <div class="listen-status">
+            <span id="hands-free-dot" class="listen-status__dot" aria-hidden="true"></span>
+            <div class="listen-status__text">
+              <span id="hands-free-activity" class="listen-status__label">Désactivé</span>
+              <span id="hands-free-last-heard" class="listen-status__heard"></span>
+            </div>
+          </div>
+          <p class="field__hint">
+            Le micro reste ouvert tant que c'est activé, mais tout reste sur ta machine. En pause automatiquement pendant
+            un jeu en plein écran.
+          </p>
         </section>
 
         <section id="section-appearance" class="pane">

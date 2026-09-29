@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { IpcChannel } from '../shared/types'
-import type { DictationSettings } from '../shared/types'
+import type { DictationSettings, HandsFreeCommand } from '../shared/types'
 
 const recorderApi = {
   onToggle: (callback: (action: 'start' | 'stop') => void): void => {
@@ -18,6 +18,20 @@ const recorderApi = {
   },
   sendRecordingError: (message: string): void => {
     ipcRenderer.send(IpcChannel.RecordingError, message)
+  },
+  onHandsFreeMode: (callback: (command: HandsFreeCommand) => void): void => {
+    ipcRenderer.on(IpcChannel.HandsFreeMode, (_event, command: HandsFreeCommand) => callback(command))
+  },
+  onHandsFreeFinish: (callback: () => void): void => {
+    ipcRenderer.on(IpcChannel.HandsFreeFinish, () => callback())
+  },
+  checkWakePhrase: (wav: ArrayBuffer): Promise<boolean> => ipcRenderer.invoke(IpcChannel.HandsFreeCheckWake, wav),
+  checkStopPhrase: (wav: ArrayBuffer): Promise<boolean> => ipcRenderer.invoke(IpcChannel.HandsFreeCheckStop, wav),
+  sendHandsFreeHearing: (hearing: boolean): void => {
+    ipcRenderer.send(IpcChannel.HandsFreeHearing, hearing)
+  },
+  sendHandsFreeAudio: (wav: ArrayBuffer): void => {
+    ipcRenderer.send(IpcChannel.HandsFreeAudio, wav)
   }
 }
 

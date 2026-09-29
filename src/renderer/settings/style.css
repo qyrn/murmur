@@ -353,6 +353,66 @@ select:focus {
   color: var(--text-muted);
 }
 
+.listen-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+}
+
+.listen-status__dot {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.5;
+}
+
+.listen-status[data-activity='standby'] .listen-status__dot,
+.listen-status[data-activity='hearing'] .listen-status__dot {
+  background: var(--accent);
+  opacity: 1;
+  animation: listen-pulse 2.4s ease-in-out infinite;
+}
+
+.listen-status[data-activity='hearing'] .listen-status__dot {
+  animation-duration: 0.7s;
+}
+
+.listen-status[data-activity='dictating'] .listen-status__dot {
+  background: var(--danger);
+  opacity: 1;
+}
+
+@keyframes listen-pulse {
+  50% {
+    transform: scale(0.6);
+    opacity: 0.45;
+  }
+}
+
+.listen-status__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.listen-status__label {
+  font-weight: 500;
+}
+
+.listen-status__heard {
+  color: var(--text-muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .button {
   border: 1px solid var(--border);
   background: transparent;

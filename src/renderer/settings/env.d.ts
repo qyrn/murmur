@@ -1,6 +1,12 @@
 /// <reference types="vite/client" />
 
-import type { DictationRecord, DictationSettings, DictionaryEntry, VoiceShortcut } from '../../shared/types'
+import type {
+  DictationRecord,
+  DictationSettings,
+  DictionaryEntry,
+  HandsFreeStatus,
+  VoiceShortcut
+} from '../../shared/types'
 
 declare global {
   interface SettingsApi {
@@ -13,6 +19,8 @@ declare global {
     isPackaged: () => Promise<boolean>
     getAppVersion: () => Promise<string>
     getHistory: () => Promise<DictationRecord[]>
+    getHandsFreeStatus: () => Promise<HandsFreeStatus>
+    onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void) => void
     minimizeWindow: () => void
     toggleMaximizeWindow: () => void
     closeWindow: () => void

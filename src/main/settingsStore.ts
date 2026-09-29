@@ -13,7 +13,9 @@ const defaultSettings: DictationSettings = {
   startMinimized: false,
   overlayPosition: 'bottom-center',
   accentColor: '#e0a248',
-  showWaveform: true
+  showWaveform: true,
+  handsFreeEnabled: false,
+  handsFreeSilenceSeconds: 3
 }
 
 const defaultDictionary: DictionaryEntry[] = [

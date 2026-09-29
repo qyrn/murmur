@@ -12,15 +12,28 @@ import {
   saveShortcuts
 } from './settingsStore'
 import { loadHistory, appendHistoryEntry } from './historyStore'
-import { captureScreenshots } from './screenshotMode'
+import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
-import { transcribeAudio } from './transcribe'
+import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
+import { containsStopPhrase, containsWakePhrase } from './voiceCommands'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
-import { IpcChannel, type AppState, type DictationSettings, type OverlayPosition } from '../shared/types'
+import {
+  IpcChannel,
+  type AppState,
+  type DictationSettings,
+  type HandsFreeActivity,
+  type HandsFreeMode,
+  type HandsFreeStatus,
+  type OverlayPosition
+} from '../shared/types'
 
 initFileLogging()
+
+if (process.env['MURMUR_SCREENSHOT']) {
+  prepareScreenshotSwitches()
+}
 
 process.on('uncaughtException', (err) => {
   console.error('[debug] uncaughtException', err)
@@ -45,6 +58,10 @@ let overlayWindow: BrowserWindow | null = null
 let appState: AppState = 'idle'
 let fullscreenAppActive = false
 let hotkeyRegistered = false
+let handsFreeMode: HandsFreeMode = 'off'
+let handsFreeDictating = false
+let handsFreeHearing = false
+let lastHeardCommand: string | null = null
 let settings: DictationSettings = loadSettings()
 let recordingStartedAt: number | null = null
 
@@ -62,8 +79,13 @@ function resourcesRoot(): string {
   return app.isPackaged ? process.resourcesPath : join(__dirname, '../../resources')
 }
 
-function trayIconPath(state: AppState): string {
-  return join(resourcesRoot(), 'tray', trayIconFor[state])
+function trayIconPath(): string {
+  const fileName = appState === 'idle' && handsFreeMode === 'standby' ? 'listening.png' : trayIconFor[appState]
+  return join(resourcesRoot(), 'tray', fileName)
+}
+
+function refreshTrayIcon(): void {
+  tray?.setImage(nativeImage.createFromPath(trayIconPath()))
 }
 
 function appIconPath(): string {
@@ -76,7 +98,8 @@ function setAppState(state: AppState): void {
   if (state === 'idle') {
     syncHotkeyWithFullscreen()
   }
-  tray?.setImage(nativeImage.createFromPath(trayIconPath(state)))
+  syncHandsFree()
+  refreshTrayIcon()
   tray?.setToolTip(`murmur : ${state}`)
   overlayWindow?.webContents.send(IpcChannel.OverlayState, state)
   if (overlayVisibleStates.has(state)) {
@@ -105,6 +128,12 @@ function createRecorderWindow(): BrowserWindow {
   win.webContents.on('render-process-gone', (_event, details) => {
     console.error('[recorder] render-process-gone', details)
   })
+  win.webContents.on('console-message', (event) => {
+    if (event.level === 'error' || event.level === 'warning') {
+      console.error(`[recorder] ${event.message}`)
+    }
+  })
+  win.webContents.on('did-finish-load', () => syncHandsFree(true))
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/recorder/index.html`)
   } else {
@@ -224,18 +253,110 @@ async function toggleDictation(): Promise<void> {
   }
 
   if (appState === 'recording') {
-    recorderWindow?.webContents.send(IpcChannel.ToggleDictation, 'stop')
+    const channel = handsFreeDictating ? IpcChannel.HandsFreeFinish : IpcChannel.ToggleDictation
+    recorderWindow?.webContents.send(channel, 'stop')
   }
 }
 
-async function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
+function desiredHandsFreeMode(): HandsFreeMode {
+  return settings.handsFreeEnabled && !fullscreenAppActive && appState === 'idle' ? 'standby' : 'off'
+}
+
+function handsFreeActivity(): HandsFreeActivity {
+  if (!settings.handsFreeEnabled) {
+    return 'disabled'
+  }
+  if (handsFreeDictating) {
+    return 'dictating'
+  }
+  if (handsFreeMode === 'off') {
+    return 'paused'
+  }
+  return handsFreeHearing ? 'hearing' : 'standby'
+}
+
+function handsFreeStatus(): HandsFreeStatus {
+  return { activity: handsFreeActivity(), lastHeard: lastHeardCommand }
+}
+
+function publishHandsFreeStatus(): void {
+  settingsWindow?.webContents.send(IpcChannel.HandsFreeStatus, handsFreeStatus())
+}
+
+function syncHandsFree(force = false): void {
+  if (handsFreeDictating) {
+    return
+  }
+  const mode = desiredHandsFreeMode()
+  if (mode === handsFreeMode && !force) {
+    return
+  }
+  handsFreeMode = mode
+  handsFreeHearing = false
+  recorderWindow?.webContents.send(IpcChannel.HandsFreeMode, {
+    mode,
+    silenceSeconds: settings.handsFreeSilenceSeconds
+  })
+  refreshTrayIcon()
+  publishHandsFreeStatus()
+}
+
+async function transcribeCommandSafely(wav: ArrayBuffer): Promise<string> {
   try {
-    setAppState('transcribing')
+    return (await transcribeVoiceCommand(wav)).trim()
+  } catch (err) {
+    console.error('[mains libres] transcription de commande impossible', err)
+    return ''
+  }
+}
+
+async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
+  if (desiredHandsFreeMode() !== 'standby') {
+    return false
+  }
+  const heard = await transcribeCommandSafely(wav)
+  if (heard.length > 0) {
+    lastHeardCommand = heard
+    publishHandsFreeStatus()
+  }
+  if (!containsWakePhrase(heard) || desiredHandsFreeMode() !== 'standby') {
+    return false
+  }
+  console.log('[mains libres] murmur start entendu')
+  handsFreeDictating = true
+  recordingStartedAt = Date.now()
+  setAppState('recording')
+  publishHandsFreeStatus()
+  return true
+}
+
+async function checkStopPhrase(wav: ArrayBuffer): Promise<boolean> {
+  if (!handsFreeDictating) {
+    return false
+  }
+  return containsStopPhrase(await transcribeCommandSafely(wav))
+}
+
+function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
+  return completeDictation(async () => {
     console.log(`[debug] audio recu du renderer : ${audio.byteLength} octets`)
     const wav = await convertToWav16kMono(Buffer.from(audio))
     console.log(`[debug] wav converti : ${wav.byteLength} octets`)
     const wavArrayBuffer = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer
-    const text = await transcribeAudio(wavArrayBuffer, loadDictionary(), loadShortcuts())
+    return transcribeAudio(wavArrayBuffer, loadDictionary(), loadShortcuts())
+  })
+}
+
+function handleHandsFreeAudio(wav: ArrayBuffer): Promise<void> {
+  handsFreeDictating = false
+  console.log(`[mains libres] audio recu : ${wav.byteLength} octets`)
+  return completeDictation(() => transcribeHandsFreeAudio(wav, loadDictionary(), loadShortcuts()))
+}
+
+async function completeDictation(transcribe: () => Promise<string>): Promise<void> {
+  try {
+    setAppState('transcribing')
+    const text = await transcribe()
     console.log(`[debug] texte transcrit (${text.length} caractères) : ${JSON.stringify(text)}`)
 
     const trimmed = text.trim()
@@ -318,6 +439,8 @@ function registerIpcHandlers(): void {
     saveSettings(settings)
     registerHotkey()
     syncHotkeyWithFullscreen()
+    syncHandsFree(true)
+    publishHandsFreeStatus()
     applyLaunchAtStartup()
     pushOverlayConfig()
     if (overlayWindow && next.overlayPosition !== previousPosition) {
@@ -336,6 +459,16 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)
   })
+  ipcMain.handle(IpcChannel.HandsFreeCheckWake, (_event, wav: ArrayBuffer) => checkWakePhrase(wav))
+  ipcMain.handle(IpcChannel.HandsFreeCheckStop, (_event, wav: ArrayBuffer) => checkStopPhrase(wav))
+  ipcMain.on(IpcChannel.HandsFreeAudio, (_event, wav: ArrayBuffer) => {
+    void handleHandsFreeAudio(wav)
+  })
+  ipcMain.on(IpcChannel.HandsFreeHearing, (_event, hearing: boolean) => {
+    handsFreeHearing = hearing
+    publishHandsFreeStatus()
+  })
+  ipcMain.handle(IpcChannel.GetHandsFreeStatus, () => handsFreeStatus())
   ipcMain.on(IpcChannel.RecordingError, (_event, message: string) => {
     console.error('[debug] erreur de capture micro :', message)
     setAppState('error')
@@ -360,7 +493,7 @@ function registerIpcHandlers(): void {
 }
 
 function createTray(): void {
-  tray = new Tray(nativeImage.createFromPath(trayIconPath('idle')))
+  tray = new Tray(nativeImage.createFromPath(trayIconPath()))
   const menu = Menu.buildFromTemplate([
     { label: 'Démarrer / arrêter la dictée', click: () => void toggleDictation() },
     { label: 'Réglages', click: () => createSettingsWindow() },
@@ -408,6 +541,7 @@ app.whenReady().then(async () => {
   watchFullscreenApps((active) => {
     fullscreenAppActive = active
     syncHotkeyWithFullscreen()
+    syncHandsFree()
   })
   applyLaunchAtStartup()
   checkForUpdatesAtLaunch()

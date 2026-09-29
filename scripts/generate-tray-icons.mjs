@@ -107,6 +107,22 @@ function renderDot(size, hex) {
   return rgba
 }
 
+function paintCenterDot(rgba, size, hex, radiusRatio) {
+  const [r, g, b] = hexToRgb(hex)
+  const center = size / 2
+  const radius = size * radiusRatio
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const coverage = clamp01(0.5 - (Math.hypot(x + 0.5 - center, y + 0.5 - center) - radius))
+      const idx = (y * size + x) * 4
+      rgba[idx] = Math.round(mix(rgba[idx], r, coverage))
+      rgba[idx + 1] = Math.round(mix(rgba[idx + 1], g, coverage))
+      rgba[idx + 2] = Math.round(mix(rgba[idx + 2], b, coverage))
+    }
+  }
+  return rgba
+}
+
 const icons = {
   idle: '#b7b2a6',
   recording: '#e5484d',
@@ -120,5 +136,8 @@ for (const [name, hex] of Object.entries(icons)) {
   const png = encodePng(SIZE, renderDot(SIZE, hex))
   writeFileSync(join(outDir, `${name}.png`), png)
 }
+
+const listeningDot = paintCenterDot(renderDot(SIZE, icons.idle), SIZE, '#e0a248', 0.2)
+writeFileSync(join(outDir, 'listening.png'), encodePng(SIZE, listeningDot))
 
 console.log(`Icones generees dans ${outDir}`)
