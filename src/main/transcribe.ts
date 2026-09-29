@@ -1,5 +1,6 @@
 import { serverBaseUrl } from './whisperServer'
 import { applyDictionaryCorrections, applyVoiceShortcuts, buildInitialPrompt } from './dictionary'
+import { removeHallucinations } from './hallucinationFilter'
 import type { DictionaryEntry, VoiceShortcut } from '../shared/types'
 
 interface InferenceResponse {
@@ -38,7 +39,7 @@ export async function transcribeAudio(
   }
 
   const result = (await response.json()) as InferenceResponse
-  const withShortcuts = applyVoiceShortcuts(result.text, shortcuts)
+  const withShortcuts = applyVoiceShortcuts(removeHallucinations(result.text), shortcuts)
   const withCorrections = applyDictionaryCorrections(withShortcuts, dictionary)
   return normalizeFrenchTypography(withCorrections)
 }
