@@ -88,6 +88,12 @@ Le pilote GPU n'est pas toujours prêt immédiatement au boot. murmur retente pl
 </details>
 
 <details>
+<summary><b>Ctrl+Espace ne lance rien quand je joue</b></summary>
+<br />
+C'est voulu : quand un jeu (ou n'importe quelle app) est en plein écran, murmur laisse le raccourci au jeu pour ne pas lancer une dictée par erreur. Tu peux couper ce comportement dans Réglages → Général.
+</details>
+
+<details>
 <summary><b>Rien ne se colle dans l'app active</b></summary>
 <br />
 Certaines applications lancées en administrateur refusent les entrées clavier simulées par un process non élevé. Évite de dicter dans ce cas, ou lance murmur en administrateur.
