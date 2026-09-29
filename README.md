@@ -29,6 +29,19 @@ Appuie sur `Ctrl+Espace`, une pastille apparaît en bas de l'écran et t'écoute
 
 Elle reconnaît le français avec des mots anglais mêlés dedans sans les traduire (« il faut update le README avant la deadline »), et tu peux lui apprendre tes propres termes techniques ou noms propres dans le dictionnaire.
 
+## 🗣️ Mode mains libres
+
+Plus besoin de toucher au clavier : dis « murmur start », un petit bip confirme que murmur t'écoute, puis parle. Pour finir, dis « murmur stop », ou tais-toi quelques secondes, et le texte se colle tout seul. Tu peux aussi tout enchaîner d'une traite : « murmur start, je voulais te dire… ».
+
+<div align="center">
+<img src="docs/screenshot-hands-free.png" width="600" alt="L'onglet Mains libres des réglages, avec l'interrupteur, le délai de silence et le voyant d'écoute" />
+</div>
+
+Ça s'active dans Réglages → **Mains libres**. Un voyant montre en direct si murmur t'entend, et la dernière phrase qu'il a comprise, pratique pour vérifier que « murmur start » passe bien. Le micro reste ouvert tant que le mode est activé, mais rien ne sort de ta machine : un petit détecteur de voix tourne en local, et seules tes phrases courtes passent par Whisper pour repérer la commande. En jeu plein écran, tout se met en pause.
+
+> [!TIP]
+> Avec un casque Bluetooth, garder le micro ouvert fait passer le son en qualité « appel téléphonique ». Ce mode est surtout fait pour un micro séparé (USB, micro du PC).
+
 ## 🔀 Raccourcis vocaux
 
 Tu dis un mot, murmur en écrit un autre. Dis « slash usage » et tu obtiens `/usage`, pratique pour taper une commande sans toucher au clavier. Ça sert aussi à rattraper les mots que Whisper comprend toujours de travers : s'il entend « cloud code » à chaque fois, un raccourci le remplace par « Claude Code ».
@@ -45,7 +58,7 @@ Vitesse moyenne, mots dictés cette semaine, apps utilisées, temps gagné par r
 
 ## ⚙️ Réglages
 
-Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, raccourcis vocaux, position et couleur de la pastille, historique des dictées.
+Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, raccourcis vocaux, mode mains libres, position et couleur de la pastille, historique des dictées.
 
 ## 📥 Installation
 
@@ -134,7 +147,7 @@ pnpm build:win                            # génère l'installeur dans dist/
 
 Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique ne verra pas la nouvelle version.
 
-Pour refaire les captures du README : `MURMUR_SCREENSHOT=docs pnpm dev`. L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, pastille) sans ouvrir le micro, enregistre les PNG dans le dossier donné, puis se ferme.
+Pour refaire les captures du README : `MURMUR_SCREENSHOT=docs pnpm dev`. L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, Mains libres, pastille) avec un faux micro, enregistre les PNG dans le dossier donné, puis se ferme.
 
 | Dossier                  | Rôle                                                                 |
 | ------------------------ | --------------------------------------------------------------------- |
