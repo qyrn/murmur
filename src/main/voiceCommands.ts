@@ -24,5 +24,8 @@ export function extractDictation(text: string): string {
   const afterWake = wake ? text.slice(wake.index + wake[0].length) : text
   const stops = Array.from(afterWake.matchAll(STOP_PATTERN_ALL))
   const lastStop = stops.at(-1)
-  return lastStop?.index === undefined ? afterWake : afterWake.slice(0, lastStop.index)
+  if (lastStop?.index === undefined) {
+    return afterWake
+  }
+  return afterWake.slice(0, lastStop.index).replace(/[\s,;]*,[\s,;]*$/u, '.')
 }
