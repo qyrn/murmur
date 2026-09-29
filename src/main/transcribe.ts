@@ -8,7 +8,7 @@ interface InferenceResponse {
   text: string
 }
 
-const COMMAND_PROMPT = 'Murmur start. Murmur stop.'
+const COMMAND_PROMPT = 'Dictée en français, avec parfois des mots anglais.'
 
 function normalizeFrenchTypography(text: string): string {
   return text
