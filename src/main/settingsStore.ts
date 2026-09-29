@@ -7,6 +7,7 @@ const defaultSettings: DictationSettings = {
   hotkey: 'Control+Space',
   model: 'large-v3-turbo',
   autoPaste: true,
+  disableHotkeyInFullscreen: true,
   microphoneDeviceId: null,
   launchAtStartup: false,
   startMinimized: false,

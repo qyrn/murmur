@@ -6,6 +6,7 @@ export interface DictationSettings {
   hotkey: string
   model: WhisperModel
   autoPaste: boolean
+  disableHotkeyInFullscreen: boolean
   microphoneDeviceId: string | null
   launchAtStartup: boolean
   startMinimized: boolean

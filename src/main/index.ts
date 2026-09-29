@@ -13,6 +13,7 @@ import {
 } from './settingsStore'
 import { loadHistory, appendHistoryEntry } from './historyStore'
 import { captureScreenshots } from './screenshotMode'
+import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio } from './transcribe'
 import { pasteIntoActiveWindow } from './textInjector'
@@ -42,6 +43,8 @@ let recorderWindow: BrowserWindow | null = null
 let settingsWindow: BrowserWindow | null = null
 let overlayWindow: BrowserWindow | null = null
 let appState: AppState = 'idle'
+let fullscreenAppActive = false
+let hotkeyRegistered = false
 let settings: DictationSettings = loadSettings()
 let recordingStartedAt: number | null = null
 
@@ -70,6 +73,9 @@ function appIconPath(): string {
 function setAppState(state: AppState): void {
   console.log(`[debug] setAppState(${state})`)
   appState = state
+  if (state === 'idle') {
+    syncHotkeyWithFullscreen()
+  }
   tray?.setImage(nativeImage.createFromPath(trayIconPath(state)))
   tray?.setToolTip(`murmur : ${state}`)
   overlayWindow?.webContents.send(IpcChannel.OverlayState, state)
@@ -277,9 +283,21 @@ function registerHotkey(): void {
     console.log(`[debug] raccourci ${settings.hotkey} déclenché, état actuel : ${appState}`)
     void toggleDictation()
   })
+  hotkeyRegistered = ok
   console.log(`[debug] enregistrement du raccourci ${settings.hotkey} : ${ok ? 'OK' : 'ECHEC'}`)
   if (!ok) {
     console.error(`Impossible d'enregistrer le raccourci ${settings.hotkey}`)
+  }
+}
+
+function syncHotkeyWithFullscreen(): void {
+  const blocked = settings.disableHotkeyInFullscreen && fullscreenAppActive && appState === 'idle'
+  if (blocked && hotkeyRegistered) {
+    globalShortcut.unregisterAll()
+    hotkeyRegistered = false
+    console.log('[debug] app plein écran au premier plan, raccourci libéré')
+  } else if (!blocked && !hotkeyRegistered) {
+    registerHotkey()
   }
 }
 
@@ -299,6 +317,7 @@ function registerIpcHandlers(): void {
     settings = next
     saveSettings(settings)
     registerHotkey()
+    syncHotkeyWithFullscreen()
     applyLaunchAtStartup()
     pushOverlayConfig()
     if (overlayWindow && next.overlayPosition !== previousPosition) {
@@ -386,6 +405,10 @@ app.whenReady().then(async () => {
   recorderWindow = createRecorderWindow()
   overlayWindow = createOverlayWindow()
   registerHotkey()
+  watchFullscreenApps((active) => {
+    fullscreenAppActive = active
+    syncHotkeyWithFullscreen()
+  })
   applyLaunchAtStartup()
   checkForUpdatesAtLaunch()
   const screenshotDir = process.env['MURMUR_SCREENSHOT']

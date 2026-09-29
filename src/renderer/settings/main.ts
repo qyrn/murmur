@@ -32,6 +32,7 @@ document.querySelector<HTMLButtonElement>('#win-max')!.addEventListener('click',
 
 const hotkeyInput = document.querySelector<HTMLInputElement>('#hotkey')!
 const autoPasteInput = document.querySelector<HTMLInputElement>('#auto-paste')!
+const disableHotkeyInFullscreenInput = document.querySelector<HTMLInputElement>('#disable-hotkey-fullscreen')!
 const launchAtStartupInput = document.querySelector<HTMLInputElement>('#launch-at-startup')!
 const launchAtStartupHint = document.querySelector<HTMLParagraphElement>('#launch-at-startup-hint')!
 const modelSelect = document.querySelector<HTMLSelectElement>('#model')!
@@ -296,6 +297,7 @@ saveButton.addEventListener('click', () => {
       hotkey: hotkeyInput.value.trim(),
       model: modelSelect.value as WhisperModel,
       autoPaste: autoPasteInput.checked,
+      disableHotkeyInFullscreen: disableHotkeyInFullscreenInput.checked,
       microphoneDeviceId: microphoneSelect.value || null,
       launchAtStartup: launchAtStartupInput.checked,
       startMinimized: false,
@@ -319,6 +321,7 @@ async function init(): Promise<void> {
   const settings = await window.settingsApi.getSettings()
   hotkeyInput.value = settings.hotkey
   autoPasteInput.checked = settings.autoPaste
+  disableHotkeyInFullscreenInput.checked = settings.disableHotkeyInFullscreen
   modelSelect.value = settings.model
   overlayPositionSelect.value = settings.overlayPosition
   showWaveformInput.checked = settings.showWaveform
