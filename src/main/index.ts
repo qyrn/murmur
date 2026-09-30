@@ -16,7 +16,7 @@ import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
-import { containsStopPhrase, containsWakePhrase } from './voiceCommands'
+import { containsStopPhrase, containsWakePhrase, soundsLikeMurmur } from './voiceCommands'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
 import {
@@ -310,6 +310,12 @@ async function transcribeCommandSafely(wav: ArrayBuffer): Promise<string> {
   }
 }
 
+function logMissedCommand(command: 'start' | 'stop', heard: string): void {
+  if (soundsLikeMurmur(heard)) {
+    console.log(`[mains libres] murmur ${command} non reconnu dans : ${JSON.stringify(heard)}`)
+  }
+}
+
 async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
   if (desiredHandsFreeMode() !== 'standby') {
     return false
@@ -319,7 +325,11 @@ async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
     lastHeardCommand = heard
     publishHandsFreeStatus()
   }
-  if (!containsWakePhrase(heard) || desiredHandsFreeMode() !== 'standby') {
+  if (!containsWakePhrase(heard)) {
+    logMissedCommand('start', heard)
+    return false
+  }
+  if (desiredHandsFreeMode() !== 'standby') {
     return false
   }
   console.log('[mains libres] murmur start entendu')
@@ -334,7 +344,12 @@ async function checkStopPhrase(wav: ArrayBuffer): Promise<boolean> {
   if (!handsFreeDictating) {
     return false
   }
-  return containsStopPhrase(await transcribeCommandSafely(wav))
+  const heard = await transcribeCommandSafely(wav)
+  const stopped = containsStopPhrase(heard)
+  if (!stopped) {
+    logMissedCommand('stop', heard)
+  }
+  return stopped
 }
 
 function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {

@@ -1,6 +1,6 @@
 const MURMUR_WORD = String.raw`(?:(?:mets?|et)\s+)?(?:en|on|un)\s+mur(?:\s?mure?s?)?|mur\s?mure?s?`
 const SEPARATOR = String.raw`[\s,.!?…'’-]*`
-const START_WORD = String.raw`s(?:t)?ar(?:t|te|ts|s)?`
+const START_WORD = String.raw`st?ar(?:te?s?|c?ks?|s)?`
 const STOP_WORD = String.raw`stop(?:p?e)?s?`
 
 function commandPattern(actionWord: string, flags: string): RegExp {
@@ -17,6 +17,10 @@ export function containsWakePhrase(text: string): boolean {
 
 export function containsStopPhrase(text: string): boolean {
   return STOP_PATTERN.test(text)
+}
+
+export function soundsLikeMurmur(text: string): boolean {
+  return /m[ou]{1,2}r/iu.test(text)
 }
 
 export function extractDictation(text: string): string {
