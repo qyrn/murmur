@@ -16,7 +16,9 @@ import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
-import { containsStopPhrase, containsWakePhrase, soundsLikeMurmur } from './voiceCommands'
+import { containsStopPhrase, containsWakePhrase } from './voiceCommands'
+import { removeHallucinations } from './hallucinationFilter'
+import { recordCommandAttempt } from './commandLog'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
 import {
@@ -301,35 +303,40 @@ function syncHandsFree(force = false): void {
   publishHandsFreeStatus()
 }
 
-async function transcribeCommandSafely(wav: ArrayBuffer): Promise<string> {
-  try {
-    return (await transcribeVoiceCommand(wav)).trim()
-  } catch (err) {
-    console.error('[mains libres] transcription de commande impossible', err)
-    return ''
-  }
+interface HeardCommand {
+  text: string
+  recognized: boolean
 }
 
-function logMissedCommand(command: 'start' | 'stop', heard: string): void {
-  if (soundsLikeMurmur(heard)) {
-    console.log(`[mains libres] murmur ${command} non reconnu dans : ${JSON.stringify(heard)}`)
+async function listenForCommand(
+  command: 'start' | 'stop',
+  wav: ArrayBuffer,
+  matches: (text: string) => boolean
+): Promise<HeardCommand> {
+  let raw = ''
+  try {
+    raw = (await transcribeVoiceCommand(wav)).trim()
+  } catch (err) {
+    console.error('[mains libres] transcription de commande impossible', err)
   }
+  const text = removeHallucinations(raw).trim()
+  const recognized = matches(text)
+  if (raw.length > 0) {
+    recordCommandAttempt({ timestamp: Date.now(), command, heard: raw, recognized })
+  }
+  return { text, recognized }
 }
 
 async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
   if (desiredHandsFreeMode() !== 'standby') {
     return false
   }
-  const heard = await transcribeCommandSafely(wav)
-  if (heard.length > 0) {
-    lastHeardCommand = heard
+  const heard = await listenForCommand('start', wav, containsWakePhrase)
+  if (heard.text.length > 0) {
+    lastHeardCommand = heard.text
     publishHandsFreeStatus()
   }
-  if (!containsWakePhrase(heard)) {
-    logMissedCommand('start', heard)
-    return false
-  }
-  if (desiredHandsFreeMode() !== 'standby') {
+  if (!heard.recognized || desiredHandsFreeMode() !== 'standby') {
     return false
   }
   console.log('[mains libres] murmur start entendu')
@@ -344,12 +351,7 @@ async function checkStopPhrase(wav: ArrayBuffer): Promise<boolean> {
   if (!handsFreeDictating) {
     return false
   }
-  const heard = await transcribeCommandSafely(wav)
-  const stopped = containsStopPhrase(heard)
-  if (!stopped) {
-    logMissedCommand('stop', heard)
-  }
-  return stopped
+  return (await listenForCommand('stop', wav, containsStopPhrase)).recognized
 }
 
 function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {

@@ -65,6 +65,6 @@ export async function transcribeHandsFreeAudio(
   return polishDictation(extractDictation(spokenText), dictionary, shortcuts)
 }
 
-export async function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {
-  return removeHallucinations(await requestTranscription(wavBuffer, null))
+export function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {
+  return requestTranscription(wavBuffer, null)
 }

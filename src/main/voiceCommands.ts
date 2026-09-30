@@ -26,10 +26,6 @@ export function containsStopPhrase(text: string): boolean {
   return STOP_PATTERN.test(withoutAccents(text))
 }
 
-export function soundsLikeMurmur(text: string): boolean {
-  return /m[ou]{1,2}r/iu.test(withoutAccents(text))
-}
-
 export function extractDictation(text: string): string {
   const wake = WAKE_PATTERN.exec(withoutAccents(text))
   const afterWake = wake ? text.slice(wake.index + wake[0].length) : text
