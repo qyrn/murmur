@@ -80,6 +80,8 @@ Quand je sors une nouvelle version, murmur la télécharge dans son coin et te p
 
 Tout tourne en local : l'audio ne quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque. Aucun serveur à moi entre les deux.
 
+Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases courtes qu'il a entendues en attendant « murmur start » ou « murmur stop ». Elles servent à repérer comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json`) et tu peux le supprimer quand tu veux.
+
 ## 🛠️ Si ça coince
 
 <details>
