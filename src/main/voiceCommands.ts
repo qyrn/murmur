@@ -1,4 +1,4 @@
-const MURMUR_WORD = String.raw`mur\s?mures?|murmurs?`
+const MURMUR_WORD = String.raw`(?:(?:mets?|et)\s+)?(?:en|on|un)\s+mur(?:\s?mure?s?)?|mur\s?mure?s?`
 const SEPARATOR = String.raw`[\s,.!?…'’-]*`
 const START_WORD = String.raw`s(?:t)?ar(?:t|te|ts|s)?`
 const STOP_WORD = String.raw`stop(?:p?e)?s?`
