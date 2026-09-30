@@ -3,12 +3,15 @@ import type { HandsFreeCommand } from '../../shared/types'
 import { closeMicrophone, openMicrophone } from './microphone'
 import { createLevelEnvelope, rootMeanSquare } from './levelEnvelope'
 import { playWakeChime } from './wakeChime'
+import { SAMPLE_RATE, concatFrames, lastSeconds, trimToSeconds } from './audioFrames'
+import { createCommandChecker, type CommandWindow } from './commandChecker'
 
-const SAMPLE_RATE = 16000
 const SPEECH_PROBABILITY_THRESHOLD = 0.5
-const PRE_SPEECH_SECONDS = 0.4
-const WAKE_WINDOW_SECONDS = 2.5
-const STOP_WINDOW_SECONDS = 3
+const COMMAND_WINDOW_SECONDS = 4
+const COMMAND_STEP_SECONDS = 2
+const COMMAND_LEAD_SECONDS = 1
+const MIN_TAIL_SECONDS = 0.65
+const LISTEN_BUFFER_SECONDS = 8
 const MAX_DICTATION_MS = 5 * 60 * 1000
 const VAD_ASSETS_URL = new URL('../vad/', document.baseURI).href
 
@@ -17,61 +20,62 @@ type Phase = 'off' | 'standby' | 'dictating'
 let vad: MicVAD | null = null
 let phase: Phase = 'off'
 let silenceLimitMs = 3000
-let recentFrames: Float32Array[] = []
-let segmentFrames: Float32Array[] | null = null
-let wakeCheckedForSegment = false
-let wakeCheckInFlight = false
-let stopCheckInFlight = false
+let listenFrames: Float32Array[] = []
 let dictationFrames: Float32Array[] = []
+let speaking = false
+let uncheckedSpeechSeconds = 0
 let dictationStartedAt = 0
 let lastSpeechAt = 0
 let levelEnvelope = createLevelEnvelope()
 let commandQueue: Promise<void> = Promise.resolve()
 
-function sampleCount(frames: Float32Array[]): number {
-  return frames.reduce((total, frame) => total + frame.length, 0)
-}
-
-function concatFrames(frames: Float32Array[]): Float32Array {
-  const joined = new Float32Array(sampleCount(frames))
-  let offset = 0
-  for (const frame of frames) {
-    joined.set(frame, offset)
-    offset += frame.length
-  }
-  return joined
-}
-
-function firstSeconds(frames: Float32Array[], seconds: number): Float32Array {
-  return concatFrames(frames).slice(0, Math.round(seconds * SAMPLE_RATE))
-}
-
-function lastSeconds(frames: Float32Array[], seconds: number): Float32Array {
-  const joined = concatFrames(frames)
-  return joined.slice(Math.max(0, joined.length - Math.round(seconds * SAMPLE_RATE)))
-}
-
 function toWav(samples: Float32Array): ArrayBuffer {
   return utils.encodeWAV(samples, 1, SAMPLE_RATE, 1, 16)
 }
 
-function keepRecentFrames(frame: Float32Array): void {
-  recentFrames.push(frame)
-  while (sampleCount(recentFrames) > PRE_SPEECH_SECONDS * SAMPLE_RATE) {
-    recentFrames.shift()
+function commandWindow(frames: Float32Array[], seconds: number): CommandWindow {
+  return { samples: lastSeconds(frames, seconds), seconds, takenAt: performance.now() }
+}
+
+const wakeChecker = createCommandChecker(
+  (candidate) => (phase === 'standby' ? window.recorderApi.checkWakePhrase(toWav(candidate.samples)) : Promise.resolve(false)),
+  (candidate) => {
+    if (phase === 'standby') {
+      startDictation(candidate)
+    }
   }
+)
+
+const stopChecker = createCommandChecker(
+  (candidate) => (phase === 'dictating' ? window.recorderApi.checkStopPhrase(toWav(candidate.samples)) : Promise.resolve(false)),
+  () => finishDictation()
+)
+
+function activeChecker(): typeof wakeChecker {
+  return phase === 'dictating' ? stopChecker : wakeChecker
 }
 
-function resetStandbyBuffers(): void {
-  recentFrames = []
-  segmentFrames = null
-  wakeCheckedForSegment = false
+function activeFrames(): Float32Array[] {
+  return phase === 'dictating' ? dictationFrames : listenFrames
 }
 
-function startDictation(): void {
+function isListening(): boolean {
+  return phase !== 'off'
+}
+
+function resetListening(): void {
+  listenFrames = []
+  speaking = false
+  uncheckedSpeechSeconds = 0
+  wakeChecker.reset()
+}
+
+function startDictation(wakeWindow: CommandWindow): void {
+  const secondsSinceWindow = (performance.now() - wakeWindow.takenAt) / 1000
+  dictationFrames = [lastSeconds(listenFrames, wakeWindow.seconds + secondsSinceWindow)]
+  listenFrames = []
+  uncheckedSpeechSeconds = 0
   phase = 'dictating'
-  dictationFrames = segmentFrames ?? [...recentFrames]
-  resetStandbyBuffers()
   levelEnvelope = createLevelEnvelope()
   dictationStartedAt = performance.now()
   lastSpeechAt = dictationStartedAt
@@ -83,92 +87,65 @@ function finishDictation(): void {
     return
   }
   phase = 'off'
+  stopChecker.reset()
   const samples = concatFrames(dictationFrames)
   dictationFrames = []
   window.recorderApi.sendHandsFreeAudio(toWav(samples))
 }
 
-async function checkWake(samples: Float32Array): Promise<void> {
-  wakeCheckedForSegment = true
-  if (wakeCheckInFlight) {
-    return
+function trackDictation(isSpeech: boolean, frame: Float32Array): void {
+  window.recorderApi.sendAudioLevel(levelEnvelope(rootMeanSquare(frame)))
+  const now = performance.now()
+  if (isSpeech) {
+    lastSpeechAt = now
   }
-  wakeCheckInFlight = true
-  try {
-    const woke = await window.recorderApi.checkWakePhrase(toWav(samples))
-    if (woke && phase === 'standby') {
-      startDictation()
-    }
-  } finally {
-    wakeCheckInFlight = false
-  }
-}
-
-async function checkStop(samples: Float32Array): Promise<void> {
-  if (stopCheckInFlight) {
-    return
-  }
-  stopCheckInFlight = true
-  try {
-    const stopped = await window.recorderApi.checkStopPhrase(toWav(samples))
-    if (stopped) {
-      finishDictation()
-    }
-  } finally {
-    stopCheckInFlight = false
+  if (now - lastSpeechAt > silenceLimitMs || now - dictationStartedAt > MAX_DICTATION_MS) {
+    finishDictation()
   }
 }
 
 function handleFrame(isSpeech: boolean, frame: Float32Array): void {
-  if (phase === 'dictating') {
-    dictationFrames.push(frame)
-    window.recorderApi.sendAudioLevel(levelEnvelope(rootMeanSquare(frame)))
-    const now = performance.now()
-    if (isSpeech) {
-      lastSpeechAt = now
-    }
-    if (now - lastSpeechAt > silenceLimitMs || now - dictationStartedAt > MAX_DICTATION_MS) {
-      finishDictation()
-    }
+  if (!isListening()) {
     return
   }
-  if (phase !== 'standby') {
+  activeFrames().push(frame)
+  if (phase === 'standby') {
+    trimToSeconds(listenFrames, LISTEN_BUFFER_SECONDS)
+  } else {
+    trackDictation(isSpeech, frame)
+  }
+  if (!speaking || !isListening()) {
     return
   }
-  keepRecentFrames(frame)
-  if (!segmentFrames) {
-    return
-  }
-  segmentFrames.push(frame)
-  if (!wakeCheckedForSegment && sampleCount(segmentFrames) >= WAKE_WINDOW_SECONDS * SAMPLE_RATE) {
-    void checkWake(firstSeconds(segmentFrames, WAKE_WINDOW_SECONDS))
+  uncheckedSpeechSeconds += frame.length / SAMPLE_RATE
+  if (uncheckedSpeechSeconds >= COMMAND_STEP_SECONDS) {
+    uncheckedSpeechSeconds = 0
+    activeChecker().submit(commandWindow(activeFrames(), COMMAND_WINDOW_SECONDS))
   }
 }
 
 function handleSpeechStart(): void {
-  if (phase !== 'standby') {
-    return
+  speaking = true
+  uncheckedSpeechSeconds = 0
+  if (phase === 'standby') {
+    window.recorderApi.sendHandsFreeHearing(true)
   }
-  segmentFrames = [...recentFrames]
-  wakeCheckedForSegment = false
-  window.recorderApi.sendHandsFreeHearing(true)
 }
 
 function handleMisfire(): void {
-  segmentFrames = null
+  speaking = false
+  uncheckedSpeechSeconds = 0
   window.recorderApi.sendHandsFreeHearing(false)
 }
 
 function handleSpeechEnd(): void {
+  speaking = false
   window.recorderApi.sendHandsFreeHearing(false)
-  if (phase === 'dictating') {
-    void checkStop(lastSeconds(dictationFrames, STOP_WINDOW_SECONDS))
-    return
+  if (isListening() && uncheckedSpeechSeconds >= MIN_TAIL_SECONDS) {
+    const seconds = Math.min(COMMAND_WINDOW_SECONDS, uncheckedSpeechSeconds + COMMAND_LEAD_SECONDS)
+    activeChecker().submit(commandWindow(activeFrames(), seconds))
   }
-  if (phase === 'standby' && segmentFrames && !wakeCheckedForSegment) {
-    void checkWake(firstSeconds(segmentFrames, WAKE_WINDOW_SECONDS))
-  }
-  segmentFrames = null
+  uncheckedSpeechSeconds = 0
 }
 
 function createVad(): Promise<MicVAD> {
@@ -202,7 +179,7 @@ async function applyCommand(command: HandsFreeCommand): Promise<void> {
   if (phase === 'dictating') {
     return
   }
-  resetStandbyBuffers()
+  resetListening()
   if (command.mode === 'standby') {
     vad ??= await createVad()
     phase = 'standby'

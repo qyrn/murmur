@@ -8,8 +8,6 @@ interface InferenceResponse {
   text: string
 }
 
-const COMMAND_PROMPT = 'Dictée en français, avec parfois des mots anglais.'
-
 function normalizeFrenchTypography(text: string): string {
   return text
     .replace(/\s+/g, ' ')
@@ -19,13 +17,15 @@ function normalizeFrenchTypography(text: string): string {
     .replace(/\s*»/g, ' »')
 }
 
-async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string): Promise<string> {
+async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string | null): Promise<string> {
   const form = new FormData()
   form.append('file', new Blob([wavBuffer], { type: 'audio/wav' }), 'dictation.wav')
   form.append('temperature', '0.0')
   form.append('temperature_inc', '0.2')
-  form.append('prompt', prompt)
-  form.append('carry_initial_prompt', 'true')
+  if (prompt) {
+    form.append('prompt', prompt)
+    form.append('carry_initial_prompt', 'true')
+  }
   form.append('response_format', 'json')
 
   const response = await fetch(`${serverBaseUrl()}/inference`, {
@@ -65,6 +65,6 @@ export async function transcribeHandsFreeAudio(
   return polishDictation(extractDictation(spokenText), dictionary, shortcuts)
 }
 
-export function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {
-  return requestTranscription(wavBuffer, COMMAND_PROMPT)
+export async function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {
+  return removeHallucinations(await requestTranscription(wavBuffer, null))
 }
