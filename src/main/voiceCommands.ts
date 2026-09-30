@@ -11,22 +11,29 @@ const WAKE_PATTERN = commandPattern(START_WORD, 'iu')
 const STOP_PATTERN = commandPattern(STOP_WORD, 'iu')
 const STOP_PATTERN_ALL = commandPattern(STOP_WORD, 'giu')
 
+function withoutAccents(text: string): string {
+  return Array.from(text, (character) => {
+    const base = character.normalize('NFD').replace(/\p{M}/gu, '')
+    return base.length === character.length ? base : character
+  }).join('')
+}
+
 export function containsWakePhrase(text: string): boolean {
-  return WAKE_PATTERN.test(text)
+  return WAKE_PATTERN.test(withoutAccents(text))
 }
 
 export function containsStopPhrase(text: string): boolean {
-  return STOP_PATTERN.test(text)
+  return STOP_PATTERN.test(withoutAccents(text))
 }
 
 export function soundsLikeMurmur(text: string): boolean {
-  return /m[ou]{1,2}r/iu.test(text)
+  return /m[ou]{1,2}r/iu.test(withoutAccents(text))
 }
 
 export function extractDictation(text: string): string {
-  const wake = WAKE_PATTERN.exec(text)
+  const wake = WAKE_PATTERN.exec(withoutAccents(text))
   const afterWake = wake ? text.slice(wake.index + wake[0].length) : text
-  const stops = Array.from(afterWake.matchAll(STOP_PATTERN_ALL))
+  const stops = Array.from(withoutAccents(afterWake).matchAll(STOP_PATTERN_ALL))
   const lastStop = stops.at(-1)
   if (lastStop?.index === undefined) {
     return afterWake
