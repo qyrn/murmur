@@ -72,15 +72,24 @@ Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la
 > [!WARNING]
 > Il faut un GPU NVIDIA (CUDA). Sans ça, la transcription ne pourra pas tourner.
 
+### Sur Linux (KDE Plasma)
+
+Pas encore d'installeur : murmur se compile depuis les sources (voir plus bas), avec `pnpm build:linux`. Il faut KDE Plasma 6 et ces outils :
+
+- `wl-clipboard` pour le presse-papier, `ydotool` pour coller le texte (lance `systemctl --user enable --now ydotool`), `kdotool` pour savoir quelle app est au premier plan
+- `ffmpeg` et le CUDA Toolkit
+
+Le raccourci s'enregistre dans les raccourcis globaux de KDE : tu le retrouves dans Configuration du système → Raccourcis → murmur. Dans un terminal, murmur colle avec `Ctrl+Maj+V` au lieu de `Ctrl+V`.
+
 ## 🔄 Les mises à jour
 
-Quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement.
+Quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement. Sur Linux, pas de mise à jour automatique : recompile depuis les sources.
 
 ## 🔒 Et tes données ?
 
 Tout tourne en local : l'audio ne quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque. Aucun serveur à moi entre les deux.
 
-Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases courtes qu'il a entendues en attendant « murmur start » ou « murmur stop ». Elles servent à repérer comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json`) et tu peux le supprimer quand tu veux.
+Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases courtes qu'il a entendues en attendant « murmur start » ou « murmur stop ». Elles servent à repérer comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json` sur Windows, `~/.config/murmur/voice-commands.json` sur Linux) et tu peux le supprimer quand tu veux.
 
 ## 🛠️ Si ça coince
 
@@ -132,19 +141,20 @@ Electron, electron-vite et TypeScript strict. Node 24+ et pnpm 10+.
 ### Prérequis
 
 - GPU NVIDIA, CUDA Toolkit 12.8+
-- CMake et Visual Studio 2022 Build Tools (workload « Desktop development with C++ »)
+- CMake et Visual Studio 2022 Build Tools (workload « Desktop development with C++ ») sur Windows, CMake, Ninja et GCC sur Linux
 - git, ffmpeg accessibles dans le PATH
 
 ### Commandes
 
 ```bash
 pnpm install
-./scripts/setup-whisper.ps1              # clone + compile whisper.cpp avec CUDA
-./scripts/download-model.ps1 -Model large-v3-turbo
+./scripts/setup-whisper.ps1              # clone + compile whisper.cpp avec CUDA (Linux : ./scripts/setup-whisper.sh)
+./scripts/download-model.ps1 -Model large-v3-turbo   # Linux : ./scripts/download-model.sh large-v3-turbo
 pnpm dev                                  # mode développement
 pnpm typecheck
 pnpm lint
 pnpm build:win                            # génère l'installeur dans dist/
+pnpm build:linux                          # génère dist/linux-unpacked
 ```
 
 Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique ne verra pas la nouvelle version.

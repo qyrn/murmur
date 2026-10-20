@@ -1,8 +1,11 @@
-import { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, ipcMain, screen, session } from 'electron'
+import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, session } from 'electron'
 import { join } from 'node:path'
-import { activeWindow } from 'get-windows'
+import { getActiveWindow } from './activeWindow'
+import { primaryWorkArea } from './displayGeometry'
+import { registerGlobalHotkey, releaseGlobalHotkeyOnQuit, unregisterGlobalHotkey } from './globalHotkey'
+import { applyLaunchAtStartup } from './launchAtStartup'
 import { initFileLogging } from './logger'
-import { checkForUpdatesAtLaunch, checkForUpdatesManually } from './updater'
+import { checkForUpdatesAtLaunch, checkForUpdatesManually, supportsAutoUpdate } from './updater'
 import {
   loadSettings,
   saveSettings,
@@ -31,7 +34,26 @@ import {
   type OverlayPosition
 } from '../shared/types'
 
-initFileLogging()
+const XWAYLAND_OZONE_SWITCH = '--ozone-platform=x11'
+
+const needsXwaylandRelaunch = process.platform === 'linux' && !process.argv.includes(XWAYLAND_OZONE_SWITCH)
+
+const isPrimaryInstance = !needsXwaylandRelaunch && app.requestSingleInstanceLock()
+
+if (needsXwaylandRelaunch) {
+  app.relaunch({ args: [...process.argv.slice(1), XWAYLAND_OZONE_SWITCH] })
+}
+if (!isPrimaryInstance) {
+  app.exit(0)
+}
+
+if (process.platform === 'linux') {
+  app.disableHardwareAcceleration()
+}
+
+if (isPrimaryInstance) {
+  initFileLogging()
+}
 
 if (process.env['MURMUR_SCREENSHOT']) {
   prepareScreenshotSwitches()
@@ -43,6 +65,9 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err) => {
   console.error('[debug] unhandledRejection', err)
 })
+for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+  process.on(signal, () => app.quit())
+}
 app.on('before-quit', () => {
   console.error('[debug] before-quit', new Error('stack').stack)
 })
@@ -91,7 +116,7 @@ function refreshTrayIcon(): void {
 }
 
 function appIconPath(): string {
-  return join(resourcesRoot(), 'icon.ico')
+  return join(resourcesRoot(), process.platform === 'win32' ? 'icon.ico' : 'icon.png')
 }
 
 function setAppState(state: AppState): void {
@@ -149,7 +174,7 @@ const OVERLAY_HEIGHT = 64
 const OVERLAY_MARGIN = 64
 
 function overlayCoords(position: OverlayPosition): { x: number; y: number } {
-  const { workArea } = screen.getPrimaryDisplay()
+  const workArea = primaryWorkArea()
   const centerX = Math.round(workArea.x + (workArea.width - OVERLAY_WIDTH) / 2)
   switch (position) {
     case 'bottom-left':
@@ -379,9 +404,7 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
     const trimmed = text.trim()
     if (trimmed.length > 0) {
       const durationMs = recordingStartedAt ? Date.now() - recordingStartedAt : 0
-      const appName = await activeWindow()
-        .then((win) => win?.owner.name ?? 'Inconnue')
-        .catch(() => 'Inconnue')
+      const appName = (await getActiveWindow())?.appName ?? 'Inconnue'
       appendHistoryEntry({
         timestamp: Date.now(),
         wordCount: trimmed.split(/\s+/).filter(Boolean).length,
@@ -410,17 +433,19 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
 const HOTKEY_DEBOUNCE_MS = 400
 let lastHotkeyTriggerAt = 0
 
-function registerHotkey(): void {
-  globalShortcut.unregisterAll()
-  const ok = globalShortcut.register(settings.hotkey, () => {
-    const now = Date.now()
-    if (now - lastHotkeyTriggerAt < HOTKEY_DEBOUNCE_MS) {
-      return
-    }
-    lastHotkeyTriggerAt = now
-    console.log(`[debug] raccourci ${settings.hotkey} déclenché, état actuel : ${appState}`)
-    void toggleDictation()
-  })
+function onHotkeyPressed(): void {
+  const now = Date.now()
+  if (now - lastHotkeyTriggerAt < HOTKEY_DEBOUNCE_MS) {
+    return
+  }
+  lastHotkeyTriggerAt = now
+  console.log(`[debug] raccourci ${settings.hotkey} déclenché, état actuel : ${appState}`)
+  void toggleDictation()
+}
+
+async function registerHotkey(): Promise<void> {
+  hotkeyRegistered = true
+  const ok = await registerGlobalHotkey(settings.hotkey, onHotkeyPressed)
   hotkeyRegistered = ok
   console.log(`[debug] enregistrement du raccourci ${settings.hotkey} : ${ok ? 'OK' : 'ECHEC'}`)
   if (!ok) {
@@ -431,19 +456,12 @@ function registerHotkey(): void {
 function syncHotkeyWithFullscreen(): void {
   const blocked = settings.disableHotkeyInFullscreen && fullscreenAppActive && appState === 'idle'
   if (blocked && hotkeyRegistered) {
-    globalShortcut.unregisterAll()
+    void unregisterGlobalHotkey()
     hotkeyRegistered = false
     console.log('[debug] app plein écran au premier plan, raccourci libéré')
   } else if (!blocked && !hotkeyRegistered) {
-    registerHotkey()
+    void registerHotkey()
   }
-}
-
-function applyLaunchAtStartup(): void {
-  if (!app.isPackaged) {
-    return
-  }
-  app.setLoginItemSettings({ openAtLogin: settings.launchAtStartup })
 }
 
 function registerIpcHandlers(): void {
@@ -454,11 +472,10 @@ function registerIpcHandlers(): void {
     const previousPosition = settings.overlayPosition
     settings = next
     saveSettings(settings)
-    registerHotkey()
-    syncHotkeyWithFullscreen()
+    void registerHotkey().then(syncHotkeyWithFullscreen)
     syncHandsFree(true)
     publishHandsFreeStatus()
-    applyLaunchAtStartup()
+    applyLaunchAtStartup(settings.launchAtStartup)
     pushOverlayConfig()
     if (overlayWindow && next.overlayPosition !== previousPosition) {
       const { x, y } = overlayCoords(next.overlayPosition)
@@ -515,7 +532,7 @@ function createTray(): void {
     { label: 'Démarrer / arrêter la dictée', click: () => void toggleDictation() },
     { label: 'Réglages', click: () => createSettingsWindow() },
     { label: 'Réessayer de démarrer le moteur', click: () => void startWhisperServerAtLaunch() },
-    { label: 'Vérifier les mises à jour', click: () => checkForUpdatesManually() },
+    { label: 'Vérifier les mises à jour', click: () => checkForUpdatesManually(), visible: supportsAutoUpdate },
     { type: 'separator' },
     { label: 'Quitter', click: () => app.quit() }
   ])
@@ -554,13 +571,13 @@ app.whenReady().then(async () => {
   createTray()
   recorderWindow = createRecorderWindow()
   overlayWindow = createOverlayWindow()
-  registerHotkey()
+  await registerHotkey()
   watchFullscreenApps((active) => {
     fullscreenAppActive = active
     syncHotkeyWithFullscreen()
     syncHandsFree()
   })
-  applyLaunchAtStartup()
+  applyLaunchAtStartup(settings.launchAtStartup)
   checkForUpdatesAtLaunch()
   const screenshotDir = process.env['MURMUR_SCREENSHOT']
   if (screenshotDir) {
@@ -582,6 +599,6 @@ app.whenReady().then(async () => {
 app.on('window-all-closed', () => undefined)
 
 app.on('will-quit', () => {
-  globalShortcut.unregisterAll()
+  releaseGlobalHotkeyOnQuit()
   stopWhisperServer()
 })

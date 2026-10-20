@@ -1,12 +1,12 @@
-import { screen, type Rectangle } from 'electron'
-import { activeWindow } from 'get-windows'
+import type { Rectangle } from 'electron'
+import { getActiveWindow } from './activeWindow'
+import { displayBoundsContaining } from './displayGeometry'
 
 const POLL_INTERVAL_MS = 1000
 const EDGE_TOLERANCE_PX = 2
-const DESKTOP_SHELL_EXECUTABLE = 'explorer.exe'
 
 function coversDisplay(windowBounds: Rectangle): boolean {
-  const displayBounds = screen.getDisplayMatching(windowBounds).bounds
+  const displayBounds = displayBoundsContaining(windowBounds)
   return (
     windowBounds.x <= displayBounds.x + EDGE_TOLERANCE_PX &&
     windowBounds.y <= displayBounds.y + EDGE_TOLERANCE_PX &&
@@ -16,14 +16,11 @@ function coversDisplay(windowBounds: Rectangle): boolean {
 }
 
 async function isFullscreenAppActive(): Promise<boolean> {
-  const window = await activeWindow().catch(() => undefined)
-  if (!window || window.platform !== 'windows') {
+  const window = await getActiveWindow()
+  if (!window || window.processId === process.pid || window.isDesktopShell) {
     return false
   }
-  if (window.owner.processId === process.pid || window.owner.path.toLowerCase().endsWith(DESKTOP_SHELL_EXECUTABLE)) {
-    return false
-  }
-  return coversDisplay(screen.screenToDipRect(null, window.bounds))
+  return coversDisplay(window.bounds)
 }
 
 export function watchFullscreenApps(onChange: (fullscreenAppActive: boolean) => void): void {

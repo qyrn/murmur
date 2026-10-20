@@ -1,5 +1,5 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { app } from 'electron'
 import type { WhisperModel } from '../shared/types'
@@ -11,7 +11,19 @@ const engineRoot = app.isPackaged
   ? join(process.resourcesPath, 'whisper-engine')
   : join(__dirname, '../../whisper-engine')
 
-const serverBinary = join(engineRoot, 'whisper.cpp/build/bin/whisper-server.exe')
+const isWindows = process.platform === 'win32'
+const serverBinary = join(engineRoot, `whisper.cpp/build/bin/whisper-server${isWindows ? '.exe' : ''}`)
+const setupScriptName = isWindows ? 'setup-whisper.ps1' : 'setup-whisper.sh'
+const downloadScriptName = isWindows ? 'download-model.ps1' : 'download-model.sh'
+
+function serverEnvironment(): NodeJS.ProcessEnv {
+  if (isWindows) {
+    return process.env
+  }
+  const libraryDir = dirname(serverBinary)
+  const existing = process.env['LD_LIBRARY_PATH']
+  return { ...process.env, LD_LIBRARY_PATH: existing ? `${libraryDir}:${existing}` : libraryDir }
+}
 
 function modelPath(model: WhisperModel): string {
   return join(engineRoot, `models/ggml-${model}.bin`)
@@ -52,10 +64,10 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
   }
 
   if (!existsSync(serverBinary)) {
-    throw new Error(`whisper-server introuvable : ${serverBinary}. Lance scripts/setup-whisper.ps1 d'abord.`)
+    throw new Error(`whisper-server introuvable : ${serverBinary}. Lance scripts/${setupScriptName} d'abord.`)
   }
   if (!existsSync(modelPath(model))) {
-    throw new Error(`Modèle introuvable : ${modelPath(model)}. Lance scripts/download-model.ps1 d'abord.`)
+    throw new Error(`Modèle introuvable : ${modelPath(model)}. Lance scripts/${downloadScriptName} d'abord.`)
   }
 
   currentModel = model
@@ -63,7 +75,7 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
     const proc = spawn(
       serverBinary,
       ['--model', modelPath(model), '--host', SERVER_HOST, '--port', String(SERVER_PORT), '--language', 'fr'],
-      { stdio: 'pipe' }
+      { stdio: 'pipe', env: serverEnvironment() }
     )
     serverProcess = proc
     proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))

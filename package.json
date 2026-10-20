@@ -13,7 +13,8 @@
     "build:win": "pnpm build && electron-builder --win",
     "start": "electron-vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:linux": "pnpm build && electron-builder --linux"
   },
   "packageManager": "pnpm@10.23.0",
   "pnpm": {
@@ -56,6 +57,10 @@
         "to": "icon.ico"
       },
       {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      },
+      {
         "from": "resources/tray",
         "to": "tray"
       },
@@ -88,6 +93,13 @@
       "provider": "github",
       "owner": "qyrn",
       "repo": "murmur"
+    },
+    "linux": {
+      "target": [
+        "dir"
+      ],
+      "icon": "resources/icon.png",
+      "category": "Utility"
     }
   }
 }

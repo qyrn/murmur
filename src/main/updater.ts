@@ -5,6 +5,8 @@ const { autoUpdater } = electronUpdater
 
 let wired = false
 
+export const supportsAutoUpdate = process.platform === 'win32'
+
 function wireEvents(): void {
   if (wired) {
     return
@@ -32,7 +34,7 @@ function wireEvents(): void {
 }
 
 export function checkForUpdatesAtLaunch(): void {
-  if (!app.isPackaged) {
+  if (!app.isPackaged || !supportsAutoUpdate) {
     return
   }
   wireEvents()
