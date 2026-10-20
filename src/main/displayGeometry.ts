@@ -19,8 +19,7 @@ function xwaylandCorrection(display: Display): number {
 }
 
 export function primaryWorkArea(): Rectangle {
-  const display = screen.getPrimaryDisplay()
-  return scaleRect(display.workArea, xwaylandCorrection(display))
+  return screen.getPrimaryDisplay().workArea
 }
 
 export function displayBoundsContaining(windowBounds: Rectangle): Rectangle {
