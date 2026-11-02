@@ -37,7 +37,7 @@ Plus besoin de toucher au clavier : dis « murmur start », un petit bip confirm
 <img src="docs/screenshot-hands-free.png" width="600" alt="L'onglet Mains libres des réglages, avec l'interrupteur, le délai de silence et le voyant d'écoute" />
 </div>
 
-Ça s'active dans Réglages → **Mains libres**. Un voyant montre en direct si murmur t'entend, et la dernière phrase qu'il a comprise, pratique pour vérifier que « murmur start » passe bien. Le micro reste ouvert tant que le mode est activé, mais rien ne sort de ta machine : un petit détecteur de voix tourne en local, et seules tes phrases courtes passent par Whisper pour repérer la commande. En jeu plein écran, tout se met en pause.
+Ça s'active dans Réglages → **Mains libres**. Un voyant montre en direct si murmur t'entend, et la dernière phrase qu'il a comprise, pratique pour vérifier que « murmur start » passe bien. Le micro reste ouvert tant que le mode est activé, mais rien ne sort de ta machine : un petit détecteur de voix tourne en local, et seules les phrases dites près du micro passent par Whisper pour repérer la commande. Les voix au fond de la pièce sont ignorées. En jeu plein écran, tout se met en pause.
 
 > [!TIP]
 > Avec un casque Bluetooth, garder le micro ouvert fait passer le son en qualité « appel téléphonique ». Ce mode est surtout fait pour un micro séparé (USB, micro du PC).
@@ -89,7 +89,7 @@ Quand je sors une nouvelle version, murmur la télécharge dans son coin et te p
 
 Tout tourne en local : l'audio ne quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque. Aucun serveur à moi entre les deux.
 
-Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases courtes qu'il a entendues en attendant « murmur start » ou « murmur stop ». Elles servent à repérer comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json` sur Windows, `~/.config/murmur/voice-commands.json` sur Linux) et tu peux le supprimer quand tu veux.
+Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases qui ressemblent à « murmur start » ou « murmur stop ». Elles servent à voir comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le reste de ce que tu dis n'est jamais enregistré. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json` sur Windows, `~/.config/murmur/voice-commands.json` sur Linux) et tu peux le supprimer quand tu veux.
 
 ## 🛠️ Si ça coince
 
