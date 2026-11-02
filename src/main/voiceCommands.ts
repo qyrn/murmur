@@ -1,3 +1,5 @@
+import { editDistance } from './editDistance'
+
 const MURMUR_WORD = String.raw`(?:(?:mets?|et)\s+)?(?:en|on|un)\s+mur(?:\s?mure?s?)?|mur\s?mure?s?`
 const SEPARATOR = String.raw`[\s,.!?…'’-]*`
 const START_WORD = String.raw`st?ar(?:te?s?|c?ks?|s)?`
@@ -5,6 +7,8 @@ const STOP_WORD = String.raw`stop(?:p?e)?s?`
 const MISHEARD_WORD = String.raw`[\p{L}\p{N}'’-]+`
 const MAX_MISHEARD_WORDS_BEFORE_ACTION = 3
 const MAX_MISHEARD_WORDS_BEFORE_TRAILING_STOP = 2
+const COMMAND_WORDS = ['murmur', 'start', 'stop']
+const LETTERS_PER_ALLOWED_TYPO = 3
 
 function commandPattern(actionWord: string, flags: string): RegExp {
   return new RegExp(`(?<![\\p{L}\\p{N}])(?:${MURMUR_WORD})${SEPARATOR}(?:${actionWord})(?![\\p{L}\\p{N}])${SEPARATOR}`, flags)
@@ -42,6 +46,21 @@ export function containsWakePhrase(text: string): boolean {
 export function containsStopPhrase(text: string): boolean {
   const plainText = withoutAccents(text)
   return STOP_PATTERN.test(plainText) || SHORT_STOP_PATTERN.test(plainText)
+}
+
+function resemblesCommandWord(word: string): boolean {
+  return COMMAND_WORDS.some(
+    (commandWord) => editDistance(word, commandWord) <= Math.floor(commandWord.length / LETTERS_PER_ALLOWED_TYPO)
+  )
+}
+
+export function resemblesCommand(text: string): boolean {
+  const words = withoutAccents(text)
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean)
+  const joinedPairs = words.slice(1).map((word, index) => `${words[index] ?? ''}${word}`)
+  return [...words, ...joinedPairs].some(resemblesCommandWord)
 }
 
 function withoutTrailingStop(text: string): string {

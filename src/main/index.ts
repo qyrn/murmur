@@ -19,7 +19,7 @@ import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
-import { containsStopPhrase, containsWakePhrase } from './voiceCommands'
+import { containsStopPhrase, containsWakePhrase, resemblesCommand } from './voiceCommands'
 import { removeHallucinations } from './hallucinationFilter'
 import { recordCommandAttempt } from './commandLog'
 import { pasteIntoActiveWindow } from './textInjector'
@@ -351,7 +351,7 @@ async function listenForCommand(
   }
   const text = removeHallucinations(raw).trim()
   const recognized = matches(text)
-  if (raw.length > 0) {
+  if (recognized || resemblesCommand(text)) {
     recordCommandAttempt({ timestamp: Date.now(), command, heard: raw, recognized, voiceAboveNoiseDb })
   }
   return { text, recognized }
