@@ -25,8 +25,10 @@ const recorderApi = {
   onHandsFreeFinish: (callback: () => void): void => {
     ipcRenderer.on(IpcChannel.HandsFreeFinish, () => callback())
   },
-  checkWakePhrase: (wav: ArrayBuffer): Promise<boolean> => ipcRenderer.invoke(IpcChannel.HandsFreeCheckWake, wav),
-  checkStopPhrase: (wav: ArrayBuffer): Promise<boolean> => ipcRenderer.invoke(IpcChannel.HandsFreeCheckStop, wav),
+  checkWakePhrase: (wav: ArrayBuffer, voiceAboveNoiseDb: number | null): Promise<boolean> =>
+    ipcRenderer.invoke(IpcChannel.HandsFreeCheckWake, wav, voiceAboveNoiseDb),
+  checkStopPhrase: (wav: ArrayBuffer, voiceAboveNoiseDb: number | null): Promise<boolean> =>
+    ipcRenderer.invoke(IpcChannel.HandsFreeCheckStop, wav, voiceAboveNoiseDb),
   sendHandsFreeHearing: (hearing: boolean): void => {
     ipcRenderer.send(IpcChannel.HandsFreeHearing, hearing)
   },

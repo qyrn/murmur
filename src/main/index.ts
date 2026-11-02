@@ -328,6 +328,10 @@ function syncHandsFree(force = false): void {
   publishHandsFreeStatus()
 }
 
+function roundedDecibels(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? Math.round(value * 10) / 10 : null
+}
+
 interface HeardCommand {
   text: string
   recognized: boolean
@@ -336,6 +340,7 @@ interface HeardCommand {
 async function listenForCommand(
   command: 'start' | 'stop',
   wav: ArrayBuffer,
+  voiceAboveNoiseDb: number | null,
   matches: (text: string) => boolean
 ): Promise<HeardCommand> {
   let raw = ''
@@ -347,16 +352,16 @@ async function listenForCommand(
   const text = removeHallucinations(raw).trim()
   const recognized = matches(text)
   if (raw.length > 0) {
-    recordCommandAttempt({ timestamp: Date.now(), command, heard: raw, recognized })
+    recordCommandAttempt({ timestamp: Date.now(), command, heard: raw, recognized, voiceAboveNoiseDb })
   }
   return { text, recognized }
 }
 
-async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
+async function checkWakePhrase(wav: ArrayBuffer, voiceAboveNoiseDb: number | null): Promise<boolean> {
   if (desiredHandsFreeMode() !== 'standby') {
     return false
   }
-  const heard = await listenForCommand('start', wav, containsWakePhrase)
+  const heard = await listenForCommand('start', wav, voiceAboveNoiseDb, containsWakePhrase)
   if (heard.text.length > 0) {
     lastHeardCommand = heard.text
     publishHandsFreeStatus()
@@ -372,11 +377,11 @@ async function checkWakePhrase(wav: ArrayBuffer): Promise<boolean> {
   return true
 }
 
-async function checkStopPhrase(wav: ArrayBuffer): Promise<boolean> {
+async function checkStopPhrase(wav: ArrayBuffer, voiceAboveNoiseDb: number | null): Promise<boolean> {
   if (!handsFreeDictating) {
     return false
   }
-  return (await listenForCommand('stop', wav, containsStopPhrase)).recognized
+  return (await listenForCommand('stop', wav, voiceAboveNoiseDb, containsStopPhrase)).recognized
 }
 
 function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
@@ -493,8 +498,12 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.RecordingStopped, (_event, audio: ArrayBuffer) => {
     void handleRecordingStopped(audio)
   })
-  ipcMain.handle(IpcChannel.HandsFreeCheckWake, (_event, wav: ArrayBuffer) => checkWakePhrase(wav))
-  ipcMain.handle(IpcChannel.HandsFreeCheckStop, (_event, wav: ArrayBuffer) => checkStopPhrase(wav))
+  ipcMain.handle(IpcChannel.HandsFreeCheckWake, (_event, wav: ArrayBuffer, voiceAboveNoiseDb: unknown) =>
+    checkWakePhrase(wav, roundedDecibels(voiceAboveNoiseDb))
+  )
+  ipcMain.handle(IpcChannel.HandsFreeCheckStop, (_event, wav: ArrayBuffer, voiceAboveNoiseDb: unknown) =>
+    checkStopPhrase(wav, roundedDecibels(voiceAboveNoiseDb))
+  )
   ipcMain.on(IpcChannel.HandsFreeAudio, (_event, wav: ArrayBuffer) => {
     void handleHandsFreeAudio(wav)
   })

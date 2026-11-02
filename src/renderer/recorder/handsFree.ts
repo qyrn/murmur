@@ -5,12 +5,14 @@ import { createLevelEnvelope, rootMeanSquare } from './levelEnvelope'
 import { playWakeChime } from './wakeChime'
 import { SAMPLE_RATE, concatFrames, lastSeconds, trimToSeconds } from './audioFrames'
 import { createCommandChecker, type CommandWindow } from './commandChecker'
+import { createVoiceLoudness } from './voiceLoudness'
 
 const SPEECH_PROBABILITY_THRESHOLD = 0.5
 const COMMAND_WINDOW_SECONDS = 4
 const COMMAND_STEP_SECONDS = 2
 const COMMAND_LEAD_SECONDS = 1
 const MIN_TAIL_SECONDS = 0.65
+const MIN_VOICE_ABOVE_NOISE_DB = 30
 const LISTEN_BUFFER_SECONDS = 8
 const MAX_DICTATION_MS = 5 * 60 * 1000
 const VAD_ASSETS_URL = new URL('../vad/', document.baseURI).href
@@ -28,17 +30,21 @@ let dictationStartedAt = 0
 let lastSpeechAt = 0
 let levelEnvelope = createLevelEnvelope()
 let commandQueue: Promise<void> = Promise.resolve()
+const voiceLoudness = createVoiceLoudness()
 
 function toWav(samples: Float32Array): ArrayBuffer {
   return utils.encodeWAV(samples, 1, SAMPLE_RATE, 1, 16)
 }
 
-function commandWindow(frames: Float32Array[], seconds: number): CommandWindow {
-  return { samples: lastSeconds(frames, seconds), seconds, takenAt: performance.now() }
+function commandWindow(frames: Float32Array[], seconds: number, voiceAboveNoiseDb: number | null): CommandWindow {
+  return { samples: lastSeconds(frames, seconds), seconds, takenAt: performance.now(), voiceAboveNoiseDb }
 }
 
 const wakeChecker = createCommandChecker(
-  (candidate) => (phase === 'standby' ? window.recorderApi.checkWakePhrase(toWav(candidate.samples)) : Promise.resolve(false)),
+  (candidate) =>
+    phase === 'standby'
+      ? window.recorderApi.checkWakePhrase(toWav(candidate.samples), candidate.voiceAboveNoiseDb)
+      : Promise.resolve(false),
   (candidate) => {
     if (phase === 'standby') {
       startDictation(candidate)
@@ -47,7 +53,10 @@ const wakeChecker = createCommandChecker(
 )
 
 const stopChecker = createCommandChecker(
-  (candidate) => (phase === 'dictating' ? window.recorderApi.checkStopPhrase(toWav(candidate.samples)) : Promise.resolve(false)),
+  (candidate) =>
+    phase === 'dictating'
+      ? window.recorderApi.checkStopPhrase(toWav(candidate.samples), candidate.voiceAboveNoiseDb)
+      : Promise.resolve(false),
   () => finishDictation()
 )
 
@@ -63,10 +72,35 @@ function isListening(): boolean {
   return phase !== 'off'
 }
 
+function forgetUncheckedSpeech(): void {
+  uncheckedSpeechSeconds = 0
+  voiceLoudness.forgetSpeech()
+}
+
+function isCloseToMicrophone(voiceAboveNoiseDb: number | null): boolean {
+  return voiceAboveNoiseDb === null || voiceAboveNoiseDb >= MIN_VOICE_ABOVE_NOISE_DB
+}
+
+function submitUncheckedSpeech(seconds: number): void {
+  const voiceAboveNoiseDb = voiceLoudness.voiceAboveNoiseDb()
+  forgetUncheckedSpeech()
+  if (isCloseToMicrophone(voiceAboveNoiseDb)) {
+    activeChecker().submit(commandWindow(activeFrames(), seconds, voiceAboveNoiseDb))
+  }
+}
+
+function trackLoudness(isSpeech: boolean, frame: Float32Array): void {
+  if (!speaking) {
+    voiceLoudness.trackNoise(frame)
+  } else if (isSpeech) {
+    voiceLoudness.trackSpeech(frame)
+  }
+}
+
 function resetListening(): void {
   listenFrames = []
   speaking = false
-  uncheckedSpeechSeconds = 0
+  forgetUncheckedSpeech()
   wakeChecker.reset()
 }
 
@@ -74,7 +108,7 @@ function startDictation(wakeWindow: CommandWindow): void {
   const secondsSinceWindow = (performance.now() - wakeWindow.takenAt) / 1000
   dictationFrames = [lastSeconds(listenFrames, wakeWindow.seconds + secondsSinceWindow)]
   listenFrames = []
-  uncheckedSpeechSeconds = 0
+  forgetUncheckedSpeech()
   phase = 'dictating'
   levelEnvelope = createLevelEnvelope()
   dictationStartedAt = performance.now()
@@ -109,6 +143,7 @@ function handleFrame(isSpeech: boolean, frame: Float32Array): void {
     return
   }
   activeFrames().push(frame)
+  trackLoudness(isSpeech, frame)
   if (phase === 'standby') {
     trimToSeconds(listenFrames, LISTEN_BUFFER_SECONDS)
   } else {
@@ -119,14 +154,13 @@ function handleFrame(isSpeech: boolean, frame: Float32Array): void {
   }
   uncheckedSpeechSeconds += frame.length / SAMPLE_RATE
   if (uncheckedSpeechSeconds >= COMMAND_STEP_SECONDS) {
-    uncheckedSpeechSeconds = 0
-    activeChecker().submit(commandWindow(activeFrames(), COMMAND_WINDOW_SECONDS))
+    submitUncheckedSpeech(COMMAND_WINDOW_SECONDS)
   }
 }
 
 function handleSpeechStart(): void {
   speaking = true
-  uncheckedSpeechSeconds = 0
+  forgetUncheckedSpeech()
   if (phase === 'standby') {
     window.recorderApi.sendHandsFreeHearing(true)
   }
@@ -134,7 +168,7 @@ function handleSpeechStart(): void {
 
 function handleMisfire(): void {
   speaking = false
-  uncheckedSpeechSeconds = 0
+  forgetUncheckedSpeech()
   window.recorderApi.sendHandsFreeHearing(false)
 }
 
@@ -142,10 +176,9 @@ function handleSpeechEnd(): void {
   speaking = false
   window.recorderApi.sendHandsFreeHearing(false)
   if (isListening() && uncheckedSpeechSeconds >= MIN_TAIL_SECONDS) {
-    const seconds = Math.min(COMMAND_WINDOW_SECONDS, uncheckedSpeechSeconds + COMMAND_LEAD_SECONDS)
-    activeChecker().submit(commandWindow(activeFrames(), seconds))
+    submitUncheckedSpeech(Math.min(COMMAND_WINDOW_SECONDS, uncheckedSpeechSeconds + COMMAND_LEAD_SECONDS))
   }
-  uncheckedSpeechSeconds = 0
+  forgetUncheckedSpeech()
 }
 
 function createVad(): Promise<MicVAD> {

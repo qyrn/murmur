@@ -2,6 +2,7 @@ export interface CommandWindow {
   samples: Float32Array
   seconds: number
   takenAt: number
+  voiceAboveNoiseDb: number | null
 }
 
 export interface CommandChecker {

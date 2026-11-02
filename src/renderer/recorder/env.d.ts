@@ -11,8 +11,8 @@ declare global {
     sendRecordingError: (message: string) => void
     onHandsFreeMode: (callback: (command: HandsFreeCommand) => void) => void
     onHandsFreeFinish: (callback: () => void) => void
-    checkWakePhrase: (wav: ArrayBuffer) => Promise<boolean>
-    checkStopPhrase: (wav: ArrayBuffer) => Promise<boolean>
+    checkWakePhrase: (wav: ArrayBuffer, voiceAboveNoiseDb: number | null) => Promise<boolean>
+    checkStopPhrase: (wav: ArrayBuffer, voiceAboveNoiseDb: number | null) => Promise<boolean>
     sendHandsFreeHearing: (hearing: boolean) => void
     sendHandsFreeAudio: (wav: ArrayBuffer) => void
   }

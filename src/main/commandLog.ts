@@ -7,6 +7,7 @@ export interface VoiceCommandAttempt {
   command: 'start' | 'stop'
   heard: string
   recognized: boolean
+  voiceAboveNoiseDb: number | null
 }
 
 const MAX_ENTRIES = 500
