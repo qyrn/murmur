@@ -15,6 +15,7 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, label: string): 
 }
 
 const GET_USER_MEDIA_TIMEOUT_MS = 5000
+const WITHOUT_AUTO_GAIN: MediaTrackConstraints = { autoGainControl: false }
 
 export async function openMicrophone(): Promise<MediaStream> {
   const deviceId = await window.recorderApi.getMicrophoneDeviceId()
@@ -22,7 +23,7 @@ export async function openMicrophone(): Promise<MediaStream> {
   if (deviceId) {
     try {
       return await withTimeout(
-        navigator.mediaDevices.getUserMedia({ audio: { deviceId: { exact: deviceId } } }),
+        navigator.mediaDevices.getUserMedia({ audio: { ...WITHOUT_AUTO_GAIN, deviceId: { exact: deviceId } } }),
         GET_USER_MEDIA_TIMEOUT_MS,
         'getUserMedia'
       )
@@ -31,7 +32,11 @@ export async function openMicrophone(): Promise<MediaStream> {
     }
   }
 
-  return withTimeout(navigator.mediaDevices.getUserMedia({ audio: true }), GET_USER_MEDIA_TIMEOUT_MS, 'getUserMedia')
+  return withTimeout(
+    navigator.mediaDevices.getUserMedia({ audio: WITHOUT_AUTO_GAIN }),
+    GET_USER_MEDIA_TIMEOUT_MS,
+    'getUserMedia'
+  )
 }
 
 export function closeMicrophone(stream: MediaStream | null): void {
