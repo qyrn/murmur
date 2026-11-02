@@ -52,7 +52,7 @@ export async function transcribeAudio(
   dictionary: DictionaryEntry[],
   shortcuts: VoiceShortcut[]
 ): Promise<string> {
-  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary, shortcuts))
+  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
   return polishDictation(spokenText, dictionary, shortcuts)
 }
 
@@ -61,7 +61,7 @@ export async function transcribeHandsFreeAudio(
   dictionary: DictionaryEntry[],
   shortcuts: VoiceShortcut[]
 ): Promise<string> {
-  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary, shortcuts))
+  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
   return polishDictation(extractDictation(spokenText), dictionary, shortcuts)
 }
 
