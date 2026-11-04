@@ -338,6 +338,10 @@ select:focus {
   width: 100%;
 }
 
+.dictionary-row.is-left-out input[type='text'] {
+  color: var(--text-muted);
+}
+
 .shortcut-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr auto;

@@ -1,7 +1,5 @@
 import type { DictionaryEntry, VoiceShortcut } from '../shared/types'
-
-const BASE_PROMPT = 'Dictée en français, avec parfois des mots ou expressions en anglais conservés tels quels'
-const MAX_PROMPT_CHARACTERS = 600
+import { promptWithTerms, termsThatFitInPrompt } from '../shared/promptTerms'
 
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -17,16 +15,8 @@ function containsWordCharacter(value: string): boolean {
   return /[\p{L}\p{N}]/u.test(value)
 }
 
-function promptWithTerms(terms: string[]): string {
-  return terms.length === 0 ? `${BASE_PROMPT}.` : `${BASE_PROMPT}, notamment : ${terms.join(', ')}.`
-}
-
 export function buildInitialPrompt(entries: DictionaryEntry[]): string {
-  let terms = [...new Set(entries.map((entry) => entry.term.trim()).filter(Boolean))]
-  while (terms.length > 0 && promptWithTerms(terms).length > MAX_PROMPT_CHARACTERS) {
-    terms = terms.slice(1)
-  }
-  return promptWithTerms(terms)
+  return promptWithTerms(termsThatFitInPrompt(entries.map((entry) => entry.term)))
 }
 
 export function applyVoiceShortcuts(text: string, shortcuts: VoiceShortcut[]): string {

@@ -8,6 +8,7 @@ import type {
   VoiceShortcut,
   WhisperModel
 } from '../../shared/types'
+import { termsThatFitInPrompt } from '../../shared/promptTerms'
 
 const ACCENT_PRESETS = ['#e0a248', '#5b9279', '#c1653f', '#5b7a9d', '#8a8578']
 
@@ -51,6 +52,7 @@ const accentSwatchesContainer = document.querySelector<HTMLDivElement>('#accent-
 const showWaveformInput = document.querySelector<HTMLInputElement>('#show-waveform')!
 const dictionaryList = document.querySelector<HTMLDivElement>('#dictionary-list')!
 const addTermButton = document.querySelector<HTMLButtonElement>('#add-term')!
+const dictionaryOverflowHint = document.querySelector<HTMLParagraphElement>('#dictionary-overflow')!
 const shortcutList = document.querySelector<HTMLDivElement>('#shortcut-list')!
 const addShortcutButton = document.querySelector<HTMLButtonElement>('#add-shortcut')!
 const saveButton = document.querySelector<HTMLButtonElement>('#save')!
@@ -172,6 +174,18 @@ function renderAccentSwatches(): void {
   }
 }
 
+function refreshPromptOverflow(): void {
+  const termsSentToWhisper = new Set(termsThatFitInPrompt(dictionary.map((entry) => entry.term)))
+  let anyTermLeftOut = false
+  Array.from(dictionaryList.children).forEach((row, index) => {
+    const term = dictionary[index]?.term.trim() ?? ''
+    const isLeftOut = term.length > 0 && !termsSentToWhisper.has(term)
+    row.classList.toggle('is-left-out', isLeftOut)
+    anyTermLeftOut ||= isLeftOut
+  })
+  dictionaryOverflowHint.hidden = !anyTermLeftOut
+}
+
 function renderDictionary(): void {
   dictionaryList.innerHTML = ''
   dictionary.forEach((entry, index) => {
@@ -184,6 +198,7 @@ function renderDictionary(): void {
     termInput.value = entry.term
     termInput.addEventListener('input', () => {
       dictionary[index] = { ...dictionary[index]!, term: termInput.value }
+      refreshPromptOverflow()
     })
 
     const noteInput = document.createElement('input')
@@ -206,6 +221,7 @@ function renderDictionary(): void {
     row.append(termInput, noteInput, removeButton)
     dictionaryList.append(row)
   })
+  refreshPromptOverflow()
 }
 
 addTermButton.addEventListener('click', () => {
@@ -309,7 +325,9 @@ const HANDS_FREE_LABELS: Record<HandsFreeActivity, string> = {
 function renderHandsFreeStatus(status: HandsFreeStatus): void {
   handsFreeStatusBox.dataset['activity'] = status.activity
   handsFreeActivityLabel.textContent = HANDS_FREE_LABELS[status.activity]
-  handsFreeLastHeard.textContent = status.lastHeard ? `Dernière phrase entendue : «\u00a0${status.lastHeard}\u00a0»` : ''
+  handsFreeLastHeard.textContent = status.lastHeard
+    ? `Dernière phrase entendue : «\u00a0${status.lastHeard}\u00a0»`
+    : ''
 }
 
 saveButton.addEventListener('click', () => {
