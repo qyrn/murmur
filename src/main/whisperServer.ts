@@ -44,7 +44,7 @@ function serverCommand(model: WhisperModel): { command: string; args: string[] }
   if (isWindows || !existsSync(PARENT_DEATH_WRAPPER)) {
     return { command: serverBinary, args: serverArgs }
   }
-  return { command: PARENT_DEATH_WRAPPER, args: ['--pdeathsig', 'TERM', '--', serverBinary, ...serverArgs] }
+  return { command: PARENT_DEATH_WRAPPER, args: ['--pdeathsig', 'KILL', '--', serverBinary, ...serverArgs] }
 }
 
 let serverProcess: ChildProcessWithoutNullStreams | null = null
