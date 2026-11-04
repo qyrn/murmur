@@ -15,12 +15,17 @@ const MIN_TAIL_SECONDS = 0.65
 const MIN_VOICE_ABOVE_NOISE_DB = 30
 const LISTEN_BUFFER_SECONDS = 8
 const MAX_DICTATION_MS = 5 * 60 * 1000
+const HOTKEY_PRE_ROLL_SECONDS = 0.2
+const MAX_FRAME_GAP_MS = 300
 const VAD_ASSETS_URL = new URL('../vad/', document.baseURI).href
 
 type Phase = 'off' | 'standby' | 'dictating'
+type DictationTrigger = 'voice' | 'hotkey'
 
 let vad: MicVAD | null = null
 let phase: Phase = 'off'
+let dictationTrigger: DictationTrigger = 'voice'
+let lastFrameAt = 0
 let silenceLimitMs = 3000
 let listenFrames: Float32Array[] = []
 let dictationFrames: Float32Array[] = []
@@ -72,6 +77,10 @@ function isListening(): boolean {
   return phase !== 'off'
 }
 
+function listensForCommands(): boolean {
+  return phase === 'standby' || (phase === 'dictating' && dictationTrigger === 'voice')
+}
+
 function forgetUncheckedSpeech(): void {
   uncheckedSpeechSeconds = 0
   voiceLoudness.forgetSpeech()
@@ -104,31 +113,63 @@ function resetListening(): void {
   wakeChecker.reset()
 }
 
-function startDictation(wakeWindow: CommandWindow): void {
-  const secondsSinceWindow = (performance.now() - wakeWindow.takenAt) / 1000
-  dictationFrames = [lastSeconds(listenFrames, wakeWindow.seconds + secondsSinceWindow)]
+function beginDictation(alreadyHeard: Float32Array, trigger: DictationTrigger): void {
+  dictationFrames = [alreadyHeard]
   listenFrames = []
   forgetUncheckedSpeech()
   phase = 'dictating'
+  dictationTrigger = trigger
   levelEnvelope = createLevelEnvelope()
   dictationStartedAt = performance.now()
   lastSpeechAt = dictationStartedAt
+}
+
+function startDictation(wakeWindow: CommandWindow): void {
+  const secondsSinceWindow = (performance.now() - wakeWindow.takenAt) / 1000
+  beginDictation(lastSeconds(listenFrames, wakeWindow.seconds + secondsSinceWindow), 'voice')
   playWakeChime()
 }
 
-function finishDictation(): void {
-  if (phase !== 'dictating') {
-    return
-  }
+function takeDictationAudio(): ArrayBuffer {
   phase = 'off'
   stopChecker.reset()
   const samples = concatFrames(dictationFrames)
   dictationFrames = []
-  window.recorderApi.sendHandsFreeAudio(toWav(samples))
+  return toWav(samples)
+}
+
+function finishDictation(): void {
+  if (phase === 'dictating' && dictationTrigger === 'voice') {
+    window.recorderApi.sendHandsFreeAudio(takeDictationAudio())
+  }
+}
+
+function microphoneIsFlowing(): boolean {
+  return performance.now() - lastFrameAt < MAX_FRAME_GAP_MS
+}
+
+export function startHotkeyDictation(): boolean {
+  if (phase !== 'standby' || !microphoneIsFlowing()) {
+    return false
+  }
+  wakeChecker.reset()
+  beginDictation(lastSeconds(listenFrames, HOTKEY_PRE_ROLL_SECONDS), 'hotkey')
+  return true
+}
+
+export function finishHotkeyDictation(): boolean {
+  if (phase !== 'dictating' || dictationTrigger !== 'hotkey') {
+    return false
+  }
+  window.recorderApi.sendRecordingStopped(takeDictationAudio())
+  return true
 }
 
 function trackDictation(isSpeech: boolean, frame: Float32Array): void {
   window.recorderApi.sendAudioLevel(levelEnvelope(rootMeanSquare(frame)))
+  if (dictationTrigger === 'hotkey') {
+    return
+  }
   const now = performance.now()
   if (isSpeech) {
     lastSpeechAt = now
@@ -139,6 +180,7 @@ function trackDictation(isSpeech: boolean, frame: Float32Array): void {
 }
 
 function handleFrame(isSpeech: boolean, frame: Float32Array): void {
+  lastFrameAt = performance.now()
   if (!isListening()) {
     return
   }
@@ -149,7 +191,7 @@ function handleFrame(isSpeech: boolean, frame: Float32Array): void {
   } else {
     trackDictation(isSpeech, frame)
   }
-  if (!speaking || !isListening()) {
+  if (!speaking || !listensForCommands()) {
     return
   }
   uncheckedSpeechSeconds += frame.length / SAMPLE_RATE
@@ -175,7 +217,7 @@ function handleMisfire(): void {
 function handleSpeechEnd(): void {
   speaking = false
   window.recorderApi.sendHandsFreeHearing(false)
-  if (isListening() && uncheckedSpeechSeconds >= MIN_TAIL_SECONDS) {
+  if (listensForCommands() && uncheckedSpeechSeconds >= MIN_TAIL_SECONDS) {
     submitUncheckedSpeech(Math.min(COMMAND_WINDOW_SECONDS, uncheckedSpeechSeconds + COMMAND_LEAD_SECONDS))
   }
   forgetUncheckedSpeech()
@@ -200,7 +242,8 @@ function createVad(): Promise<MicVAD> {
       ort.env.wasm.numThreads = 1
       ort.env.logLevel = 'error'
     },
-    onFrameProcessed: (probabilities, frame) => handleFrame(probabilities.isSpeech > SPEECH_PROBABILITY_THRESHOLD, frame),
+    onFrameProcessed: (probabilities, frame) =>
+      handleFrame(probabilities.isSpeech > SPEECH_PROBABILITY_THRESHOLD, frame),
     onSpeechStart: handleSpeechStart,
     onVADMisfire: handleMisfire,
     onSpeechEnd: handleSpeechEnd

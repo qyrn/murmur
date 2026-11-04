@@ -87,6 +87,7 @@ let fullscreenAppActive = false
 let hotkeyRegistered = false
 let handsFreeMode: HandsFreeMode = 'off'
 let handsFreeDictating = false
+let hotkeyStartedFromStandby = false
 let handsFreeHearing = false
 let lastHeardCommand: string | null = null
 let settings: DictationSettings = loadSettings()
@@ -265,6 +266,7 @@ function createSettingsWindow(): void {
 
 async function toggleDictation(): Promise<void> {
   if (appState === 'idle') {
+    hotkeyStartedFromStandby = handsFreeMode === 'standby'
     try {
       setAppState('loading-model')
       await ensureWhisperServer(settings.model)
@@ -310,8 +312,12 @@ function publishHandsFreeStatus(): void {
   settingsWindow?.webContents.send(IpcChannel.HandsFreeStatus, handsFreeStatus())
 }
 
+function hotkeyIsRecordingFromHandsFreeStream(): boolean {
+  return hotkeyStartedFromStandby && (appState === 'loading-model' || appState === 'recording')
+}
+
 function syncHandsFree(force = false): void {
-  if (handsFreeDictating) {
+  if (handsFreeDictating || hotkeyIsRecordingFromHandsFreeStream()) {
     return
   }
   const mode = desiredHandsFreeMode()
@@ -386,8 +392,10 @@ async function checkStopPhrase(wav: ArrayBuffer, voiceAboveNoiseDb: number | nul
 
 function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
   return completeDictation(async () => {
-    console.log(`[debug] audio recu du renderer : ${audio.byteLength} octets`)
-    const wav = await convertToWav16kMono(Buffer.from(audio))
+    const audioBuffer = Buffer.from(audio)
+    const source = audioBuffer.subarray(0, 4).toString('latin1') === 'RIFF' ? 'flux mains libres' : 'micro dédié'
+    console.log(`[debug] audio recu du renderer (${source}) : ${audioBuffer.byteLength} octets`)
+    const wav = await convertToWav16kMono(audioBuffer)
     console.log(`[debug] wav converti : ${wav.byteLength} octets`)
     const wavArrayBuffer = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer
     return transcribeAudio(wavArrayBuffer, loadDictionary(), loadShortcuts())

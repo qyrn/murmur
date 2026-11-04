@@ -1,6 +1,6 @@
 import { closeMicrophone, openMicrophone, withTimeout } from './microphone'
 import { createLevelEnvelope, rootMeanSquare } from './levelEnvelope'
-import { initHandsFree } from './handsFree'
+import { finishHotkeyDictation, initHandsFree, startHotkeyDictation } from './handsFree'
 
 let activeStream: MediaStream | null = null
 let recorder: MediaRecorder | null = null
@@ -83,12 +83,15 @@ window.addEventListener('beforeunload', releaseMicrophone)
 
 window.recorderApi.onToggle((action) => {
   if (action === 'start') {
+    if (startHotkeyDictation()) {
+      return
+    }
     startRecording().catch((err: unknown) => {
       releaseMicrophone()
       const message = err instanceof Error ? `${err.name}: ${err.message}` : String(err)
       window.recorderApi.sendRecordingError(message)
     })
-  } else {
+  } else if (!finishHotkeyDictation()) {
     void stopRecording()
   }
 })
