@@ -6,6 +6,7 @@ import type { WhisperModel } from '../shared/types'
 
 const SERVER_PORT = 8178
 const SERVER_HOST = '127.0.0.1'
+const PARENT_DEATH_WRAPPER = '/usr/bin/setpriv'
 
 const engineRoot = app.isPackaged
   ? join(process.resourcesPath, 'whisper-engine')
@@ -29,6 +30,23 @@ function modelPath(model: WhisperModel): string {
   return join(engineRoot, `models/ggml-${model}.bin`)
 }
 
+function serverCommand(model: WhisperModel): { command: string; args: string[] } {
+  const serverArgs = [
+    '--model',
+    modelPath(model),
+    '--host',
+    SERVER_HOST,
+    '--port',
+    String(SERVER_PORT),
+    '--language',
+    'fr'
+  ]
+  if (isWindows || !existsSync(PARENT_DEATH_WRAPPER)) {
+    return { command: serverBinary, args: serverArgs }
+  }
+  return { command: PARENT_DEATH_WRAPPER, args: ['--pdeathsig', 'TERM', '--', serverBinary, ...serverArgs] }
+}
+
 let serverProcess: ChildProcessWithoutNullStreams | null = null
 let readyPromise: Promise<void> | null = null
 let currentModel: WhisperModel | null = null
@@ -37,16 +55,20 @@ export function serverBaseUrl(): string {
   return `http://${SERVER_HOST}:${SERVER_PORT}`
 }
 
+async function serverAnswers(): Promise<boolean> {
+  try {
+    const response = await fetch(`${serverBaseUrl()}/`, { method: 'GET' })
+    return response.ok || response.status === 404
+  } catch {
+    return false
+  }
+}
+
 async function waitForHealth(timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs
   while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${serverBaseUrl()}/`, { method: 'GET' })
-      if (response.ok || response.status === 404) {
-        return
-      }
-    } catch {
-      // le serveur n'est pas encore prêt, on réessaie
+    if (await serverAnswers()) {
+      return
     }
     await new Promise((r) => setTimeout(r, 300))
   }
@@ -72,11 +94,8 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
 
   currentModel = model
   readyPromise = new Promise<void>((resolvePromise, rejectPromise) => {
-    const proc = spawn(
-      serverBinary,
-      ['--model', modelPath(model), '--host', SERVER_HOST, '--port', String(SERVER_PORT), '--language', 'fr'],
-      { stdio: 'pipe', env: serverEnvironment() }
-    )
+    const { command, args } = serverCommand(model)
+    const proc = spawn(command, args, { stdio: 'pipe', env: serverEnvironment() })
     serverProcess = proc
     proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
     proc.stderr.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
