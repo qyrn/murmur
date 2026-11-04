@@ -42,9 +42,9 @@ async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string | nul
 }
 
 function polishDictation(spokenText: string, dictionary: DictionaryEntry[], shortcuts: VoiceShortcut[]): string {
-  const withShortcuts = applyVoiceShortcuts(removeHallucinations(spokenText), shortcuts)
-  const withCorrections = applyDictionaryCorrections(withShortcuts, dictionary)
-  return normalizeFrenchTypography(withCorrections)
+  const withCorrections = applyDictionaryCorrections(removeHallucinations(spokenText), dictionary)
+  const withShortcuts = applyVoiceShortcuts(withCorrections, shortcuts)
+  return normalizeFrenchTypography(withShortcuts)
 }
 
 export async function transcribeAudio(
