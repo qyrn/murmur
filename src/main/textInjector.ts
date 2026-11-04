@@ -2,11 +2,11 @@ import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
 import { clipboard } from 'electron'
 import { getActiveWindow } from './activeWindow'
+import { scheduleClipboardRestore, takeClipboardToRestore, type ClipboardAccess } from './clipboardRestore'
 
 const execFileAsync = promisify(execFile)
 
 const CLIPBOARD_SETTLE_MS = 50
-const CLIPBOARD_RESTORE_DELAY_MS = 1500
 
 const LINUX_KEYCODE_LEFT_CTRL = 29
 const LINUX_KEYCODE_LEFT_SHIFT = 42
@@ -28,19 +28,23 @@ const TERMINAL_WINDOW_CLASSES: ReadonlySet<string> = new Set([
 
 const wait = (ms: number): Promise<void> => new Promise((resolvePromise) => setTimeout(resolvePromise, ms))
 
+const windowsClipboard: ClipboardAccess = {
+  read: async () => clipboard.readText(),
+  write: async (text) => clipboard.writeText(text)
+}
+
 async function pasteOnWindows(text: string): Promise<void> {
   const { keyboard, Key } = await import('@nut-tree-fork/nut-js')
   keyboard.config.autoDelayMs = 0
-  const previousClipboard = await clipboard.readText()
+  const previousClipboard = await takeClipboardToRestore(windowsClipboard)
 
-  await clipboard.writeText(text)
+  await windowsClipboard.write(text)
   await wait(CLIPBOARD_SETTLE_MS)
 
   await keyboard.pressKey(Key.LeftControl, Key.V)
   await keyboard.releaseKey(Key.LeftControl, Key.V)
 
-  await wait(CLIPBOARD_RESTORE_DELAY_MS)
-  await clipboard.writeText(previousClipboard)
+  scheduleClipboardRestore(windowsClipboard, previousClipboard, text)
 }
 
 async function readWaylandClipboard(): Promise<string | null> {
@@ -67,14 +71,18 @@ function writeWaylandClipboard(text: string): Promise<void> {
   })
 }
 
+const waylandClipboard: ClipboardAccess = { read: readWaylandClipboard, write: writeWaylandClipboard }
+
 function pasteKeySequence(useTerminalShortcut: boolean): string[] {
-  const modifiers = useTerminalShortcut ? [LINUX_KEYCODE_LEFT_CTRL, LINUX_KEYCODE_LEFT_SHIFT] : [LINUX_KEYCODE_LEFT_CTRL]
+  const modifiers = useTerminalShortcut
+    ? [LINUX_KEYCODE_LEFT_CTRL, LINUX_KEYCODE_LEFT_SHIFT]
+    : [LINUX_KEYCODE_LEFT_CTRL]
   const keys = [...modifiers, LINUX_KEYCODE_V]
   return [...keys.map((code) => `${code}:1`), ...keys.reverse().map((code) => `${code}:0`)]
 }
 
 async function pasteOnLinux(text: string): Promise<void> {
-  const previousClipboard = await readWaylandClipboard()
+  const previousClipboard = await takeClipboardToRestore(waylandClipboard)
   const activeWindow = await getActiveWindow()
   const useTerminalShortcut = activeWindow !== undefined && TERMINAL_WINDOW_CLASSES.has(activeWindow.windowClass)
 
@@ -83,10 +91,7 @@ async function pasteOnLinux(text: string): Promise<void> {
 
   await execFileAsync('ydotool', ['key', ...pasteKeySequence(useTerminalShortcut)])
 
-  if (previousClipboard !== null) {
-    await wait(CLIPBOARD_RESTORE_DELAY_MS)
-    await writeWaylandClipboard(previousClipboard)
-  }
+  scheduleClipboardRestore(waylandClipboard, previousClipboard, text)
 }
 
 export function pasteIntoActiveWindow(text: string): Promise<void> {
