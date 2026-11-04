@@ -1,5 +1,5 @@
 import { app } from 'electron'
-import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 let logPath: string | null = null
@@ -26,7 +26,7 @@ function appendToFile(level: string, args: unknown[]): void {
   try {
     appendFileSync(logPath, line, 'utf-8')
   } catch {
-    // best effort : si l'ecriture echoue on ne peut rien faire de plus
+    logPath = null
   }
 }
 
@@ -37,6 +37,9 @@ export function initFileLogging(): void {
   const dir = join(app.getPath('userData'), 'logs')
   mkdirSync(dir, { recursive: true })
   logPath = join(dir, 'main.log')
+  if (existsSync(logPath)) {
+    renameSync(logPath, join(dir, 'main.previous.log'))
+  }
   writeFileSync(logPath, `--- demarrage ${new Date().toISOString()} ---\n`, 'utf-8')
 
   const originalLog = console.log.bind(console)
