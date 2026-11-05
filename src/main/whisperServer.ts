@@ -7,6 +7,7 @@ import type { WhisperModel } from '../shared/types'
 const SERVER_PORT = 8178
 const SERVER_HOST = '127.0.0.1'
 const PARENT_DEATH_WRAPPER = '/usr/bin/setpriv'
+const READY_TIMEOUT_MS = 30000
 
 const engineRoot = app.isPackaged
   ? join(process.resourcesPath, 'whisper-engine')
@@ -75,14 +76,25 @@ async function waitForHealth(timeoutMs: number): Promise<void> {
   throw new Error('whisper-server ne répond pas après le délai imparti')
 }
 
+function forgetServer(proc: ChildProcessWithoutNullStreams): void {
+  if (serverProcess === proc) {
+    stopWhisperServer()
+  }
+}
+
+function failureOnExit(proc: ChildProcessWithoutNullStreams): Promise<never> {
+  return new Promise((_resolvePromise, rejectPromise) => {
+    proc.on('error', rejectPromise)
+    proc.on('exit', (code, signal) => {
+      forgetServer(proc)
+      rejectPromise(new Error(`whisper-server s'est arrêté (${signal ?? `code ${code}`})`))
+    })
+  })
+}
+
 export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
   if (serverProcess && currentModel === model && readyPromise) {
     return readyPromise
-  }
-
-  if (serverProcess) {
-    serverProcess.kill()
-    serverProcess = null
   }
 
   if (!existsSync(serverBinary)) {
@@ -92,34 +104,25 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
     throw new Error(`Modèle introuvable : ${modelPath(model)}. Lance scripts/${downloadScriptName} d'abord.`)
   }
 
-  currentModel = model
-  readyPromise = new Promise<void>((resolvePromise, rejectPromise) => {
-    const { command, args } = serverCommand(model)
-    const proc = spawn(command, args, { stdio: 'pipe', env: serverEnvironment() })
-    serverProcess = proc
-    proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
-    proc.stderr.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
+  stopWhisperServer()
+  const { command, args } = serverCommand(model)
+  const proc = spawn(command, args, { stdio: 'pipe', env: serverEnvironment() })
+  proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
+  proc.stderr.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
 
-    proc.on('error', (err) => rejectPromise(err))
-    proc.on('exit', (code) => {
-      if (code !== 0 && code !== null) {
-        rejectPromise(new Error(`whisper-server s'est arrêté avec le code ${code}`))
-      }
-      serverProcess = null
-      readyPromise = null
-    })
-
-    waitForHealth(30000).then(resolvePromise, rejectPromise)
+  const ready = Promise.race([waitForHealth(READY_TIMEOUT_MS), failureOnExit(proc)]).catch((err: unknown) => {
+    forgetServer(proc)
+    throw err
   })
-
-  return readyPromise
+  serverProcess = proc
+  currentModel = model
+  readyPromise = ready
+  return ready
 }
 
 export function stopWhisperServer(): void {
-  if (serverProcess) {
-    serverProcess.kill()
-    serverProcess = null
-    readyPromise = null
-    currentModel = null
-  }
+  serverProcess?.kill()
+  serverProcess = null
+  readyPromise = null
+  currentModel = null
 }
