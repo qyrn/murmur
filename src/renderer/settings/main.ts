@@ -322,6 +322,19 @@ const HANDS_FREE_LABELS: Record<HandsFreeActivity, string> = {
   dictating: 'Dictée en cours : dis « murmur stop » pour finir'
 }
 
+function disableMissingModels(installed: WhisperModel[]): void {
+  for (const option of Array.from(modelSelect.options)) {
+    const isInstalled = installed.some((model) => model === option.value)
+    option.disabled = !isInstalled
+    if (!isInstalled) {
+      option.textContent = `${option.value} (pas installé)`
+    }
+  }
+  if (modelSelect.selectedOptions[0]?.disabled && installed[0]) {
+    modelSelect.value = installed[0]
+  }
+}
+
 function renderHandsFreeStatus(status: HandsFreeStatus): void {
   handsFreeStatusBox.dataset['activity'] = status.activity
   handsFreeActivityLabel.textContent = HANDS_FREE_LABELS[status.activity]
@@ -364,6 +377,7 @@ async function init(): Promise<void> {
   autoPasteInput.checked = settings.autoPaste
   disableHotkeyInFullscreenInput.checked = settings.disableHotkeyInFullscreen
   modelSelect.value = settings.model
+  disableMissingModels(await window.settingsApi.getInstalledModels())
   overlayPositionSelect.value = settings.overlayPosition
   showWaveformInput.checked = settings.showWaveform
   handsFreeEnabledInput.checked = settings.handsFreeEnabled

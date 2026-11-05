@@ -5,7 +5,8 @@ import type {
   DictationSettings,
   DictionaryEntry,
   HandsFreeStatus,
-  VoiceShortcut
+  VoiceShortcut,
+  WhisperModel
 } from '../../shared/types'
 
 declare global {
@@ -18,6 +19,7 @@ declare global {
     setShortcuts: (shortcuts: VoiceShortcut[]) => Promise<void>
     isPackaged: () => Promise<boolean>
     getAppVersion: () => Promise<string>
+    getInstalledModels: () => Promise<WhisperModel[]>
     getHistory: () => Promise<DictationRecord[]>
     getHandsFreeStatus: () => Promise<HandsFreeStatus>
     onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void) => void

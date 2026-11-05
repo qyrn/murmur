@@ -1,4 +1,6 @@
-export type WhisperModel = 'large-v3-turbo' | 'large-v3'
+export const WHISPER_MODELS = ['large-v3-turbo', 'large-v3'] as const
+
+export type WhisperModel = (typeof WHISPER_MODELS)[number]
 
 export type OverlayPosition = 'bottom-center' | 'bottom-left' | 'bottom-right' | 'top-center'
 
@@ -71,6 +73,7 @@ export const IpcChannel = {
   SetShortcuts: 'shortcuts:set',
   IsPackaged: 'app:is-packaged',
   GetAppVersion: 'app:get-version',
+  GetInstalledModels: 'models:get-installed',
   GetHistory: 'history:get',
   WindowMinimize: 'window:minimize',
   WindowToggleMaximize: 'window:toggle-maximize',

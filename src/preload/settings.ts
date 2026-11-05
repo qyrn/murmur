@@ -5,7 +5,8 @@ import type {
   DictationSettings,
   DictionaryEntry,
   HandsFreeStatus,
-  VoiceShortcut
+  VoiceShortcut,
+  WhisperModel
 } from '../shared/types'
 
 const settingsApi = {
@@ -17,6 +18,7 @@ const settingsApi = {
   setShortcuts: (shortcuts: VoiceShortcut[]): Promise<void> => ipcRenderer.invoke(IpcChannel.SetShortcuts, shortcuts),
   isPackaged: (): Promise<boolean> => ipcRenderer.invoke(IpcChannel.IsPackaged),
   getAppVersion: (): Promise<string> => ipcRenderer.invoke(IpcChannel.GetAppVersion),
+  getInstalledModels: (): Promise<WhisperModel[]> => ipcRenderer.invoke(IpcChannel.GetInstalledModels),
   getHistory: (): Promise<DictationRecord[]> => ipcRenderer.invoke(IpcChannel.GetHistory),
   getHandsFreeStatus: (): Promise<HandsFreeStatus> => ipcRenderer.invoke(IpcChannel.GetHandsFreeStatus),
   onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void): void => {

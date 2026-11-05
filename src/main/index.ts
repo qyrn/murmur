@@ -17,7 +17,7 @@ import {
 import { loadHistory, appendHistoryEntry } from './historyStore'
 import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
-import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
+import { ensureWhisperServer, installedModels, stopWhisperServer } from './whisperServer'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
 import { containsStopPhrase, containsWakePhrase, resemblesCommand } from './voiceCommands'
 import { removeHallucinations } from './hallucinationFilter'
@@ -480,6 +480,7 @@ function syncHotkeyWithFullscreen(): void {
 function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.IsPackaged, () => app.isPackaged)
   ipcMain.handle(IpcChannel.GetAppVersion, () => app.getVersion())
+  ipcMain.handle(IpcChannel.GetInstalledModels, () => installedModels())
   ipcMain.handle(IpcChannel.GetSettings, () => settings)
   ipcMain.handle(IpcChannel.SetSettings, (_event, next: DictationSettings) => {
     const previousPosition = settings.overlayPosition

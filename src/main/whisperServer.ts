@@ -2,7 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { app } from 'electron'
-import type { WhisperModel } from '../shared/types'
+import { WHISPER_MODELS, type WhisperModel } from '../shared/types'
 
 const SERVER_PORT = 8178
 const SERVER_HOST = '127.0.0.1'
@@ -29,6 +29,10 @@ function serverEnvironment(): NodeJS.ProcessEnv {
 
 function modelPath(model: WhisperModel): string {
   return join(engineRoot, `models/ggml-${model}.bin`)
+}
+
+export function installedModels(): WhisperModel[] {
+  return WHISPER_MODELS.filter((model) => existsSync(modelPath(model)))
 }
 
 function serverCommand(model: WhisperModel): { command: string; args: string[] } {
