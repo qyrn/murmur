@@ -412,7 +412,7 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
   try {
     setAppState('transcribing')
     const text = await transcribe()
-    console.log(`[debug] texte transcrit (${text.length} caractères) : ${JSON.stringify(text)}`)
+    console.log(`[debug] texte transcrit : ${text.length} caractères`)
 
     const trimmed = text.trim()
     if (trimmed.length > 0) {
