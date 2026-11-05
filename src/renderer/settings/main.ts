@@ -291,9 +291,16 @@ async function populateMicrophoneList(): Promise<void> {
     microphoneSelect.append(option)
   }
 
-  if (storedMicrophoneDeviceId && inputs.some((device) => device.deviceId === storedMicrophoneDeviceId)) {
-    microphoneSelect.value = storedMicrophoneDeviceId
+  if (!storedMicrophoneDeviceId) {
+    return
   }
+  if (!inputs.some((device) => device.deviceId === storedMicrophoneDeviceId)) {
+    const unpluggedOption = document.createElement('option')
+    unpluggedOption.value = storedMicrophoneDeviceId
+    unpluggedOption.textContent = 'Micro choisi (pas branché)'
+    microphoneSelect.append(unpluggedOption)
+  }
+  microphoneSelect.value = storedMicrophoneDeviceId
 }
 
 detectMicrophonesButton.addEventListener('click', () => {
