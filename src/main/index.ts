@@ -429,7 +429,7 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
     recordingStartedAt = null
 
     if (settings.autoPaste && trimmed.length > 0) {
-      await pasteIntoActiveWindow(text)
+      await pasteIntoActiveWindow(`${trimmed} `)
       console.log('[debug] pasteIntoActiveWindow termine')
     } else {
       console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', trimmed.length === 0)
