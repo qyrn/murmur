@@ -259,6 +259,7 @@ async function applyCommand(command: HandsFreeCommand): Promise<void> {
   if (command.mode !== 'off') {
     vad ??= await createVad()
     phase = command.mode
+    await vad.pause()
     await vad.start()
   } else {
     phase = 'off'
