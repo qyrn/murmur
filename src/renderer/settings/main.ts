@@ -45,6 +45,7 @@ const launchAtStartupInput = document.querySelector<HTMLInputElement>('#launch-a
 const launchAtStartupHint = document.querySelector<HTMLParagraphElement>('#launch-at-startup-hint')!
 const modelSelect = document.querySelector<HTMLSelectElement>('#model')!
 const microphoneSelect = document.querySelector<HTMLSelectElement>('#microphone')!
+const keepMicrophoneOpenInput = document.querySelector<HTMLInputElement>('#keep-microphone-open')!
 const detectMicrophonesButton = document.querySelector<HTMLButtonElement>('#detect-microphones')!
 const microphoneStatus = document.querySelector<HTMLParagraphElement>('#microphone-status')!
 const overlayPositionSelect = document.querySelector<HTMLSelectElement>('#overlay-position')!
@@ -358,6 +359,7 @@ saveButton.addEventListener('click', () => {
       autoPaste: autoPasteInput.checked,
       disableHotkeyInFullscreen: disableHotkeyInFullscreenInput.checked,
       microphoneDeviceId: microphoneSelect.value || null,
+      keepMicrophoneOpen: keepMicrophoneOpenInput.checked,
       launchAtStartup: launchAtStartupInput.checked,
       startMinimized: false,
       overlayPosition: overlayPositionSelect.value as OverlayPosition,
@@ -394,6 +396,7 @@ async function init(): Promise<void> {
   selectedAccentColor = settings.accentColor
   renderAccentSwatches()
   storedMicrophoneDeviceId = settings.microphoneDeviceId
+  keepMicrophoneOpenInput.checked = settings.keepMicrophoneOpen
   await populateMicrophoneList()
 
   const packaged = await window.settingsApi.isPackaged()

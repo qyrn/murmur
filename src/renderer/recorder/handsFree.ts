@@ -19,7 +19,7 @@ const HOTKEY_PRE_ROLL_SECONDS = 0.2
 const MAX_FRAME_GAP_MS = 300
 const VAD_ASSETS_URL = new URL('../vad/', document.baseURI).href
 
-type Phase = 'off' | 'standby' | 'dictating'
+type Phase = 'off' | 'ready' | 'standby' | 'dictating'
 type DictationTrigger = 'voice' | 'hotkey'
 
 let vad: MicVAD | null = null
@@ -149,7 +149,7 @@ function microphoneIsFlowing(): boolean {
 }
 
 export function startHotkeyDictation(): boolean {
-  if (phase !== 'standby' || !microphoneIsFlowing()) {
+  if ((phase !== 'ready' && phase !== 'standby') || !microphoneIsFlowing()) {
     return false
   }
   wakeChecker.reset()
@@ -186,10 +186,10 @@ function handleFrame(isSpeech: boolean, frame: Float32Array): void {
   }
   activeFrames().push(frame)
   trackLoudness(isSpeech, frame)
-  if (phase === 'standby') {
-    trimToSeconds(listenFrames, LISTEN_BUFFER_SECONDS)
-  } else {
+  if (phase === 'dictating') {
     trackDictation(isSpeech, frame)
+  } else {
+    trimToSeconds(listenFrames, phase === 'standby' ? LISTEN_BUFFER_SECONDS : HOTKEY_PRE_ROLL_SECONDS)
   }
   if (!speaking || !listensForCommands()) {
     return
@@ -256,9 +256,9 @@ async function applyCommand(command: HandsFreeCommand): Promise<void> {
     return
   }
   resetListening()
-  if (command.mode === 'standby') {
+  if (command.mode !== 'off') {
     vad ??= await createVad()
-    phase = 'standby'
+    phase = command.mode
     await vad.start()
   } else {
     phase = 'off'

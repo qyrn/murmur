@@ -87,7 +87,7 @@ let fullscreenAppActive = false
 let hotkeyRegistered = false
 let handsFreeMode: HandsFreeMode = 'off'
 let handsFreeDictating = false
-let hotkeyStartedFromStandby = false
+let hotkeyStartedFromOpenMicrophone = false
 let handsFreeHearing = false
 let lastHeardCommand: string | null = null
 let settings: DictationSettings = loadSettings()
@@ -266,7 +266,7 @@ function createSettingsWindow(): void {
 
 async function toggleDictation(): Promise<void> {
   if (appState === 'idle') {
-    hotkeyStartedFromStandby = handsFreeMode === 'standby'
+    hotkeyStartedFromOpenMicrophone = handsFreeMode !== 'off'
     try {
       setAppState('loading-model')
       await ensureWhisperServer(settings.model)
@@ -288,7 +288,13 @@ async function toggleDictation(): Promise<void> {
 }
 
 function desiredHandsFreeMode(): HandsFreeMode {
-  return settings.handsFreeEnabled && !fullscreenAppActive && appState === 'idle' ? 'standby' : 'off'
+  if (fullscreenAppActive || appState !== 'idle') {
+    return 'off'
+  }
+  if (settings.handsFreeEnabled) {
+    return 'standby'
+  }
+  return settings.keepMicrophoneOpen ? 'ready' : 'off'
 }
 
 function handsFreeActivity(): HandsFreeActivity {
@@ -313,7 +319,7 @@ function publishHandsFreeStatus(): void {
 }
 
 function hotkeyIsRecordingFromHandsFreeStream(): boolean {
-  return hotkeyStartedFromStandby && (appState === 'loading-model' || appState === 'recording')
+  return hotkeyStartedFromOpenMicrophone && (appState === 'loading-model' || appState === 'recording')
 }
 
 function syncHandsFree(force = false): void {

@@ -10,6 +10,7 @@ export interface DictationSettings {
   autoPaste: boolean
   disableHotkeyInFullscreen: boolean
   microphoneDeviceId: string | null
+  keepMicrophoneOpen: boolean
   launchAtStartup: boolean
   startMinimized: boolean
   overlayPosition: OverlayPosition
@@ -39,7 +40,7 @@ export interface DictationRecord {
 
 export type AppState = 'idle' | 'loading-model' | 'recording' | 'transcribing' | 'error'
 
-export type HandsFreeMode = 'off' | 'standby'
+export type HandsFreeMode = 'off' | 'ready' | 'standby'
 
 export interface HandsFreeCommand {
   mode: HandsFreeMode

@@ -9,6 +9,7 @@ const defaultSettings: DictationSettings = {
   autoPaste: true,
   disableHotkeyInFullscreen: true,
   microphoneDeviceId: null,
+  keepMicrophoneOpen: false,
   launchAtStartup: false,
   startMinimized: false,
   overlayPosition: 'bottom-center',
