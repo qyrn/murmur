@@ -10,6 +10,9 @@ const SILENCE_HALLUCINATIONS = [
   'thanks for watching'
 ]
 
+const SHORT_CLIP_MAX_SECONDS = 2
+const SHORT_CLIP_HALLUCINATION = /^\s*merci\s*[.!…]*\s*$/iu
+
 const NON_SPEECH_ANNOTATION = /\[[^\]]*\]|\*[^*]*\*|[♪♫]/gu
 
 function escapeRegex(value: string): string {
@@ -29,4 +32,8 @@ export function removeHallucinations(text: string): string {
     text.replace(NON_SPEECH_ANNOTATION, ' ')
   )
   return /[\p{L}\p{N}]/u.test(cleaned) ? cleaned : ''
+}
+
+export function removeShortClipHallucination(text: string, audioSeconds: number): string {
+  return audioSeconds < SHORT_CLIP_MAX_SECONDS && SHORT_CLIP_HALLUCINATION.test(text) ? '' : text
 }
