@@ -29,6 +29,10 @@ Appuie sur `Ctrl+Espace`, une pastille apparaît en bas de l'écran et t'écoute
 
 Elle reconnaît le français avec des mots anglais mêlés dedans sans les traduire (« il faut update le README avant la deadline »), et tu peux lui apprendre tes propres termes techniques ou noms propres dans le dictionnaire.
 
+Le texte arrive toujours suivi d'une espace, du coup tu peux enchaîner plusieurs dictées dans le même message sans que les phrases se collent.
+
+Si tu commences à parler pile en appuyant, active Réglages → **Microphone** → **Garder le micro ouvert**. murmur garde alors en mémoire la dernière fraction de seconde, sans rien enregistrer, et ton premier mot passe en entier. Le mode mains libres fait déjà ça tout seul.
+
 ## 🗣️ Mode mains libres
 
 Plus besoin de toucher au clavier : dis « murmur start », un petit bip confirme que murmur t'écoute, puis parle. Pour finir, dis « murmur stop », ou tais-toi quelques secondes, et le texte se colle tout seul. Tu peux aussi tout enchaîner d'une traite : « murmur start, je voulais te dire… ».
@@ -161,16 +165,16 @@ Pour publier une version : monte `version` dans `package.json`, lance `pnpm buil
 
 Pour refaire les captures du README : `MURMUR_SCREENSHOT=docs pnpm dev`. L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, Mains libres, pastille) avec un faux micro, enregistre les PNG dans le dossier donné, puis se ferme.
 
-| Dossier                  | Rôle                                                                 |
-| ------------------------ | --------------------------------------------------------------------- |
-| `src/main`                | tray, raccourci global, moteur whisper-server, historique, mises à jour |
-| `src/preload`             | ponts entre l'app et chaque fenêtre                                   |
-| `src/renderer/recorder`   | capture micro (fenêtre cachée)                                        |
-| `src/renderer/overlay`    | la pastille flottante                                                 |
-| `src/renderer/settings`   | la fenêtre Réglages                                                   |
-| `src/shared`               | types et canaux IPC partagés                                          |
-| `whisper-engine`           | whisper.cpp compilé + modèles (généré, pas versionné)                 |
-| `scripts`                   | compilation de whisper.cpp, génération des icônes, téléchargement des modèles |
+| Dossier                 | Rôle                                                                          |
+| ----------------------- | ----------------------------------------------------------------------------- |
+| `src/main`              | tray, raccourci global, moteur whisper-server, historique, mises à jour       |
+| `src/preload`           | ponts entre l'app et chaque fenêtre                                           |
+| `src/renderer/recorder` | capture micro (fenêtre cachée)                                                |
+| `src/renderer/overlay`  | la pastille flottante                                                         |
+| `src/renderer/settings` | la fenêtre Réglages                                                           |
+| `src/shared`            | types et canaux IPC partagés                                                  |
+| `whisper-engine`        | whisper.cpp compilé + modèles (généré, pas versionné)                         |
+| `scripts`               | compilation de whisper.cpp, génération des icônes, téléchargement des modèles |
 
 </details>
 
