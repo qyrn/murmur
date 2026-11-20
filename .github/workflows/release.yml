@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: Jimver/cuda-toolkit@b8bf9c6c28f8a92fbb04dcfcaee872e60c57462d # v0.2.36
+        with:
+          cuda: '12.9.1'
+          method: local
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build whisper.cpp for RTX 30, 40 and 50
+        shell: pwsh
+        run: ./scripts/setup-whisper.ps1 -CudaArchitectures "86;89;120" -BundleCudaRuntime
+
+      - name: Download the default model
+        shell: pwsh
+        run: ./scripts/download-model.ps1 -Model large-v3-turbo
+
+      - name: Build and publish the installer as a draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm build
+          pnpm exec electron-builder --win --publish always
