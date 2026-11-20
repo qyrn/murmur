@@ -1,5 +1,8 @@
+import { translate } from '../../shared/messages'
+
 const pill = document.querySelector<HTMLDivElement>('#pill')!
 const counter = document.querySelector<HTMLSpanElement>('#counter')!
+const label = document.querySelector<HTMLSpanElement>('.label')!
 const bars = Array.from(document.querySelectorAll<HTMLSpanElement>('.bar'))
 
 const BAR_SHAPE = [0.45, 0.7, 0.9, 1, 0.9, 0.7, 0.45]
@@ -50,6 +53,10 @@ window.overlayApi.onStateChange((state) => {
 window.overlayApi.onConfig((config) => {
   document.documentElement.style.setProperty('--screen-ink', config.accentColor)
   document.documentElement.classList.toggle('waveform-off', !config.showWaveform)
+  document.documentElement.lang = config.language
+  label.dataset['transcribing'] = translate(config.language, 'overlay.transcribing')
+  label.dataset['loading'] = translate(config.language, 'overlay.loading')
+  label.dataset['error'] = translate(config.language, 'overlay.error')
 })
 
 window.overlayApi.onAudioLevel((level) => {

@@ -4,11 +4,14 @@ import type {
   DictionaryEntry,
   HandsFreeActivity,
   HandsFreeStatus,
+  InterfaceLanguageSetting,
   OverlayPosition,
   VoiceShortcut,
   WhisperModel
 } from '../../shared/types'
 import { termsThatFitInPrompt } from '../../shared/promptTerms'
+import type { MessageKey } from '../../shared/messages'
+import { setLanguage, t, translateStaticText } from './translations'
 
 const ACCENT_PRESETS = ['#9df2ff', '#ffb547', '#7dffa1', '#ff8fd8', '#e9eef3']
 
@@ -66,6 +69,7 @@ const homeHotkey = document.querySelector<HTMLElement>('#home-hotkey')!
 const historyList = document.querySelector<HTMLDivElement>('#history-list')!
 const historyEmpty = document.querySelector<HTMLParagraphElement>('#history-empty')!
 const aboutVersion = document.querySelector<HTMLParagraphElement>('#about-version')!
+const interfaceLanguageSelect = document.querySelector<HTMLSelectElement>('#interface-language')!
 
 const TYPING_WPM = 40
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
@@ -106,16 +110,16 @@ function renderStats(history: DictationRecord[]): void {
 function formatRelativeDate(timestamp: number): string {
   const diffMin = Math.round((Date.now() - timestamp) / 60000)
   if (diffMin < 1) {
-    return "à l'instant"
+    return t('time.now')
   }
   if (diffMin < 60) {
-    return `il y a ${diffMin} min`
+    return t('time.minutes', { count: String(diffMin) })
   }
   const diffHours = Math.round(diffMin / 60)
   if (diffHours < 24) {
-    return `il y a ${diffHours} h`
+    return t('time.hours', { count: String(diffHours) })
   }
-  return `il y a ${Math.round(diffHours / 24)} j`
+  return t('time.days', { count: String(Math.round(diffHours / 24)) })
 }
 
 function renderHistory(history: DictationRecord[]): void {
@@ -139,12 +143,12 @@ function renderHistory(history: DictationRecord[]): void {
     const copyButton = document.createElement('button')
     copyButton.type = 'button'
     copyButton.className = 'button button--ghost history-row__copy'
-    copyButton.textContent = 'Copier'
+    copyButton.textContent = t('history.copy')
     copyButton.addEventListener('click', () => {
       void navigator.clipboard.writeText(entry.text).then(() => {
-        copyButton.textContent = 'Copié'
+        copyButton.textContent = t('history.copied')
         setTimeout(() => {
-          copyButton.textContent = 'Copier'
+          copyButton.textContent = t('history.copy')
         }, 1500)
       })
     })
@@ -195,7 +199,7 @@ function renderDictionary(): void {
 
     const termInput = document.createElement('input')
     termInput.type = 'text'
-    termInput.placeholder = 'terme'
+    termInput.placeholder = t('dictionary.termPlaceholder')
     termInput.value = entry.term
     termInput.addEventListener('input', () => {
       dictionary[index] = { ...dictionary[index]!, term: termInput.value }
@@ -204,7 +208,7 @@ function renderDictionary(): void {
 
     const noteInput = document.createElement('input')
     noteInput.type = 'text'
-    noteInput.placeholder = 'note (optionnel)'
+    noteInput.placeholder = t('dictionary.notePlaceholder')
     noteInput.value = entry.note
     noteInput.addEventListener('input', () => {
       dictionary[index] = { ...dictionary[index]!, note: noteInput.value }
@@ -213,7 +217,7 @@ function renderDictionary(): void {
     const removeButton = document.createElement('button')
     removeButton.type = 'button'
     removeButton.className = 'button button--remove'
-    removeButton.textContent = 'Retirer'
+    removeButton.textContent = t('common.remove')
     removeButton.addEventListener('click', () => {
       dictionary.splice(index, 1)
       renderDictionary()
@@ -238,7 +242,7 @@ function renderShortcuts(): void {
 
     const spokenInput = document.createElement('input')
     spokenInput.type = 'text'
-    spokenInput.placeholder = 'ce que tu dis'
+    spokenInput.placeholder = t('shortcuts.spokenPlaceholder')
     spokenInput.value = shortcut.spoken
     spokenInput.addEventListener('input', () => {
       shortcuts[index] = { ...shortcuts[index]!, spoken: spokenInput.value }
@@ -250,7 +254,7 @@ function renderShortcuts(): void {
 
     const writtenInput = document.createElement('input')
     writtenInput.type = 'text'
-    writtenInput.placeholder = 'ce qui est écrit'
+    writtenInput.placeholder = t('shortcuts.writtenPlaceholder')
     writtenInput.value = shortcut.written
     writtenInput.addEventListener('input', () => {
       shortcuts[index] = { ...shortcuts[index]!, written: writtenInput.value }
@@ -259,7 +263,7 @@ function renderShortcuts(): void {
     const removeButton = document.createElement('button')
     removeButton.type = 'button'
     removeButton.className = 'button button--remove'
-    removeButton.textContent = 'Retirer'
+    removeButton.textContent = t('common.remove')
     removeButton.addEventListener('click', () => {
       shortcuts.splice(index, 1)
       renderShortcuts()
@@ -282,13 +286,13 @@ async function populateMicrophoneList(): Promise<void> {
   microphoneSelect.innerHTML = ''
   const defaultOption = document.createElement('option')
   defaultOption.value = ''
-  defaultOption.textContent = 'Périphérique par défaut du système'
+  defaultOption.textContent = t('microphone.default')
   microphoneSelect.append(defaultOption)
 
   for (const device of inputs) {
     const option = document.createElement('option')
     option.value = device.deviceId
-    option.textContent = device.label || `Microphone (${device.deviceId.slice(0, 8)})`
+    option.textContent = device.label || t('microphone.unnamed', { id: device.deviceId.slice(0, 8) })
     microphoneSelect.append(option)
   }
 
@@ -298,7 +302,7 @@ async function populateMicrophoneList(): Promise<void> {
   if (!inputs.some((device) => device.deviceId === storedMicrophoneDeviceId)) {
     const unpluggedOption = document.createElement('option')
     unpluggedOption.value = storedMicrophoneDeviceId
-    unpluggedOption.textContent = 'Micro choisi (pas branché)'
+    unpluggedOption.textContent = t('microphone.unplugged')
     microphoneSelect.append(unpluggedOption)
   }
   microphoneSelect.value = storedMicrophoneDeviceId
@@ -306,15 +310,15 @@ async function populateMicrophoneList(): Promise<void> {
 
 detectMicrophonesButton.addEventListener('click', () => {
   void (async () => {
-    microphoneStatus.textContent = 'Détection en cours…'
+    microphoneStatus.textContent = t('microphone.detecting')
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       stream.getTracks().forEach((track) => track.stop())
       await populateMicrophoneList()
-      microphoneStatus.textContent = 'Liste mise à jour.'
+      microphoneStatus.textContent = t('microphone.updated')
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      microphoneStatus.textContent = `Impossible d'accéder au micro : ${message}`
+      microphoneStatus.textContent = t('microphone.error', { message })
     }
     setTimeout(() => {
       microphoneStatus.textContent = ''
@@ -322,12 +326,12 @@ detectMicrophonesButton.addEventListener('click', () => {
   })()
 })
 
-const HANDS_FREE_LABELS: Record<HandsFreeActivity, string> = {
-  disabled: 'Désactivé',
-  paused: 'En pause (jeu en plein écran ou dictée en cours)',
-  standby: 'En veille : dis « murmur start »',
-  hearing: "J'entends quelqu'un parler…",
-  dictating: 'Dictée en cours : dis « murmur stop » pour finir'
+const HANDS_FREE_LABELS: Record<HandsFreeActivity, MessageKey> = {
+  disabled: 'handsFree.disabled',
+  paused: 'handsFree.paused',
+  standby: 'handsFree.standby',
+  hearing: 'handsFree.hearing',
+  dictating: 'handsFree.dictating'
 }
 
 function disableMissingModels(installed: WhisperModel[]): void {
@@ -335,7 +339,7 @@ function disableMissingModels(installed: WhisperModel[]): void {
     const isInstalled = installed.some((model) => model === option.value)
     option.disabled = !isInstalled
     if (!isInstalled) {
-      option.textContent = `${option.value} (pas installé)`
+      option.textContent = t('model.notInstalled', { model: option.value })
     }
   }
   if (modelSelect.selectedOptions[0]?.disabled && installed[0]) {
@@ -343,12 +347,13 @@ function disableMissingModels(installed: WhisperModel[]): void {
   }
 }
 
+let lastHandsFreeStatus: HandsFreeStatus | null = null
+
 function renderHandsFreeStatus(status: HandsFreeStatus): void {
+  lastHandsFreeStatus = status
   handsFreeStatusBox.dataset['activity'] = status.activity
-  handsFreeActivityLabel.textContent = HANDS_FREE_LABELS[status.activity]
-  handsFreeLastHeard.textContent = status.lastHeard
-    ? `Dernière phrase entendue : «\u00a0${status.lastHeard}\u00a0»`
-    : ''
+  handsFreeActivityLabel.textContent = t(HANDS_FREE_LABELS[status.activity])
+  handsFreeLastHeard.textContent = status.lastHeard ? t('handsFree.lastHeard', { text: status.lastHeard }) : ''
 }
 
 saveButton.addEventListener('click', () => {
@@ -366,32 +371,70 @@ saveButton.addEventListener('click', () => {
       accentColor: selectedAccentColor,
       showWaveform: showWaveformInput.checked,
       handsFreeEnabled: handsFreeEnabledInput.checked,
-      handsFreeSilenceSeconds: Number(handsFreeSilenceSelect.value)
+      handsFreeSilenceSeconds: Number(handsFreeSilenceSelect.value),
+      interfaceLanguage: interfaceLanguageSelect.value as InterfaceLanguageSetting
     }
     await window.settingsApi.setSettings(settings)
     await window.settingsApi.setDictionary(dictionary.filter((entry) => entry.term.trim().length > 0))
     await window.settingsApi.setShortcuts(
       shortcuts.filter((shortcut) => shortcut.spoken.trim().length > 0 && shortcut.written.length > 0)
     )
-    saveStatus.textContent = 'Enregistré'
+    await refreshLanguage()
+    saveStatus.textContent = t('footer.saved')
     setTimeout(() => {
       saveStatus.textContent = ''
     }, 2000)
   })()
 })
 
+let installedModels: WhisperModel[] = []
+let history: DictationRecord[] = []
+let isPackaged = false
+let appVersion = ''
+
+function translateSilenceOptions(): void {
+  for (const option of Array.from(handsFreeSilenceSelect.options)) {
+    option.textContent = t('handsFree.seconds', { count: option.value })
+  }
+}
+
+function renderTranslatedContent(): void {
+  translateStaticText()
+  translateSilenceOptions()
+  disableMissingModels(installedModels)
+  renderDictionary()
+  renderShortcuts()
+  renderHistory(history)
+  if (lastHandsFreeStatus) {
+    renderHandsFreeStatus(lastHandsFreeStatus)
+  }
+  launchAtStartupHint.textContent = isPackaged ? '' : t('general.startupDevOnly')
+  aboutVersion.textContent = t('about.version', { version: appVersion })
+}
+
+async function refreshLanguage(): Promise<void> {
+  setLanguage(await window.settingsApi.getInterfaceLanguage())
+  const selectedMicrophone = microphoneSelect.value
+  renderTranslatedContent()
+  await populateMicrophoneList()
+  microphoneSelect.value = selectedMicrophone
+}
+
 async function init(): Promise<void> {
+  setLanguage(await window.settingsApi.getInterfaceLanguage())
+  translateStaticText()
   const settings = await window.settingsApi.getSettings()
+  interfaceLanguageSelect.value = settings.interfaceLanguage
   hotkeyInput.value = settings.hotkey
   autoPasteInput.checked = settings.autoPaste
   disableHotkeyInFullscreenInput.checked = settings.disableHotkeyInFullscreen
   modelSelect.value = settings.model
-  disableMissingModels(await window.settingsApi.getInstalledModels())
+  installedModels = await window.settingsApi.getInstalledModels()
   overlayPositionSelect.value = settings.overlayPosition
   showWaveformInput.checked = settings.showWaveform
   handsFreeEnabledInput.checked = settings.handsFreeEnabled
   handsFreeSilenceSelect.value = String(settings.handsFreeSilenceSeconds)
-  renderHandsFreeStatus(await window.settingsApi.getHandsFreeStatus())
+  lastHandsFreeStatus = await window.settingsApi.getHandsFreeStatus()
   window.settingsApi.onHandsFreeStatus(renderHandsFreeStatus)
   selectedAccentColor = settings.accentColor
   renderAccentSwatches()
@@ -399,25 +442,17 @@ async function init(): Promise<void> {
   keepMicrophoneOpenInput.checked = settings.keepMicrophoneOpen
   await populateMicrophoneList()
 
-  const packaged = await window.settingsApi.isPackaged()
+  isPackaged = await window.settingsApi.isPackaged()
   launchAtStartupInput.checked = settings.launchAtStartup
-  launchAtStartupInput.disabled = !packaged
-  launchAtStartupHint.textContent = packaged
-    ? ''
-    : "Disponible une fois l'application installée (pas en mode développement)."
+  launchAtStartupInput.disabled = !isPackaged
 
   dictionary = await window.settingsApi.getDictionary()
-  renderDictionary()
   shortcuts = await window.settingsApi.getShortcuts()
-  renderShortcuts()
-
   homeHotkey.textContent = settings.hotkey
-  const history = await window.settingsApi.getHistory()
+  history = await window.settingsApi.getHistory()
   renderStats(history)
-  renderHistory(history)
-
-  const version = await window.settingsApi.getAppVersion()
-  aboutVersion.textContent = `Version ${version}`
+  appVersion = await window.settingsApi.getAppVersion()
+  renderTranslatedContent()
 }
 
 void init()

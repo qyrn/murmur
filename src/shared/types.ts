@@ -4,6 +4,10 @@ export type WhisperModel = (typeof WHISPER_MODELS)[number]
 
 export type OverlayPosition = 'bottom-center' | 'bottom-left' | 'bottom-right' | 'top-center'
 
+export type InterfaceLanguage = 'fr' | 'en'
+
+export type InterfaceLanguageSetting = 'auto' | InterfaceLanguage
+
 export interface DictationSettings {
   hotkey: string
   model: WhisperModel
@@ -18,6 +22,7 @@ export interface DictationSettings {
   showWaveform: boolean
   handsFreeEnabled: boolean
   handsFreeSilenceSeconds: number
+  interfaceLanguage: InterfaceLanguageSetting
 }
 
 export interface DictionaryEntry {
@@ -57,6 +62,7 @@ export interface HandsFreeStatus {
 export interface OverlayConfig {
   accentColor: string
   showWaveform: boolean
+  language: InterfaceLanguage
 }
 
 export const IpcChannel = {
@@ -86,5 +92,6 @@ export const IpcChannel = {
   HandsFreeHearing: 'hands-free:hearing',
   HandsFreeAudio: 'hands-free:audio',
   HandsFreeStatus: 'hands-free:status',
-  GetHandsFreeStatus: 'hands-free:get-status'
+  GetHandsFreeStatus: 'hands-free:get-status',
+  GetInterfaceLanguage: 'app:get-interface-language'
 } as const

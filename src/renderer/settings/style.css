@@ -77,7 +77,8 @@ body {
 .titlebar__dots {
   display: flex;
   gap: 8px;
-  padding-left: 14px;
+  margin-left: auto;
+  padding-right: 14px;
   -webkit-app-region: no-drag;
 }
 

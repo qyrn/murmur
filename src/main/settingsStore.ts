@@ -14,7 +14,8 @@ const defaultSettings: DictationSettings = {
   accentColor: '#9df2ff',
   showWaveform: true,
   handsFreeEnabled: false,
-  handsFreeSilenceSeconds: 3
+  handsFreeSilenceSeconds: 3,
+  interfaceLanguage: 'auto'
 }
 
 const defaultDictionary: DictionaryEntry[] = [

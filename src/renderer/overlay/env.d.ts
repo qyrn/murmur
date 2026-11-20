@@ -3,6 +3,7 @@
 interface OverlayConfig {
   accentColor: string
   showWaveform: boolean
+  language: 'fr' | 'en'
 }
 
 interface OverlayApi {

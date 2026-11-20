@@ -5,6 +5,7 @@ import type {
   DictationSettings,
   DictionaryEntry,
   HandsFreeStatus,
+  InterfaceLanguage,
   VoiceShortcut,
   WhisperModel
 } from '../shared/types'
@@ -21,6 +22,7 @@ const settingsApi = {
   getInstalledModels: (): Promise<WhisperModel[]> => ipcRenderer.invoke(IpcChannel.GetInstalledModels),
   getHistory: (): Promise<DictationRecord[]> => ipcRenderer.invoke(IpcChannel.GetHistory),
   getHandsFreeStatus: (): Promise<HandsFreeStatus> => ipcRenderer.invoke(IpcChannel.GetHandsFreeStatus),
+  getInterfaceLanguage: (): Promise<InterfaceLanguage> => ipcRenderer.invoke(IpcChannel.GetInterfaceLanguage),
   onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void): void => {
     ipcRenderer.on(IpcChannel.HandsFreeStatus, (_event, status: HandsFreeStatus) => callback(status))
   },

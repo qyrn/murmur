@@ -5,6 +5,7 @@ import type {
   DictationSettings,
   DictionaryEntry,
   HandsFreeStatus,
+  InterfaceLanguage,
   VoiceShortcut,
   WhisperModel
 } from '../../shared/types'
@@ -22,6 +23,7 @@ declare global {
     getInstalledModels: () => Promise<WhisperModel[]>
     getHistory: () => Promise<DictationRecord[]>
     getHandsFreeStatus: () => Promise<HandsFreeStatus>
+    getInterfaceLanguage: () => Promise<InterfaceLanguage>
     onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void) => void
     minimizeWindow: () => void
     toggleMaximizeWindow: () => void

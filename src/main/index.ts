@@ -24,6 +24,7 @@ import { removeHallucinations } from './hallucinationFilter'
 import { recordCommandAttempt } from './commandLog'
 import { pasteIntoActiveWindow } from './textInjector'
 import { convertToWav16kMono } from './audioConvert'
+import { applyInterfaceLanguage, interfaceLanguage, t } from './interfaceLanguage'
 import {
   IpcChannel,
   type AppState,
@@ -196,7 +197,8 @@ function overlayCoords(position: OverlayPosition): { x: number; y: number } {
 function pushOverlayConfig(): void {
   overlayWindow?.webContents.send(IpcChannel.OverlayConfig, {
     accentColor: settings.accentColor,
-    showWaveform: settings.showWaveform
+    showWaveform: settings.showWaveform,
+    language: interfaceLanguage()
   })
 }
 
@@ -242,7 +244,7 @@ function createSettingsWindow(): void {
   settingsWindow = new BrowserWindow({
     width: 700,
     height: 780,
-    title: 'Réglages — murmur',
+    title: t('window.title'),
     icon: appIconPath(),
     frame: false,
     transparent: true,
@@ -489,10 +491,14 @@ function registerIpcHandlers(): void {
   ipcMain.handle(IpcChannel.GetAppVersion, () => app.getVersion())
   ipcMain.handle(IpcChannel.GetInstalledModels, () => installedModels())
   ipcMain.handle(IpcChannel.GetSettings, () => settings)
+  ipcMain.handle(IpcChannel.GetInterfaceLanguage, () => interfaceLanguage())
   ipcMain.handle(IpcChannel.SetSettings, (_event, next: DictationSettings) => {
     const previousPosition = settings.overlayPosition
     settings = next
     saveSettings(settings)
+    applyInterfaceLanguage(settings.interfaceLanguage)
+    tray?.setContextMenu(buildTrayMenu())
+    settingsWindow?.setTitle(t('window.title'))
     void registerHotkey().then(syncHotkeyWithFullscreen)
     syncHandsFree(true)
     publishHandsFreeStatus()
@@ -551,17 +557,20 @@ function registerIpcHandlers(): void {
   ipcMain.on(IpcChannel.WindowClose, () => settingsWindow?.close())
 }
 
+function buildTrayMenu(): Menu {
+  return Menu.buildFromTemplate([
+    { label: t('tray.toggle'), click: () => void toggleDictation() },
+    { label: t('tray.settings'), click: () => createSettingsWindow() },
+    { label: t('tray.retryEngine'), click: () => void startWhisperServerAtLaunch() },
+    { label: t('tray.checkUpdates'), click: () => checkForUpdatesManually(), visible: supportsAutoUpdate },
+    { type: 'separator' },
+    { label: t('tray.quit'), click: () => app.quit() }
+  ])
+}
+
 function createTray(): void {
   tray = new Tray(nativeImage.createFromPath(trayIconPath()))
-  const menu = Menu.buildFromTemplate([
-    { label: 'Démarrer / arrêter la dictée', click: () => void toggleDictation() },
-    { label: 'Réglages', click: () => createSettingsWindow() },
-    { label: 'Réessayer de démarrer le moteur', click: () => void startWhisperServerAtLaunch() },
-    { label: 'Vérifier les mises à jour', click: () => checkForUpdatesManually(), visible: supportsAutoUpdate },
-    { type: 'separator' },
-    { label: 'Quitter', click: () => app.quit() }
-  ])
-  tray.setContextMenu(menu)
+  tray.setContextMenu(buildTrayMenu())
   tray.setToolTip('murmur : idle')
   tray.on('click', () => void toggleDictation())
 }
@@ -592,6 +601,7 @@ app.whenReady().then(async () => {
   })
   session.defaultSession.setPermissionCheckHandler((_webContents, permission) => permission === 'media')
 
+  applyInterfaceLanguage(settings.interfaceLanguage)
   registerIpcHandlers()
   createTray()
   recorderWindow = createRecorderWindow()

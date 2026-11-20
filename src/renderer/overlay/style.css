@@ -137,11 +137,11 @@ body {
 }
 
 .state-transcribing .label::before {
-  content: 'TRANSCRIPTION';
+  content: attr(data-transcribing);
 }
 
 .state-loading-model .label::before {
-  content: 'CHARGEMENT';
+  content: attr(data-loading);
 }
 
 .state-error .label {
@@ -150,7 +150,7 @@ body {
 }
 
 .state-error .label::before {
-  content: 'ERREUR';
+  content: attr(data-error);
 }
 
 @keyframes led-pulse {

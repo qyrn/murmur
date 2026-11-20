@@ -1,5 +1,6 @@
 import { app, dialog } from 'electron'
 import electronUpdater from 'electron-updater'
+import { t } from './interfaceLanguage'
 
 const { autoUpdater } = electronUpdater
 
@@ -16,10 +17,10 @@ function wireEvents(): void {
   autoUpdater.on('update-downloaded', (info) => {
     const result = dialog.showMessageBoxSync({
       type: 'info',
-      title: 'Mise à jour disponible',
-      message: `murmur ${info.version} a été téléchargée.`,
-      detail: "Redémarrer maintenant pour l'installer, ou plus tard depuis le menu de la barre système.",
-      buttons: ['Redémarrer maintenant', 'Plus tard'],
+      title: t('update.readyTitle'),
+      message: t('update.readyMessage', { version: info.version }),
+      detail: t('update.readyDetail'),
+      buttons: [t('update.restartNow'), t('update.later')],
       defaultId: 0,
       cancelId: 1
     })
@@ -47,8 +48,8 @@ export function checkForUpdatesManually(): void {
   if (!app.isPackaged) {
     void dialog.showMessageBox({
       type: 'info',
-      title: 'Mises à jour',
-      message: "Les mises à jour ne sont vérifiées que sur la version installée, pas en mode développement."
+      title: t('update.title'),
+      message: t('update.devOnly')
     })
     return
   }
@@ -59,8 +60,8 @@ export function checkForUpdatesManually(): void {
       if (!result?.downloadPromise) {
         void dialog.showMessageBox({
           type: 'info',
-          title: 'Mises à jour',
-          message: 'murmur est déjà à jour.'
+          title: t('update.title'),
+          message: t('update.upToDate')
         })
       }
     })
@@ -68,8 +69,8 @@ export function checkForUpdatesManually(): void {
       console.error('[updater] échec de la vérification manuelle :', err)
       void dialog.showMessageBox({
         type: 'error',
-        title: 'Mises à jour',
-        message: 'Impossible de vérifier les mises à jour.',
+        title: t('update.title'),
+        message: t('update.failed'),
         detail: err instanceof Error ? err.message : String(err)
       })
     })
