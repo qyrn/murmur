@@ -191,6 +191,17 @@ To refresh the README screenshots: pick the interface language in settings, then
 
 </details>
 
+## 🔏 Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+
+- Committers and reviewers: [qyrn](https://github.com/qyrn)
+- Approvers: [qyrn](https://github.com/qyrn)
+
+Every Windows installer is built from this repository by [GitHub Actions](.github/workflows/release.yml) and each signing request is approved by hand.
+
+Privacy: this program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. murmur only goes online to download the Whisper model from Hugging Face on first launch and, on Windows, to check GitHub for a new version. Your voice and your text never leave your machine.
+
 ## 📄 License
 
 [MIT](LICENSE)
