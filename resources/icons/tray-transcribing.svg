@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="0.42" stop-color="#9AA3AD" />
+      <stop offset="0.5" stop-color="#2B3138" />
+      <stop offset="0.58" stop-color="#CFD6DE" />
+      <stop offset="1" stop-color="#FFFFFF" />
+    </linearGradient>
+    <radialGradient id="lens" cx="45%" cy="38%" r="65%">
+      <stop offset="0" stop-color="#E6FCFF" />
+      <stop offset="0.55" stop-color="#9DF2FF" />
+      <stop offset="1" stop-color="#000000" />
+    </radialGradient>
+    <filter id="glow" x="-0.5" y="-0.5" width="2" height="2">
+      <feGaussianBlur stdDeviation="3" />
+    </filter>
+  </defs>
+  <circle cx="32" cy="32" r="22" fill="#9DF2FF" filter="url(#glow)" opacity="0.9" />
+  <circle cx="32" cy="32" r="29" fill="url(#chrome)" />
+  <circle cx="32" cy="32" r="21" fill="url(#lens)" />
+  
+  <ellipse cx="26" cy="23" rx="7" ry="4" fill="#FFFFFF" opacity="0.35" />
+</svg>

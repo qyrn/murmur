@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="0.42" stop-color="#9AA3AD" />
+      <stop offset="0.5" stop-color="#2B3138" />
+      <stop offset="0.58" stop-color="#CFD6DE" />
+      <stop offset="1" stop-color="#FFFFFF" />
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A1D21" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <radialGradient id="led" cx="50%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#FFB3AD" />
+      <stop offset="0.45" stop-color="#FF2A1F" />
+      <stop offset="1" stop-color="#9E0D06" />
+    </radialGradient>
+    <filter id="glow" x="-1" y="-1" width="3" height="3">
+      <feGaussianBlur stdDeviation="10" />
+    </filter>
+    <filter id="screen-glow" x="-0.5" y="-0.5" width="2" height="2">
+      <feGaussianBlur stdDeviation="5" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#body)" />
+  <rect x="84" y="140" width="344" height="232" rx="34" fill="url(#chrome)" />
+  <rect x="112" y="172" width="288" height="124" rx="18" fill="#000000" />
+  <g filter="url(#screen-glow)" opacity="0.8">
+    <circle cx="196" cy="234" r="36" fill="none" stroke="#9DF2FF" stroke-width="14" />
+    <circle cx="316" cy="234" r="36" fill="none" stroke="#9DF2FF" stroke-width="14" />
+  </g>
+  <circle cx="196" cy="234" r="36" fill="none" stroke="#9DF2FF" stroke-width="14" />
+  <circle cx="316" cy="234" r="36" fill="none" stroke="#9DF2FF" stroke-width="14" />
+  <path d="M196 270 H316" stroke="#9DF2FF" stroke-width="10" stroke-linecap="round" opacity="0.55" />
+  <rect x="176" y="318" width="160" height="24" rx="8" fill="#2B3138" />
+  <circle cx="392" cy="116" r="34" fill="#FF2A1F" filter="url(#glow)" opacity="0.85" />
+  <circle cx="392" cy="116" r="22" fill="url(#led)" />
+</svg>
