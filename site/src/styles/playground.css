@@ -1,0 +1,155 @@
+.playground {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 2.5rem 5rem;
+  align-items: start;
+}
+
+.field-label {
+  display: block;
+  margin: 0 0 0.6rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+#spoken-input {
+  width: 100%;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--muted);
+  font: inherit;
+  font-size: 1.2rem;
+  resize: vertical;
+}
+
+#spoken-input:focus {
+  border-color: var(--amber);
+  outline: none;
+}
+
+.playground-io .field-label:not(:first-child) {
+  margin-top: 2rem;
+}
+
+.written-output {
+  display: block;
+  min-height: 2.6em;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-variation-settings: 'wdth' 92;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.playground-note {
+  margin: 1.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.playground-rules h3 {
+  margin: 0 0 0.9rem;
+  font-size: 1.35rem;
+}
+
+.playground-rules h3:not(:first-child) {
+  margin-top: 2.25rem;
+}
+
+.rules-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rules-table th {
+  padding: 0 1rem 0.45rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: left;
+}
+
+.rules-table td {
+  padding: 0.55rem 1rem 0.55rem 0;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+
+.rules-table td:first-child {
+  color: var(--muted);
+}
+
+.rules-table td:last-child {
+  width: 2rem;
+  padding-right: 0;
+  text-align: right;
+}
+
+.remove-button {
+  width: 1.8rem;
+  height: 1.8rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+
+.rule-form {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.rule-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.rule-form input:focus {
+  border-color: var(--amber);
+  outline: none;
+}
+
+.term-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.term-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.2rem 0.3rem 0.2rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 1rem;
+}
+
+@media (max-width: 900px) {
+  .playground {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,11 @@
+@import '@fontsource-variable/anybody/standard.css';
+@import '@fontsource-variable/familjen-grotesk/wght.css';
+@import './base.css';
+@import './hero.css';
+@import './demo.css';
+@import './playground.css';
+@import './handsfree.css';
+@import './privacy.css';
+@import './extras.css';
+@import './install.css';
+@import './footer.css';

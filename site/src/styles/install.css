@@ -1,0 +1,144 @@
+.install-lead {
+  max-width: 52ch;
+  margin: 0 0 2.5rem;
+  color: var(--muted);
+  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2.25rem;
+}
+
+.tab {
+  padding: 0.7rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab[aria-selected='true'] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--ink);
+}
+
+.tab-panel {
+  max-width: 58rem;
+}
+
+.tab-panel > p {
+  max-width: 62ch;
+}
+
+.steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  position: relative;
+  max-width: 62ch;
+  margin-bottom: 1.6rem;
+  padding-left: 3.4rem;
+  counter-increment: step;
+}
+
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: -0.2rem;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  background: var(--amber);
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 2.3rem;
+  text-align: center;
+}
+
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--ink-deep);
+}
+
+.code-block pre {
+  margin: 0;
+  padding: 1.25rem 1.4rem;
+  overflow-x: auto;
+  line-height: 1.7;
+}
+
+.code-block code {
+  color: #d8d2c3;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+  font-weight: 400;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  padding: 0.45rem 0.9rem;
+  background: var(--surface);
+  font-size: 0.9rem;
+}
+
+.faq-list {
+  max-width: 58rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--line);
+}
+
+.faq-list details {
+  border-bottom: 1px solid var(--line);
+}
+
+.faq-list summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-list summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-list summary::after {
+  content: '+';
+  color: var(--amber);
+  font-family: var(--display);
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: transform 200ms ease;
+}
+
+.faq-list details[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.faq-list details p {
+  max-width: 62ch;
+  margin: 0 0 1.4rem;
+  color: var(--muted);
+}

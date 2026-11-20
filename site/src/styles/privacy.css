@@ -1,0 +1,90 @@
+.privacy-diagram {
+  margin: 0;
+  overflow-x: auto;
+}
+
+.privacy-diagram svg {
+  display: block;
+  width: 100%;
+  min-width: 40rem;
+  height: auto;
+  font-family: var(--body);
+}
+
+.pc-frame {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-dasharray: 8 8;
+}
+
+.pc-label {
+  fill: var(--muted);
+  font-size: 22px;
+}
+
+.node rect {
+  fill: var(--surface);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.node text {
+  fill: var(--text);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.node .node-sub {
+  fill: var(--muted);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.node-hot rect {
+  fill: var(--amber);
+  stroke: var(--amber);
+}
+
+.node-hot text,
+.node-hot .node-sub {
+  fill: var(--ink);
+}
+
+.node-off rect {
+  fill: none;
+  stroke-dasharray: 6 6;
+}
+
+.node-off text {
+  fill: var(--muted);
+}
+
+.flow {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 6 10;
+  animation: flow 900ms linear infinite;
+}
+
+.cut {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 3;
+  stroke-dasharray: 4 8;
+}
+
+.cut-mark {
+  fill: none;
+  stroke: var(--danger);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+@keyframes flow {
+  to {
+    stroke-dashoffset: -16;
+  }
+}

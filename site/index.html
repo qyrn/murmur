@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
     />
     <meta name="referrer" content="no-referrer" />
     <title>murmur, la dictée vocale qui tourne sur ton PC</title>
@@ -13,154 +13,315 @@
       name="description"
       content="Dictée vocale pour le français qui garde tes mots anglais. Whisper tourne sur ta carte graphique, rien ne sort de ton PC. Open source, Windows et Linux."
     />
+    <meta name="theme-color" content="#15120e" />
     <link rel="icon" type="image/png" href="./icon.png" />
-    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="./src/styles/index.css" />
   </head>
   <body>
+    <a class="skip-link" href="#essai">Aller à la démo</a>
+
     <header class="topbar">
       <a class="brand" href="./">
-        <img src="./icon.png" width="32" height="32" alt="" />
+        <img src="./icon.png" width="30" height="30" alt="" />
         <span>murmur</span>
       </a>
-      <nav aria-label="Liens">
+      <nav aria-label="Navigation principale">
+        <a href="#essai">Essayer</a>
+        <a href="#mains-libres">Mains libres</a>
+        <a href="#installer">Installer</a>
         <a href="https://github.com/qyrn/murmur" rel="noopener">GitHub</a>
-        <a class="topbar-download" href="https://github.com/qyrn/murmur/releases/latest" rel="noopener">Télécharger</a>
       </nav>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="hero-text">
-        <h1>Tu parles, et le texte s'écrit là où t'es.</h1>
-        <p class="hero-lead">
-          murmur, c'est une dictée vocale pour le français qui laisse tes mots anglais tranquilles. Whisper tourne
-          directement sur ta carte graphique, du coup ta voix sort jamais de ton PC.
-        </p>
-        <div class="hero-actions">
-          <a class="button" href="https://github.com/qyrn/murmur/releases/latest" rel="noopener">Télécharge pour Windows</a>
-          <a class="text-link" href="https://github.com/qyrn/murmur" rel="noopener">Le code est sur GitHub</a>
+      <section class="hero" aria-labelledby="hero-title">
+        <h1 id="hero-title" class="voice-headline" aria-label="Tu parles, et le texte s'écrit là où t'es.">
+          <span class="voice-line">Tu parles, et</span>
+          <span class="voice-line">le texte s'écrit</span>
+          <span class="voice-line">là où t'es.</span>
+        </h1>
+        <div class="hero-foot">
+          <p class="hero-lead">
+            murmur, c'est une dictée vocale pour le français qui laisse tes mots anglais tranquilles. Whisper tourne
+            directement sur ta carte graphique, du coup ta voix sort jamais de ton PC.
+          </p>
+          <div class="hero-actions">
+            <a
+              class="button"
+              href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe"
+              rel="noopener"
+              >Télécharge murmur pour Windows</a
+            >
+            <p class="hero-meta">
+              Version __MURMUR_VERSION__, open source. Ou alors <a href="#essai">essaie-le juste en dessous</a>.
+            </p>
+          </div>
         </div>
+      </section>
+
+      <section class="demo-section" id="essai" aria-labelledby="essai-title">
+        <div class="section-head">
+          <h2 id="essai-title">Essaie, là, maintenant</h2>
+          <p>
+            Clique dans une fenêtre, appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd>, parle, puis réappuie. La pastille
+            fait exactement ce qu'elle fait sur ton PC.
+          </p>
         </div>
 
-        <figure class="demo" aria-label="Démonstration : une phrase dictée apparaît dans un champ de message">
-          <div class="demo-window" aria-hidden="true">
-            <div class="demo-titlebar">
-              <span class="demo-app" id="demo-app">Discord</span>
+        <div class="desktop" id="desktop">
+          <article class="window window-chat is-focused" data-app="chat" tabindex="0" aria-label="Fenêtre Discord, salon général">
+            <header class="window-bar">
+              <span class="window-title">Discord</span>
+              <span class="window-sub">#général</span>
+            </header>
+            <div class="chat-log">
+              <p class="chat-message"><b>Inès</b> quelqu'un a testé le nouveau build ?</p>
+              <p class="chat-message"><b>Tom</b> pas encore, je regarde ce soir</p>
             </div>
-            <div class="demo-field">
-              <span id="demo-text"></span><span class="caret"></span>
+            <div class="window-input" aria-live="polite"><span class="typed" data-typed></span><span class="caret"></span></div>
+          </article>
+
+          <article class="window window-terminal" data-app="terminal" tabindex="0" aria-label="Fenêtre Terminal">
+            <header class="window-bar">
+              <span class="window-title">Terminal</span>
+              <span class="window-sub">~/projets/site</span>
+            </header>
+            <div class="terminal-body" aria-live="polite">
+              <p class="terminal-line">&gt; <span class="typed" data-typed></span><span class="caret"></span></p>
             </div>
-            <p class="demo-spoken" id="demo-spoken"></p>
-            <div class="pill state-idle" id="demo-pill">
-              <span class="dot"></span>
-              <span class="bars">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-              </span>
-              <span class="spinner"></span>
-              <span class="label"></span>
+          </article>
+
+          <article class="window window-mail" data-app="mail" tabindex="0" aria-label="Fenêtre Mail, nouveau message">
+            <header class="window-bar">
+              <span class="window-title">Nouveau message</span>
+            </header>
+            <div class="mail-fields">
+              <p><span>À</span> client@exemple.fr</p>
+              <p><span>Objet</span> Le devis</p>
             </div>
+            <div class="mail-body" aria-live="polite"><span class="typed" data-typed></span><span class="caret"></span></div>
+          </article>
+
+          <div class="pill state-idle" id="demo-pill" aria-hidden="true">
+            <span class="bars"></span>
+            <span class="spinner"></span>
+            <span class="label"></span>
           </div>
-          <figcaption class="visually-hidden">
-            Tu dis « faut que je update le README avant la deadline », la pastille murmur écoute, transcrit, et la
-            phrase se colle dans le champ.
-          </figcaption>
+        </div>
+
+        <div class="demo-controls">
+          <button class="button" type="button" id="dictate-button" aria-pressed="false">
+            Dicter <kbd>Ctrl</kbd> <kbd>Espace</kbd>
+          </button>
+          <button class="ghost-button" type="button" id="mic-button" aria-pressed="false">
+            Faire réagir la pastille à ma voix
+          </button>
+          <p class="demo-status" id="demo-status" aria-live="polite">
+            La démo colle des phrases d'exemple, la vraie transcription se fait dans l'app.
+          </p>
+        </div>
+      </section>
+
+      <section class="playground-section" id="franglais" aria-labelledby="franglais-title">
+        <div class="section-head">
+          <h2 id="franglais-title">Ton franglais, écrit comme tu le dis</h2>
+          <p>
+            murmur laisse les mots anglais en anglais : « faut push le commit avant la release » reste comme tu l'as
+            dit. Ton dictionnaire remet les majuscules aux noms propres, et les raccourcis vocaux transforment ce que tu
+            dis en ce que tu veux.
+          </p>
+        </div>
+
+        <div class="playground">
+          <div class="playground-io">
+            <label class="field-label" for="spoken-input">Ce que tu dis</label>
+            <textarea id="spoken-input" rows="3" maxlength="240" spellcheck="false">faut push sur github avant la deadline slash usage</textarea>
+            <p class="field-label" id="written-label">Ce que murmur écrit</p>
+            <output class="written-output" id="written-output" for="spoken-input" aria-labelledby="written-label"></output>
+            <p class="playground-note">C'est le vrai code de murmur qui tourne ici, dans ton navigateur.</p>
+          </div>
+
+          <div class="playground-rules">
+            <h3>Raccourcis vocaux</h3>
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th scope="col">Tu dis</th>
+                  <th scope="col">Ça écrit</th>
+                  <th scope="col"><span class="visually-hidden">Retirer</span></th>
+                </tr>
+              </thead>
+              <tbody id="shortcut-rows"></tbody>
+            </table>
+            <form class="rule-form" id="shortcut-form">
+              <label class="visually-hidden" for="shortcut-spoken">Ce que tu dis</label>
+              <input id="shortcut-spoken" maxlength="40" placeholder="arobase" autocomplete="off" required />
+              <label class="visually-hidden" for="shortcut-written">Ce qui s'écrit</label>
+              <input id="shortcut-written" maxlength="40" placeholder="@" autocomplete="off" required />
+              <button class="ghost-button" type="submit">Ajoute</button>
+            </form>
+
+            <h3>Dictionnaire</h3>
+            <ul class="term-list" id="term-list"></ul>
+            <form class="rule-form" id="term-form">
+              <label class="visually-hidden" for="term-input">Nouveau mot du dictionnaire</label>
+              <input id="term-input" maxlength="40" placeholder="Letterboxd" autocomplete="off" required />
+              <button class="ghost-button" type="submit">Ajoute</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="handsfree-section" id="mains-libres" aria-labelledby="mains-libres-title">
+        <div class="section-head">
+          <h2 id="mains-libres-title">Les mains dans les poches</h2>
+          <p>
+            Avec le mode mains libres, plus besoin du clavier : tu lances la dictée à la voix, et murmur colle le texte
+            dès que tu te tais.
+          </p>
+        </div>
+
+        <ol class="track" id="track">
+          <li class="track-clip clip-wake">
+            <span class="clip-wave" data-wave="7"></span>
+            <span class="clip-text">Tu dis « murmur start »</span>
+          </li>
+          <li class="track-clip clip-chime">
+            <span class="clip-wave" data-wave="2"></span>
+            <span class="clip-text">Un petit bip te répond</span>
+          </li>
+          <li class="track-clip clip-speech">
+            <span class="clip-wave" data-wave="34"></span>
+            <span class="clip-text">Tu parles, aussi longtemps que tu veux</span>
+          </li>
+          <li class="track-clip clip-silence">
+            <span class="clip-wave clip-flat"></span>
+            <span class="clip-text">Tu te tais quelques secondes, ou tu dis « murmur stop »</span>
+          </li>
+          <li class="track-clip clip-paste">
+            <span class="clip-pasted" aria-hidden="true"><span></span><span></span><span></span></span>
+            <span class="clip-text">Le texte est collé</span>
+          </li>
+        </ol>
+
+        <div class="handsfree-notes">
+          <p>
+            Tu peux aussi tout enchaîner d'une traite : « murmur start, je voulais te dire… ». Le micro reste ouvert,
+            mais c'est un petit détecteur de voix en local qui écoute, et les voix au fond de la pièce sont ignorées.
+          </p>
+          <p>
+            Quand tu joues en plein écran, tout se met en pause, du coup un pote qui parle sur Discord lancera pas une
+            dictée par accident.
+          </p>
+        </div>
+      </section>
+
+      <section class="privacy-section" id="vie-privee" aria-labelledby="vie-privee-title">
+        <div class="section-head">
+          <h2 id="vie-privee-title">Ta voix fait le trajet micro, carte graphique, texte</h2>
+          <p>
+            Et elle s'arrête là. La transcription se fait avec whisper.cpp sur ta carte graphique, et l'historique de tes
+            dictées reste dans un fichier sur ton disque. Y'a aucun compte à créer, et le code est ouvert si tu veux
+            vérifier.
+          </p>
+        </div>
+
+        <figure class="privacy-diagram">
+          <svg viewBox="0 0 960 300" role="img" aria-labelledby="diagram-title">
+            <title id="diagram-title">Le son va du micro à la carte graphique puis au texte, sans jamais passer par internet</title>
+            <rect class="pc-frame" x="12" y="20" width="700" height="260" rx="22" />
+            <text class="pc-label" x="40" y="62">Ton PC</text>
+            <g class="node">
+              <rect x="40" y="110" width="170" height="100" rx="14" />
+              <text x="125" y="155" text-anchor="middle">Ton micro</text>
+              <text class="node-sub" x="125" y="182" text-anchor="middle">le son</text>
+            </g>
+            <path class="flow" d="M216 160 H 268" />
+            <g class="node node-hot">
+              <rect x="274" y="110" width="200" height="100" rx="14" />
+              <text x="374" y="155" text-anchor="middle">whisper.cpp</text>
+              <text class="node-sub" x="374" y="182" text-anchor="middle">sur ta carte graphique</text>
+            </g>
+            <path class="flow" d="M480 160 H 518" />
+            <g class="node">
+              <rect x="524" y="110" width="160" height="100" rx="14" />
+              <text x="604" y="155" text-anchor="middle">Le texte</text>
+              <text class="node-sub" x="604" y="182" text-anchor="middle">collé là où t'es</text>
+            </g>
+            <path class="cut" d="M712 160 H 790" />
+            <path class="cut-mark" d="M738 146 L 764 174 M764 146 L 738 174" />
+            <g class="node node-off">
+              <rect x="796" y="110" width="150" height="100" rx="14" />
+              <text x="871" y="155" text-anchor="middle">Internet</text>
+              <text class="node-sub" x="871" y="182" text-anchor="middle">jamais</text>
+            </g>
+          </svg>
         </figure>
       </section>
 
-      <section class="feature" id="raccourci">
-        <h2>Un raccourci, et tu parles</h2>
-        <div class="feature-body">
-          <p>
-            Appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd>, une petite pastille apparaît en bas de l'écran et t'écoute.
-            Réappuie, et le texte se colle là où était ton curseur : Discord, ton terminal, un mail, n'importe où.
-          </p>
-          <p>
-            Chaque dictée arrive avec une espace à la fin, du coup tu peux en enchaîner plusieurs dans le même message
-            sans que les phrases se collent. Et en jeu plein écran, le raccourci reste au jeu.
-          </p>
+      <section class="extras-section" aria-labelledby="extras-title">
+        <h2 id="extras-title">Les petits trucs en plus</h2>
+        <div class="extras-layout">
+          <dl class="extras">
+            <div>
+              <dt>Ton premier mot passe en entier</dt>
+              <dd>
+                Le réglage « Garder le micro ouvert » garde la dernière fraction de seconde en mémoire, sans rien
+                enregistrer, pour quand tu parles pile en appuyant.
+              </dd>
+            </div>
+            <div>
+              <dt>Une espace après chaque dictée</dt>
+              <dd>Tu peux en enchaîner plusieurs dans le même message sans que les phrases se collent.</dd>
+            </div>
+            <div>
+              <dt>Deux modèles Whisper</dt>
+              <dd>large-v3-turbo par défaut pour aller vite, large-v3 si tu veux la précision max.</dd>
+            </div>
+            <div>
+              <dt>Un écran d'accueil qui compte pour toi</dt>
+              <dd>Ta vitesse moyenne, tes mots de la semaine, les apps où tu dictes et le temps gagné sur le clavier.</dd>
+            </div>
+            <div>
+              <dt>La pastille à ta façon</dt>
+              <dd>En bas au centre, dans un coin ou en haut, avec ta couleur, et la forme d'onde si tu veux la voir.</dd>
+            </div>
+            <div>
+              <dt>Les mises à jour toutes seules</dt>
+              <dd>Sur Windows, murmur télécharge la nouvelle version dans son coin et te propose de redémarrer pour l'installer.</dd>
+            </div>
+          </dl>
+          <img
+            class="extras-shot"
+            src="./screenshot-settings.png"
+            width="875"
+            height="975"
+            loading="lazy"
+            alt="L'écran d'accueil de murmur, avec les mots par minute, les mots de la semaine, les apps utilisées et le temps économisé"
+          />
         </div>
       </section>
 
-      <section class="feature" id="franglais">
-        <h2>Le franglais passe tel quel</h2>
-        <div class="feature-body">
-          <p>
-            Whisper comprend le français avec des mots anglais au milieu et les laisse en anglais : « faut push le commit
-            avant la release » reste écrit comme tu l'as dit. Pour les noms que personne connaît, tes projets, tes
-            outils, ajoute-les au dictionnaire et murmur les écrit comme il faut.
-          </p>
-          <p>
-            Les raccourcis vocaux vont plus loin : tu dis un truc, murmur en écrit un autre. Pratique pour une commande,
-            ou pour un mot que Whisper rate tout le temps.
-          </p>
-          <table class="shortcuts">
-            <caption class="visually-hidden">Exemples de raccourcis vocaux</caption>
-            <thead>
-              <tr>
-                <th scope="col">Tu dis</th>
-                <th scope="col">Ça écrit</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>slash usage</td>
-                <td><code>/usage</code></td>
-              </tr>
-              <tr>
-                <td>cloud code</td>
-                <td>Claude Code</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <section class="install-section" id="installer" aria-labelledby="installer-title">
+        <h2 id="installer-title">Installer murmur</h2>
+        <p class="install-lead">Il te faut une carte graphique NVIDIA, c'est elle qui fait tourner la transcription.</p>
 
-      <section class="feature feature-wide" id="mains-libres">
-        <h2>Même sans toucher au clavier</h2>
-        <div class="feature-body">
-          <p>
-            Active le mode mains libres et dis « murmur start » : un petit bip te répond, tu parles. Pour finir, dis
-            « murmur stop » ou tais-toi quelques secondes, et le texte se colle tout seul.
-          </p>
-          <p>
-            Le micro reste ouvert, mais c'est un petit détecteur de voix en local qui écoute, et les voix au fond de la
-            pièce sont ignorées. Un voyant te montre en direct si murmur t'entend.
-          </p>
+        <div class="tabs" role="tablist" aria-label="Système">
+          <button class="tab" type="button" role="tab" id="tab-windows" aria-controls="panel-windows" aria-selected="true">
+            Windows 10 et 11
+          </button>
+          <button class="tab" type="button" role="tab" id="tab-linux" aria-controls="panel-linux" aria-selected="false" tabindex="-1">
+            Linux, KDE Plasma 6
+          </button>
         </div>
-        <img
-          class="screenshot"
-          src="./screenshot-hands-free.png"
-          width="875"
-          height="975"
-          loading="lazy"
-          alt="L'onglet Mains libres des réglages de murmur, avec l'interrupteur, le délai de silence et le voyant d'écoute"
-        />
-      </section>
 
-      <section class="feature" id="vie-privee">
-        <h2>Ta voix reste chez toi</h2>
-        <div class="feature-body">
-          <p>
-            La transcription se fait sur ta carte graphique avec whisper.cpp. L'audio quitte jamais ta machine, et
-            l'historique de tes dictées reste dans un fichier sur ton disque. Y'a aucun compte à créer et aucun serveur
-            entre les deux, le code est ouvert si tu veux vérifier.
-          </p>
-        </div>
-      </section>
-
-      <section class="feature" id="installer">
-        <h2>Installer murmur</h2>
-        <div class="feature-body">
+        <div class="tab-panel" role="tabpanel" id="panel-windows" aria-labelledby="tab-windows">
           <ol class="steps">
             <li>
-              Télécharge <code>murmur-Setup.exe</code> sur la
-              <a href="https://github.com/qyrn/murmur/releases/latest" rel="noopener">page des versions</a>.
+              Télécharge
+              <a href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe" rel="noopener"
+                >murmur-Setup-__MURMUR_VERSION__.exe</a
+              >.
             </li>
             <li>
               Lance-le. Windows va sûrement afficher « Windows a protégé votre ordinateur », il fait ça avec toutes les
@@ -169,23 +330,74 @@
             </li>
             <li>L'icône apparaît dans la barre système, appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd> et parle !</li>
           </ol>
-          <p class="requirements">
-            Il te faut une carte graphique NVIDIA, la transcription tourne dessus. Sur Windows 10 et 11, les mises à jour
-            arrivent toutes seules. Sur Linux, murmur marche sous KDE Plasma 6, mais pour l'instant faut le compiler
-            depuis les sources, tout est expliqué dans le
-            <a href="https://github.com/qyrn/murmur#sur-linux-kde-plasma" rel="noopener">README</a>.
+        </div>
+
+        <div class="tab-panel" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
+          <p>
+            Pas encore d'installeur sur Linux, murmur se compile depuis les sources. Installe d'abord
+            <code>wl-clipboard</code>, <code>ydotool</code>, <code>kdotool</code>, <code>ffmpeg</code> et le CUDA Toolkit,
+            puis :
           </p>
+          <div class="code-block">
+            <pre><code id="linux-commands">git clone https://github.com/qyrn/murmur.git
+cd murmur
+pnpm install
+./scripts/setup-whisper.sh
+./scripts/download-model.sh large-v3-turbo
+pnpm build:linux</code></pre>
+            <button class="ghost-button copy-button" type="button" data-copy-target="linux-commands">Copier</button>
+          </div>
+          <p>
+            L'app est dans <code>dist/linux-unpacked</code>. Lance aussi
+            <code>systemctl --user enable --now ydotool</code> pour que murmur puisse coller le texte.
+          </p>
+        </div>
+      </section>
+
+      <section class="faq-section" aria-labelledby="faq-title">
+        <h2 id="faq-title">Les questions qu'on se pose</h2>
+        <div class="faq-list">
+          <details>
+            <summary>Il faut vraiment une carte graphique NVIDIA ?</summary>
+            <p>
+              Oui, Whisper tourne dessus avec CUDA, c'est ce qui permet de transcrire vite sans rien envoyer sur
+              internet. Sans carte NVIDIA, la transcription peut pas tourner.
+            </p>
+          </details>
+          <details>
+            <summary>Ça marche sur Mac ?</summary>
+            <p>Malheureusement non, murmur tourne sur Windows et sur Linux avec KDE Plasma 6.</p>
+          </details>
+          <details>
+            <summary>Je peux dicter dans une autre langue que le français ?</summary>
+            <p>
+              murmur est réglé pour le français. Les mots anglais au milieu de tes phrases passent sans souci, mais une
+              phrase entière dans une autre langue sera mal transcrite.
+            </p>
+          </details>
+          <details>
+            <summary>C'est payant ?</summary>
+            <p>Non, murmur est open source sous licence MIT. Tu peux lire le code, le modifier et le compiler toi-même.</p>
+          </details>
+          <details>
+            <summary>Ça colle dans n'importe quelle app ?</summary>
+            <p>
+              Dans presque toutes. Sur Windows, les apps lancées en administrateur refusent le collage d'un programme
+              normal, dans ce cas lance murmur en administrateur aussi.
+            </p>
+          </details>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>
-        murmur est open source, sous licence MIT. Une idée ou un bug ? Ouvre une
+      <p class="footer-mark" id="footer-mark" aria-hidden="true"><span class="voice-line">murmur</span></p>
+      <p class="footer-note">
+        Open source, sous licence MIT. Une idée ou un bug ? Ouvre une
         <a href="https://github.com/qyrn/murmur/issues" rel="noopener">issue sur GitHub</a>.
       </p>
     </footer>
 
-    <script type="module" src="./src/demo.ts"></script>
+    <script type="module" src="./src/main.ts"></script>
   </body>
 </html>
