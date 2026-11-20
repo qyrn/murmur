@@ -109,6 +109,16 @@ body {
   box-shadow: 0 0 6px rgba(255, 42, 31, 0.6);
 }
 
+.dot--amber {
+  background: radial-gradient(circle at 40% 35%, #ffe3a8, #ffb020 60%, #a86400);
+  box-shadow: 0 0 6px rgba(255, 176, 32, 0.6);
+}
+
+.dot--green {
+  background: radial-gradient(circle at 40% 35%, #c8ffd2, #2fd65a 60%, #0d7a2a);
+  box-shadow: 0 0 6px rgba(47, 214, 90, 0.6);
+}
+
 .app-shell {
   display: flex;
   flex: 1;
