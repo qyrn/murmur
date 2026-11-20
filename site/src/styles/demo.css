@@ -219,11 +219,11 @@ main > .demo-section {
 }
 
 .state-recording .label::before {
-  content: 'Écoute…';
+  content: attr(data-recording);
 }
 
 .state-transcribing .label::before {
-  content: 'Transcription…';
+  content: attr(data-transcribing);
 }
 
 .demo-controls {

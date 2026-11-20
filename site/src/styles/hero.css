@@ -3,14 +3,13 @@ main > .hero {
   flex-direction: column;
   justify-content: space-between;
   gap: clamp(2.5rem, 6vw, 4rem);
-  min-height: calc(100svh - 5rem);
   padding-top: clamp(2rem, 6vw, 5rem);
   padding-bottom: clamp(2rem, 4vw, 3rem);
 }
 
 .voice-headline {
   margin: 0;
-  font-size: clamp(2.9rem, 11.2vw, 12rem);
+  font-size: clamp(2rem, 11.2vw, 12rem);
   font-variation-settings: 'wdth' 100, 'wght' 800;
   line-height: 0.92;
   letter-spacing: -0.03em;
@@ -68,4 +67,20 @@ main > .hero {
   .hero-foot {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.pill.hero-pill {
+  position: fixed;
+  bottom: 1.75rem;
+  z-index: 20;
+}
+
+@media (min-width: 821px) {
+  main > .hero {
+    min-height: calc(100svh - 5rem);
+  }
+}
+
+.voice-headline:lang(en) {
+  font-size: clamp(1.8rem, 10vw, 10.75rem);
 }

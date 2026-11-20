@@ -1,6 +1,8 @@
 import { applyDictionaryCorrections, applyVoiceShortcuts } from '../../src/main/dictionary'
 import type { DictionaryEntry, VoiceShortcut } from '../../src/shared/types'
 import { requireElement } from './dom'
+import { onLanguageChange } from './i18n/language'
+import { runtimeText } from './i18n/runtimeText'
 
 const MAX_SHORTCUTS = 8
 const MAX_TERMS = 12
@@ -51,7 +53,7 @@ export function setupShortcutPlayground(): void {
         writtenCell.textContent = shortcut.written
         const actionCell = document.createElement('td')
         actionCell.append(
-          removeButton(`Retirer le raccourci ${shortcut.spoken}`, () => {
+          removeButton(runtimeText('playground.removeShortcut', { name: shortcut.spoken }), () => {
             shortcuts = shortcuts.filter((candidate) => candidate !== shortcut)
             renderShortcuts()
           })
@@ -71,7 +73,7 @@ export function setupShortcutPlayground(): void {
         label.textContent = entry.term
         item.append(
           label,
-          removeButton(`Retirer ${entry.term} du dictionnaire`, () => {
+          removeButton(runtimeText('playground.removeTerm', { name: entry.term }), () => {
             dictionary = dictionary.filter((candidate) => candidate !== entry)
             renderTerms()
           })
@@ -108,4 +110,8 @@ export function setupShortcutPlayground(): void {
   spokenInput.addEventListener('input', renderOutput)
   renderShortcuts()
   renderTerms()
+  onLanguageChange(() => {
+    renderShortcuts()
+    renderTerms()
+  })
 }

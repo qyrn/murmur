@@ -1,4 +1,5 @@
 import { requireElement } from './dom'
+import { runtimeText } from './i18n/runtimeText'
 
 const COPY_FEEDBACK_MS = 1800
 
@@ -36,14 +37,14 @@ function setupTabs(): void {
 
 function setupCopyButtons(): void {
   document.querySelectorAll<HTMLButtonElement>('[data-copy-target]').forEach((button) => {
-    const label = button.textContent ?? ''
     button.addEventListener('click', async () => {
+      const label = button.textContent ?? ''
       const source = document.getElementById(button.dataset.copyTarget ?? '')
       try {
         await navigator.clipboard.writeText(source?.textContent ?? '')
-        button.textContent = 'Copié !'
+        button.textContent = runtimeText('copy.done')
       } catch {
-        button.textContent = 'Copie bloquée'
+        button.textContent = runtimeText('copy.blocked')
       }
       window.setTimeout(() => {
         button.textContent = label

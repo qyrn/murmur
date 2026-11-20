@@ -1,5 +1,5 @@
-const SPEAKING_MS = 1500
-const WRITING_MS = 1100
+export const SPEAKING_MS = 1500
+export const WRITING_MS = 1100
 const NARROWEST_WIDTH = 52
 
 interface VoiceLetter {

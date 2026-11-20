@@ -1,90 +1,152 @@
-.privacy-diagram {
+.privacy-flow {
+  display: flex;
+  align-items: center;
   margin: 0;
-  overflow-x: auto;
 }
 
-.privacy-diagram svg {
-  display: block;
-  width: 100%;
-  min-width: 40rem;
-  height: auto;
-  font-family: var(--body);
-}
-
-.pc-frame {
-  fill: none;
-  stroke: var(--line);
-  stroke-width: 2;
-  stroke-dasharray: 8 8;
+.pc-box {
+  flex: 1;
+  padding: 1.5rem 1.75rem 2rem;
+  border: 2px dashed var(--line);
+  border-radius: 22px;
 }
 
 .pc-label {
-  fill: var(--muted);
-  font-size: 22px;
+  margin: 0 0 1.5rem;
+  color: var(--muted);
 }
 
-.node rect {
-  fill: var(--surface);
-  stroke: var(--line);
-  stroke-width: 1.5;
+.flow-steps {
+  display: flex;
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.node text {
-  fill: var(--text);
-  font-size: 22px;
-  font-weight: 700;
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  min-height: 7rem;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  text-align: center;
 }
 
-.node .node-sub {
-  fill: var(--muted);
-  font-size: 15px;
-  font-weight: 500;
+.flow-steps .flow-node {
+  flex: 1;
 }
 
-.node-hot rect {
-  fill: var(--amber);
-  stroke: var(--amber);
+.flow-node b {
+  font-family: var(--display);
+  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+  font-variation-settings: 'wdth' 92;
 }
 
-.node-hot text,
-.node-hot .node-sub {
-  fill: var(--ink);
+.flow-node span {
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
-.node-off rect {
-  fill: none;
-  stroke-dasharray: 6 6;
+.flow-node.node-hot {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: var(--ink);
 }
 
-.node-off text {
-  fill: var(--muted);
+.flow-node.node-hot span {
+  color: rgba(21, 18, 14, 0.75);
 }
 
-.flow {
-  fill: none;
-  stroke: var(--amber);
-  stroke-width: 4;
-  stroke-linecap: round;
-  stroke-dasharray: 6 10;
-  animation: flow 900ms linear infinite;
+.flow-node.node-off {
+  flex: 0 0 auto;
+  background: transparent;
+  border-style: dashed;
+  color: var(--muted);
 }
 
-.cut {
-  fill: none;
-  stroke: var(--line);
-  stroke-width: 3;
-  stroke-dasharray: 4 8;
+.flow-steps .flow-node + .flow-node {
+  position: relative;
+  margin-left: 3.5rem;
 }
 
-.cut-mark {
-  fill: none;
-  stroke: var(--danger);
-  stroke-width: 5;
-  stroke-linecap: round;
+.flow-steps .flow-node + .flow-node::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -3rem;
+  width: 2.5rem;
+  border-top: 4px dashed var(--amber);
+  animation: flow-dash 900ms linear infinite;
 }
 
-@keyframes flow {
-  to {
-    stroke-dashoffset: -16;
+.flow-cut {
+  position: relative;
+  flex: 0 0 5rem;
+  height: 4px;
+  border-top: 3px dotted var(--line);
+}
+
+.flow-cut::before,
+.flow-cut::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.9rem;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--danger);
+}
+
+.flow-cut::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.flow-cut::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+@keyframes flow-dash {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 860px) {
+  .privacy-flow,
+  .flow-steps {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .flow-steps .flow-node + .flow-node {
+    margin: 2.5rem 0 0;
+  }
+
+  .flow-steps .flow-node + .flow-node::before {
+    top: -2.1rem;
+    left: 50%;
+    width: 0;
+    height: 1.7rem;
+    border-top: 0;
+    border-left: 4px dashed var(--amber);
+  }
+
+  .flow-cut {
+    flex: 0 0 4.5rem;
+    width: 4px;
+    height: auto;
+    margin: 0 auto;
+    border-top: 0;
+    border-left: 3px dotted var(--line);
+  }
+
+  .flow-node.node-off {
+    align-self: stretch;
   }
 }

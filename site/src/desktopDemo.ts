@@ -1,5 +1,7 @@
 import { requireElement, wait } from './dom'
 import { createPill } from './pill'
+import { onLanguageChange } from './i18n/language'
+import { runtimeText, type RuntimeTextKey } from './i18n/runtimeText'
 import { createSyntheticVoice, openMicrophoneVoice, type VoiceLevelSource } from './voiceLevel'
 
 const PHRASES_BY_APP: Record<string, readonly string[]> = {
@@ -16,11 +18,10 @@ const PHRASES_BY_APP: Record<string, readonly string[]> = {
   ]
 }
 
-const APP_NAMES: Record<string, string> = { chat: 'Discord', terminal: 'Terminal', mail: 'le mail' }
+const APP_NAME_KEYS: Record<string, RuntimeTextKey> = { chat: 'app.chat', terminal: 'app.terminal', mail: 'app.mail' }
 const AUTO_STOP_MS = 12000
 const TRANSCRIBING_MS = 550
 const MAX_TYPED_CHARACTERS = 200
-const IDLE_STATUS = "La démo colle des phrases d'exemple, la vraie transcription se fait dans l'app."
 
 type DemoPhase = 'idle' | 'recording' | 'transcribing'
 
@@ -41,6 +42,18 @@ export function setupDesktopDemo(): void {
   let autoStopTimer = 0
   let sectionVisible = false
   const phraseIndexByApp = new Map<string, number>()
+  let statusKey: RuntimeTextKey = 'demo.idle'
+  let statusApp = 'chat'
+
+  const showStatus = (key: RuntimeTextKey, app = statusApp): void => {
+    statusKey = key
+    statusApp = app
+    status.textContent = runtimeText(key, { app: runtimeText(APP_NAME_KEYS[app] ?? 'app.chat') })
+  }
+
+  const showMicrophoneLabel = (): void => {
+    microphoneButton.textContent = runtimeText(microphone ? 'demo.micStop' : 'demo.micStart')
+  }
 
   const focusWindow = (target: HTMLElement): void => {
     focusedWindow = target
@@ -60,7 +73,7 @@ export function setupDesktopDemo(): void {
     const current = typed.textContent ?? ''
     const base = current.length > MAX_TYPED_CHARACTERS ? '' : current
     typed.textContent = `${base}${nextPhrase(app)} `
-    status.textContent = `C'est collé dans ${APP_NAMES[app] ?? 'la fenêtre'}. Tu peux recommencer, ou cliquer dans une autre fenêtre.`
+    showStatus('demo.pasted', app)
   }
 
   const animateLevels = (): void => {
@@ -76,7 +89,7 @@ export function setupDesktopDemo(): void {
     activeVoice = microphone ?? createSyntheticVoice()
     pill.setState('recording')
     dictateButton.setAttribute('aria-pressed', 'true')
-    status.textContent = "murmur t'écoute… Réappuie pour coller le texte."
+    showStatus('demo.listening')
     levelFrame = requestAnimationFrame(animateLevels)
     autoStopTimer = window.setTimeout(() => void stopRecording(), AUTO_STOP_MS)
   }
@@ -118,8 +131,8 @@ export function setupDesktopDemo(): void {
       microphone.stop()
       microphone = null
       microphoneButton.setAttribute('aria-pressed', 'false')
-      microphoneButton.textContent = 'Faire réagir la pastille à ma voix'
-      status.textContent = IDLE_STATUS
+      showMicrophoneLabel()
+      showStatus('demo.idle')
       return
     }
     try {
@@ -129,12 +142,19 @@ export function setupDesktopDemo(): void {
         activeVoice = microphone
       }
       microphoneButton.setAttribute('aria-pressed', 'true')
-      microphoneButton.textContent = 'Couper mon micro'
-      status.textContent = "Ton navigateur lit juste le volume pour faire bouger la pastille, rien n'est enregistré ni envoyé."
+      showMicrophoneLabel()
+      showStatus('demo.micOn')
     } catch {
-      status.textContent = "Pas d'accès au micro, du coup la pastille fait semblant. Tu peux l'autoriser dans ton navigateur."
+      showStatus('demo.micBlocked')
     }
   }
+
+  showStatus('demo.idle')
+  showMicrophoneLabel()
+  onLanguageChange(() => {
+    showStatus(statusKey)
+    showMicrophoneLabel()
+  })
 
   windows.forEach((candidate) => {
     candidate.addEventListener('pointerdown', () => focusWindow(candidate))

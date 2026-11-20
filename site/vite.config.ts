@@ -13,5 +13,6 @@ function injectAppVersion(): Plugin {
 export default defineConfig({
   base: './',
   plugins: [injectAppVersion()],
+  define: { __MURMUR_VERSION__: JSON.stringify(appPackage.version) },
   server: { port: 5190, strictPort: true, fs: { allow: ['..'] } }
 })
