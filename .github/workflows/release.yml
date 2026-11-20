@@ -34,10 +34,6 @@ jobs:
         shell: pwsh
         run: ./scripts/setup-whisper.ps1 -CudaArchitectures "86;89;120" -BundleCudaRuntime
 
-      - name: Download the default model
-        shell: pwsh
-        run: ./scripts/download-model.ps1 -Model large-v3-turbo
-
       - name: Prepare the draft release
         shell: bash
         env:

@@ -78,13 +78,6 @@
           "*.so",
           "*.so.*"
         ]
-      },
-      {
-        "from": "whisper-engine/models",
-        "to": "whisper-engine/models",
-        "filter": [
-          "ggml-large-v3-turbo.bin"
-        ]
       }
     ],
     "win": {

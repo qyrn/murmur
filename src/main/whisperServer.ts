@@ -1,22 +1,18 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { existsSync } from 'node:fs'
-import { app } from 'electron'
-import { WHISPER_MODELS, type WhisperModel } from '../shared/types'
+import type { WhisperModel } from '../shared/types'
+import { engineRoot } from './enginePaths'
+import { findModelFile } from './modelStore'
 
 const SERVER_PORT = 8178
 const SERVER_HOST = '127.0.0.1'
 const PARENT_DEATH_WRAPPER = '/usr/bin/setpriv'
 const READY_TIMEOUT_MS = 30000
 
-const engineRoot = app.isPackaged
-  ? join(process.resourcesPath, 'whisper-engine')
-  : join(__dirname, '../../whisper-engine')
-
 const isWindows = process.platform === 'win32'
 const serverBinary = join(engineRoot, `whisper.cpp/build/bin/whisper-server${isWindows ? '.exe' : ''}`)
 const setupScriptName = isWindows ? 'setup-whisper.ps1' : 'setup-whisper.sh'
-const downloadScriptName = isWindows ? 'download-model.ps1' : 'download-model.sh'
 
 function serverEnvironment(): NodeJS.ProcessEnv {
   if (isWindows) {
@@ -27,18 +23,10 @@ function serverEnvironment(): NodeJS.ProcessEnv {
   return { ...process.env, LD_LIBRARY_PATH: existing ? `${libraryDir}:${existing}` : libraryDir }
 }
 
-function modelPath(model: WhisperModel): string {
-  return join(engineRoot, `models/ggml-${model}.bin`)
-}
-
-export function installedModels(): WhisperModel[] {
-  return WHISPER_MODELS.filter((model) => existsSync(modelPath(model)))
-}
-
-function serverCommand(model: WhisperModel): { command: string; args: string[] } {
+function serverCommand(modelFile: string): { command: string; args: string[] } {
   const serverArgs = [
     '--model',
-    modelPath(model),
+    modelFile,
     '--host',
     SERVER_HOST,
     '--port',
@@ -104,12 +92,13 @@ export async function ensureWhisperServer(model: WhisperModel): Promise<void> {
   if (!existsSync(serverBinary)) {
     throw new Error(`whisper-server introuvable : ${serverBinary}. Lance scripts/${setupScriptName} d'abord.`)
   }
-  if (!existsSync(modelPath(model))) {
-    throw new Error(`Modèle introuvable : ${modelPath(model)}. Lance scripts/${downloadScriptName} d'abord.`)
+  const modelFile = findModelFile(model)
+  if (!modelFile) {
+    throw new Error(`Modèle ${model} introuvable, il sera téléchargé à la prochaine dictée.`)
   }
 
   stopWhisperServer()
-  const { command, args } = serverCommand(model)
+  const { command, args } = serverCommand(modelFile)
   const proc = spawn(command, args, { stdio: 'pipe', env: serverEnvironment() })
   proc.stdout.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))
   proc.stderr.on('data', (chunk: Buffer) => console.log('[whisper-server]', chunk.toString().trim()))

@@ -17,7 +17,8 @@ import {
 import { loadHistory, appendHistoryEntry } from './historyStore'
 import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
-import { ensureWhisperServer, installedModels, stopWhisperServer } from './whisperServer'
+import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
+import { downloadModel, findModelFile, installedModels } from './modelStore'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
 import { containsStopPhrase, containsWakePhrase, resemblesCommand } from './voiceCommands'
 import { removeHallucinations } from './hallucinationFilter'
@@ -94,11 +95,18 @@ let lastHeardCommand: string | null = null
 let settings: DictationSettings = loadSettings()
 let recordingStartedAt: number | null = null
 
-const overlayVisibleStates: ReadonlySet<AppState> = new Set(['recording', 'transcribing', 'loading-model', 'error'])
+const overlayVisibleStates: ReadonlySet<AppState> = new Set([
+  'recording',
+  'transcribing',
+  'loading-model',
+  'downloading-model',
+  'error'
+])
 
 const trayIconFor: Record<AppState, string> = {
   idle: 'idle.png',
   'loading-model': 'transcribing.png',
+  'downloading-model': 'transcribing.png',
   recording: 'recording.png',
   transcribing: 'transcribing.png',
   error: 'error.png'
@@ -227,7 +235,10 @@ function createOverlayWindow(): BrowserWindow {
   })
   win.setAlwaysOnTop(true, 'screen-saver')
   win.setIgnoreMouseEvents(true)
-  win.webContents.on('did-finish-load', () => pushOverlayConfig())
+  win.webContents.on('did-finish-load', () => {
+    pushOverlayConfig()
+    win.webContents.send(IpcChannel.OverlayState, appState)
+  })
   if (process.env['ELECTRON_RENDERER_URL']) {
     win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/overlay/index.html`)
   } else {
@@ -266,7 +277,36 @@ function createSettingsWindow(): void {
   })
 }
 
+function showTransientError(): void {
+  setAppState('error')
+  setTimeout(() => setAppState('idle'), 2000)
+}
+
+async function downloadSelectedModel(): Promise<boolean> {
+  setAppState('downloading-model')
+  overlayWindow?.webContents.send(IpcChannel.ModelDownloadProgress, 0)
+  try {
+    await downloadModel(settings.model, (percent) => {
+      overlayWindow?.webContents.send(IpcChannel.ModelDownloadProgress, percent)
+      tray?.setToolTip(`murmur : ${settings.model} ${percent}%`)
+    })
+    console.log(`[debug] modèle ${settings.model} téléchargé`)
+    setAppState('idle')
+    return true
+  } catch (err) {
+    console.error(`[debug] échec du téléchargement du modèle ${settings.model} :`, err)
+    showTransientError()
+    return false
+  }
+}
+
 async function toggleDictation(): Promise<void> {
+  if (appState === 'idle' && !findModelFile(settings.model)) {
+    if (await downloadSelectedModel()) {
+      void startWhisperServerAtLaunch()
+    }
+    return
+  }
   if (appState === 'idle') {
     hotkeyStartedFromOpenMicrophone = handsFreeMode !== 'off'
     try {
@@ -277,8 +317,7 @@ async function toggleDictation(): Promise<void> {
       recorderWindow?.webContents.send(IpcChannel.ToggleDictation, 'start')
     } catch (err) {
       console.error(err)
-      setAppState('error')
-      setTimeout(() => setAppState('idle'), 2000)
+      showTransientError()
     }
     return
   }
@@ -578,6 +617,12 @@ function createTray(): void {
 const STARTUP_RETRY_DELAYS_MS = [2000, 4000, 8000, 15000]
 
 async function startWhisperServerAtLaunch(): Promise<void> {
+  if (appState === 'downloading-model') {
+    return
+  }
+  if (!findModelFile(settings.model) && !(await downloadSelectedModel())) {
+    return
+  }
   for (let attempt = 0; attempt <= STARTUP_RETRY_DELAYS_MS.length; attempt++) {
     try {
       await ensureWhisperServer(settings.model)

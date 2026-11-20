@@ -39,6 +39,7 @@ body {
 .pill.state-recording,
 .pill.state-transcribing,
 .pill.state-loading-model,
+.pill.state-downloading-model,
 .pill.state-error {
   opacity: 1;
   transform: translateY(0) scale(1);
@@ -116,7 +117,8 @@ body {
 }
 
 .state-transcribing .spinner,
-.state-loading-model .spinner {
+.state-loading-model .spinner,
+.state-downloading-model .spinner {
   display: block;
   width: 13px;
   height: 13px;
@@ -129,6 +131,7 @@ body {
 
 .state-transcribing .label,
 .state-loading-model .label,
+.state-downloading-model .label,
 .state-error .label {
   display: block;
   font-size: 14px;
@@ -142,6 +145,10 @@ body {
 
 .state-loading-model .label::before {
   content: attr(data-loading);
+}
+
+.state-downloading-model .label::before {
+  content: attr(data-downloading);
 }
 
 .state-error .label {

@@ -9,6 +9,9 @@ const overlayApi = {
   onAudioLevel: (callback: (level: number) => void): void => {
     ipcRenderer.on(IpcChannel.AudioLevel, (_event, level: number) => callback(level))
   },
+  onDownloadProgress: (callback: (percent: number) => void): void => {
+    ipcRenderer.on(IpcChannel.ModelDownloadProgress, (_event, percent: number) => callback(percent))
+  },
   onConfig: (callback: (config: OverlayConfig) => void): void => {
     ipcRenderer.on(IpcChannel.OverlayConfig, (_event, config: OverlayConfig) => callback(config))
   }

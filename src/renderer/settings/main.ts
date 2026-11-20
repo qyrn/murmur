@@ -334,16 +334,11 @@ const HANDS_FREE_LABELS: Record<HandsFreeActivity, MessageKey> = {
   dictating: 'handsFree.dictating'
 }
 
-function disableMissingModels(installed: WhisperModel[]): void {
+function labelMissingModels(installed: WhisperModel[]): void {
   for (const option of Array.from(modelSelect.options)) {
-    const isInstalled = installed.some((model) => model === option.value)
-    option.disabled = !isInstalled
-    if (!isInstalled) {
+    if (!installed.some((model) => model === option.value)) {
       option.textContent = t('model.notInstalled', { model: option.value })
     }
-  }
-  if (modelSelect.selectedOptions[0]?.disabled && installed[0]) {
-    modelSelect.value = installed[0]
   }
 }
 
@@ -401,7 +396,7 @@ function translateSilenceOptions(): void {
 function renderTranslatedContent(): void {
   translateStaticText()
   translateSilenceOptions()
-  disableMissingModels(installedModels)
+  labelMissingModels(installedModels)
   renderDictionary()
   renderShortcuts()
   renderHistory(history)

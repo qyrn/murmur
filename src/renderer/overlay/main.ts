@@ -10,6 +10,8 @@ const COUNTER_REFRESH_MS = 250
 const recentLevels = new Array<number>(bars.length).fill(QUIET_LEVEL)
 let recordingStartedAt = 0
 let counterTimer: number | undefined
+let overlayLanguage: OverlayConfig['language'] = 'fr'
+let downloadPercent = 0
 
 function formatElapsed(milliseconds: number): string {
   const totalSeconds = Math.floor(milliseconds / 1000)
@@ -53,13 +55,24 @@ window.overlayApi.onStateChange((state) => {
   }
 })
 
+function renderDownloadLabel(): void {
+  label.dataset['downloading'] = translate(overlayLanguage, 'overlay.downloading', { percent: String(downloadPercent) })
+}
+
+window.overlayApi.onDownloadProgress((percent) => {
+  downloadPercent = percent
+  renderDownloadLabel()
+})
+
 window.overlayApi.onConfig((config) => {
+  overlayLanguage = config.language
   document.documentElement.style.setProperty('--screen-ink', config.accentColor)
   document.documentElement.classList.toggle('waveform-off', !config.showWaveform)
   document.documentElement.lang = config.language
   label.dataset['transcribing'] = translate(config.language, 'overlay.transcribing')
   label.dataset['loading'] = translate(config.language, 'overlay.loading')
   label.dataset['error'] = translate(config.language, 'overlay.error')
+  renderDownloadLabel()
 })
 
 window.overlayApi.onAudioLevel((level) => {

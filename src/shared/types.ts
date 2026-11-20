@@ -43,7 +43,7 @@ export interface DictationRecord {
   text: string
 }
 
-export type AppState = 'idle' | 'loading-model' | 'recording' | 'transcribing' | 'error'
+export type AppState = 'idle' | 'loading-model' | 'downloading-model' | 'recording' | 'transcribing' | 'error'
 
 export type HandsFreeMode = 'off' | 'ready' | 'standby'
 
@@ -72,6 +72,7 @@ export const IpcChannel = {
   AudioLevel: 'recorder:audio-level',
   OverlayState: 'overlay:state',
   OverlayConfig: 'overlay:config',
+  ModelDownloadProgress: 'overlay:model-download-progress',
   GetSettings: 'settings:get',
   SetSettings: 'settings:set',
   GetDictionary: 'dictionary:get',
