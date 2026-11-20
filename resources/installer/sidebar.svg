@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 164 314" width="164" height="314">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1A1D21" />
+      <stop offset="1" stop-color="#000000" />
+    </linearGradient>
+    <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="0.42" stop-color="#9AA3AD" />
+      <stop offset="0.5" stop-color="#2B3138" />
+      <stop offset="0.58" stop-color="#CFD6DE" />
+      <stop offset="1" stop-color="#FFFFFF" />
+    </linearGradient>
+    <linearGradient id="chrome-type" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" />
+      <stop offset="0.48" stop-color="#AEB6BF" />
+      <stop offset="0.52" stop-color="#5B636C" />
+      <stop offset="1" stop-color="#E6EAEE" />
+    </linearGradient>
+    <radialGradient id="led" cx="50%" cy="45%" r="55%">
+      <stop offset="0" stop-color="#FFB3AD" />
+      <stop offset="0.45" stop-color="#FF2A1F" />
+      <stop offset="1" stop-color="#9E0D06" />
+    </radialGradient>
+    <filter id="led-glow" x="-1" y="-1" width="3" height="3">
+      <feGaussianBlur stdDeviation="4" />
+    </filter>
+    <filter id="screen-glow" x="-0.5" y="-0.5" width="2" height="2">
+      <feGaussianBlur stdDeviation="2.5" />
+    </filter>
+    <pattern id="grille" width="9" height="9" patternUnits="userSpaceOnUse" x="1" y="1">
+      <circle cx="4.5" cy="4.5" r="2.1" fill="#000000" />
+      <circle cx="4.5" cy="5.1" r="2.1" fill="#2A2F35" opacity="0.55" />
+    </pattern>
+  </defs>
+
+  <rect width="164" height="314" fill="url(#body)" />
+
+  <circle cx="140" cy="26" r="9" fill="#FF2A1F" filter="url(#led-glow)" opacity="0.8" />
+  <circle cx="140" cy="26" r="5" fill="url(#led)" />
+
+  <text x="18" y="76" font-family="Krona One" font-size="21" fill="url(#chrome-type)" letter-spacing="0.2">murmur</text>
+
+  <rect x="18" y="104" width="128" height="104" rx="16" fill="url(#chrome)" />
+  <rect x="27" y="114" width="110" height="60" rx="9" fill="#000000" />
+  <g filter="url(#screen-glow)" opacity="0.8">
+    <circle cx="63" cy="142" r="13" fill="none" stroke="#9DF2FF" stroke-width="5" />
+    <circle cx="101" cy="142" r="13" fill="none" stroke="#9DF2FF" stroke-width="5" />
+  </g>
+  <circle cx="63" cy="142" r="13" fill="none" stroke="#9DF2FF" stroke-width="5" />
+  <circle cx="101" cy="142" r="13" fill="none" stroke="#9DF2FF" stroke-width="5" />
+  <path d="M63 155 H101" stroke="#9DF2FF" stroke-width="3.5" stroke-linecap="round" opacity="0.55" />
+  <rect x="54" y="185" width="56" height="9" rx="3" fill="#2B3138" />
+
+  <rect x="18" y="238" width="128" height="54" rx="10" fill="url(#grille)" />
+</svg>

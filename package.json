@@ -1,7 +1,7 @@
 {
   "name": "murmur",
   "version": "1.4.0",
-  "description": "Dictee vocale privee et locale pour le francais (whisper.cpp + CUDA)",
+  "description": "Dictée vocale locale pour le français, transcrite par whisper.cpp sur la carte graphique",
   "author": "qyrn",
   "license": "MIT",
   "private": true,
@@ -87,6 +87,19 @@
       "icon": "resources/icon.ico"
     },
     "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "installerSidebar": "resources/installer/sidebar.bmp",
+      "uninstallerSidebar": "resources/installer/sidebar.bmp",
+      "installerHeader": "resources/installer/header.bmp",
+      "include": "resources/installer/installer.nsh",
+      "multiLanguageInstaller": true,
+      "installerLanguages": [
+        "fr_FR",
+        "en_US"
+      ],
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "murmur",
@@ -105,6 +118,7 @@
       ],
       "icon": "resources/icon.png",
       "category": "Utility"
-    }
+    },
+    "copyright": "Copyright © 2026 qyrn"
   }
 }
