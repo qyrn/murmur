@@ -421,9 +421,18 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
     console.log(`[debug] texte transcrit : ${text.length} caractères`)
 
     const trimmed = text.trim()
-    if (trimmed.length > 0) {
-      const durationMs = recordingStartedAt ? Date.now() - recordingStartedAt : 0
-      const appName = (await getActiveWindow())?.appName ?? 'Inconnue'
+    const durationMs = recordingStartedAt ? Date.now() - recordingStartedAt : 0
+    recordingStartedAt = null
+    const appName = trimmed.length > 0 ? ((await getActiveWindow())?.appName ?? 'Inconnue') : null
+
+    if (settings.autoPaste && trimmed.length > 0) {
+      await pasteIntoActiveWindow(`${trimmed} `)
+      console.log('[debug] pasteIntoActiveWindow termine')
+    } else {
+      console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', trimmed.length === 0)
+    }
+
+    if (appName !== null) {
       appendHistoryEntry({
         timestamp: Date.now(),
         wordCount: trimmed.split(/\s+/).filter(Boolean).length,
@@ -431,14 +440,6 @@ async function completeDictation(transcribe: () => Promise<string>): Promise<voi
         appName,
         text: trimmed
       })
-    }
-    recordingStartedAt = null
-
-    if (settings.autoPaste && trimmed.length > 0) {
-      await pasteIntoActiveWindow(`${trimmed} `)
-      console.log('[debug] pasteIntoActiveWindow termine')
-    } else {
-      console.log('[debug] pas de collage : autoPaste=', settings.autoPaste, 'texte vide=', trimmed.length === 0)
     }
   } catch (err) {
     console.error(err)

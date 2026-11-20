@@ -1,7 +1,5 @@
-import { app } from 'electron'
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
 import type { DictationSettings, DictionaryEntry, VoiceShortcut } from '../shared/types'
+import { isArrayOfObjects, isPlainObject, readJsonFile, writeJsonFile } from './jsonFileStore'
 
 const defaultSettings: DictationSettings = {
   hotkey: 'Control+Space',
@@ -29,63 +27,30 @@ const defaultDictionary: DictionaryEntry[] = [
 
 const defaultShortcuts: VoiceShortcut[] = [{ spoken: 'slash', written: '/' }]
 
-function userDataDir(): string {
-  const dir = app.getPath('userData')
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
-  }
-  return dir
-}
-
-function settingsPath(): string {
-  return join(userDataDir(), 'settings.json')
-}
-
-function dictionaryPath(): string {
-  return join(userDataDir(), 'dictionary.json')
-}
-
-function shortcutsPath(): string {
-  return join(userDataDir(), 'shortcuts.json')
-}
+const SETTINGS_FILE = 'settings.json'
+const DICTIONARY_FILE = 'dictionary.json'
+const SHORTCUTS_FILE = 'shortcuts.json'
 
 export function loadSettings(): DictationSettings {
-  const path = settingsPath()
-  if (!existsSync(path)) {
-    writeFileSync(path, JSON.stringify(defaultSettings, null, 2), 'utf-8')
-    return defaultSettings
-  }
-  const raw = readFileSync(path, 'utf-8')
-  return { ...defaultSettings, ...(JSON.parse(raw) as Partial<DictationSettings>) }
+  return { ...defaultSettings, ...readJsonFile<Partial<DictationSettings>>(SETTINGS_FILE, defaultSettings, isPlainObject) }
 }
 
 export function saveSettings(settings: DictationSettings): void {
-  writeFileSync(settingsPath(), JSON.stringify(settings, null, 2), 'utf-8')
+  writeJsonFile(SETTINGS_FILE, settings)
 }
 
 export function loadDictionary(): DictionaryEntry[] {
-  const path = dictionaryPath()
-  if (!existsSync(path)) {
-    writeFileSync(path, JSON.stringify(defaultDictionary, null, 2), 'utf-8')
-    return defaultDictionary
-  }
-  const raw = readFileSync(path, 'utf-8')
-  return JSON.parse(raw) as DictionaryEntry[]
+  return readJsonFile<DictionaryEntry[]>(DICTIONARY_FILE, defaultDictionary, isArrayOfObjects)
 }
 
 export function saveDictionary(entries: DictionaryEntry[]): void {
-  writeFileSync(dictionaryPath(), JSON.stringify(entries, null, 2), 'utf-8')
+  writeJsonFile(DICTIONARY_FILE, entries)
 }
 
 export function loadShortcuts(): VoiceShortcut[] {
-  const path = shortcutsPath()
-  if (!existsSync(path)) {
-    writeFileSync(path, JSON.stringify(defaultShortcuts, null, 2), 'utf-8')
-    return defaultShortcuts
-  }
-  return JSON.parse(readFileSync(path, 'utf-8')) as VoiceShortcut[]
+  return readJsonFile<VoiceShortcut[]>(SHORTCUTS_FILE, defaultShortcuts, isArrayOfObjects)
 }
 
 export function saveShortcuts(shortcuts: VoiceShortcut[]): void {
-  writeFileSync(shortcutsPath(), JSON.stringify(shortcuts, null, 2), 'utf-8')
+  writeJsonFile(SHORTCUTS_FILE, shortcuts)
 }

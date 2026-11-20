@@ -1,6 +1,4 @@
-import { app } from 'electron'
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { isArrayOfObjects, readJsonFile, writeJsonFile } from './jsonFileStore'
 
 export interface VoiceCommandAttempt {
   timestamp: number
@@ -11,24 +9,9 @@ export interface VoiceCommandAttempt {
 }
 
 const MAX_ENTRIES = 500
-
-function commandLogPath(): string {
-  const dir = app.getPath('userData')
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true })
-  }
-  return join(dir, 'voice-commands.json')
-}
-
-function loadCommandLog(): VoiceCommandAttempt[] {
-  const path = commandLogPath()
-  if (!existsSync(path)) {
-    return []
-  }
-  return JSON.parse(readFileSync(path, 'utf-8')) as VoiceCommandAttempt[]
-}
+const COMMAND_LOG_FILE = 'voice-commands.json'
 
 export function recordCommandAttempt(attempt: VoiceCommandAttempt): void {
-  const attempts = [...loadCommandLog(), attempt].slice(-MAX_ENTRIES)
-  writeFileSync(commandLogPath(), JSON.stringify(attempts, null, 2), 'utf-8')
+  const attempts = readJsonFile<VoiceCommandAttempt[]>(COMMAND_LOG_FILE, [], isArrayOfObjects)
+  writeJsonFile(COMMAND_LOG_FILE, [...attempts, attempt].slice(-MAX_ENTRIES))
 }
