@@ -11,9 +11,9 @@ interface ScreenshotTargets {
 }
 
 const SETTINGS_SECTIONS: ReadonlyArray<{ section: string; fileName: string }> = [
-  { section: 'home', fileName: 'screenshot-settings.png' },
-  { section: 'shortcuts', fileName: 'screenshot-shortcuts.png' },
-  { section: 'hands-free', fileName: 'screenshot-hands-free.png' }
+  { section: 'home', fileName: 'hero.png' },
+  { section: 'shortcuts', fileName: 'shortcuts.png' },
+  { section: 'hands-free', fileName: 'hands-free.png' }
 ]
 
 export function prepareScreenshotSwitches(): void {
@@ -60,5 +60,5 @@ export async function captureScreenshots(targets: ScreenshotTargets): Promise<vo
     await wait(60)
   }
   await wait(300)
-  await saveCapture(overlayWindow, join(outputDir, 'screenshot-overlay.png'))
+  await saveCapture(overlayWindow, join(outputDir, 'pill.png'))
 }

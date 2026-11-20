@@ -1,183 +1,196 @@
 <div align="center">
 
-<img src="resources/icon.png" width="110" height="110" alt="Icône murmur" />
+<img src="resources/icon.png" width="110" height="110" alt="murmur icon" />
 
 # murmur
 
-Dictée vocale privée, 100% locale, pour le français mêlé d'anglais.
+Private, fully local voice dictation for French mixed with English.
 
-[![Télécharger](https://img.shields.io/github/v/release/qyrn/murmur?label=t%C3%A9l%C3%A9charger&color=e0a248&style=for-the-badge)](../../releases/latest)
-[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-3a3632?style=for-the-badge)](../../releases/latest)
+**English** | [Français](README.fr.md)
 
-<br />
-
-<img src="docs/screenshot-settings.png" width="600" alt="murmur ouvert sur l'écran d'accueil, avec les statistiques d'usage" />
-
-</div>
+[![Download](https://img.shields.io/github/v/release/qyrn/murmur?label=download&color=9df2ff&style=for-the-badge)](../../releases/latest)
+[![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-000000?style=for-the-badge)](../../releases/latest)
+[![KDE Plasma 6](https://img.shields.io/badge/Linux-KDE%20Plasma%206-2b3138?style=for-the-badge)](#on-linux-kde-plasma)
 
 <br />
 
-J'en avais marre de taper au clavier pour tout, surtout quand un mot anglais se glisse au milieu d'une phrase en français et que le correcteur automatique s'en mêle. Alors j'ai fait murmur : un raccourci clavier, tu parles, le texte atterrit tout seul là où tu travailles. Whisper tourne sur ton propre GPU, rien ne sort de la machine.
+<img src="docs/en/hero.png" width="600" alt="murmur's settings window on the home screen, with words per minute, words this week, apps used and time saved shown on blue LCD screens" />
 
-## 🎙️ Ce qu'il y a dedans
-
-Appuie sur `Ctrl+Espace`, une pastille apparaît en bas de l'écran et t'écoute. Réappuie, elle transcrit et colle le texte à l'endroit où était ton curseur.
-
-<div align="center">
-<img src="docs/screenshot-overlay.png" width="360" alt="La pastille flottante pendant une dictée, avec la forme d'onde et l'état Écoute" />
 </div>
 
-Elle reconnaît le français avec des mots anglais mêlés dedans sans les traduire (« il faut update le README avant la deadline »), et tu peux lui apprendre tes propres termes techniques ou noms propres dans le dictionnaire.
+<br />
 
-Le texte arrive toujours suivi d'une espace, du coup tu peux enchaîner plusieurs dictées dans le même message sans que les phrases se collent.
+I was tired of typing everything on the keyboard, especially when an English word slips into a French sentence and autocorrect jumps in. So I made murmur: press a shortcut, talk, and the text lands right where you're working. Whisper runs on your own GPU, nothing leaves your machine.
 
-Si tu commences à parler pile en appuyant, active Réglages → **Microphone** → **Garder le micro ouvert**. murmur garde alors en mémoire la dernière fraction de seconde, sans rien enregistrer, et ton premier mot passe en entier. Le mode mains libres fait déjà ça tout seul.
+## 🎙️ What's inside
 
-## 🗣️ Mode mains libres
-
-Plus besoin de toucher au clavier : dis « murmur start », un petit bip confirme que murmur t'écoute, puis parle. Pour finir, dis « murmur stop », ou tais-toi quelques secondes, et le texte se colle tout seul. Tu peux aussi tout enchaîner d'une traite : « murmur start, je voulais te dire… ».
+Press `Ctrl+Space` and a small chrome capsule shows up at the bottom of the screen and listens. On its screen you get a red LED, the running time and your voice passing by syllable by syllable, even if you sit a bit far from the mic. Press again and it transcribes and pastes the text where your cursor was.
 
 <div align="center">
-<img src="docs/screenshot-hands-free.png" width="600" alt="L'onglet Mains libres des réglages, avec l'interrupteur, le délai de silence et le voyant d'écoute" />
+<img src="docs/en/pill.png" width="360" alt="The pill during a dictation: a red LED, the 00:00 counter and the blue waveform on a black screen inside a chrome capsule" />
 </div>
 
-Ça s'active dans Réglages → **Mains libres**. Un voyant montre en direct si murmur t'entend, et la dernière phrase qu'il a comprise, pratique pour vérifier que « murmur start » passe bien. Le micro reste ouvert tant que le mode est activé, mais rien ne sort de ta machine : un petit détecteur de voix tourne en local, et seules les phrases dites près du micro passent par Whisper pour repérer la commande. Les voix au fond de la pièce sont ignorées. En jeu plein écran, tout se met en pause.
+It understands French with English words mixed in and leaves them in English (“il faut update le README avant la deadline”), and you can teach it your own technical terms or names in the dictionary.
+
+murmur is made for people who dictate in French. The interface is available in English, but the dictation itself stays French.
+
+Each dictation ends with a space, so you can chain several in the same message without the sentences sticking together.
 
 > [!TIP]
-> Avec un casque Bluetooth, garder le micro ouvert fait passer le son en qualité « appel téléphonique ». Ce mode est surtout fait pour un micro séparé (USB, micro du PC).
+> If you start talking right as you press the shortcut, turn on Settings → **Microphone** → **Keep the microphone open**. murmur then keeps the last split second in memory, without recording anything, and your first word comes through whole.
 
-## 🔀 Raccourcis vocaux
+## 🗣️ Hands-free mode
 
-Tu dis un mot, murmur en écrit un autre. Dis « slash usage » et tu obtiens `/usage`, pratique pour taper une commande sans toucher au clavier. Ça sert aussi à rattraper les mots que Whisper comprend toujours de travers : s'il entend « cloud code » à chaque fois, un raccourci le remplace par « Claude Code ».
+No keyboard needed: say “murmur start”, a little beep tells you murmur is listening, then talk. To finish, say “murmur stop”, or just stay quiet for a few seconds, and the text pastes itself. You can also say it all in one go: “murmur start, je voulais te dire…”.
 
 <div align="center">
-<img src="docs/screenshot-shortcuts.png" width="600" alt="L'onglet Raccourcis des réglages, avec la liste des mots dits et de ce qui est écrit à la place" />
+<img src="docs/en/hands-free.png" width="600" alt="The Hands-free tab in settings, with the switch, the silence delay and the listening indicator on an LCD screen" />
 </div>
 
-Tout se gère dans Réglages → **Raccourcis** : une ligne par raccourci, ce que tu dis à gauche, ce qui s'écrit à droite.
+Turn it on in Settings → **Hands-free**. An indicator shows live whether murmur hears you, along with the last phrase it understood, handy to check that “murmur start” gets through. The mic stays open while the mode is on, but nothing leaves your machine: a small voice detector runs locally, and only phrases said close to the mic go through Whisper to spot the command. Voices from across the room are ignored, and everything pauses during a fullscreen game.
 
-## 🏠 Un écran d'accueil qui compte pour toi
+> [!TIP]
+> With a Bluetooth headset, keeping the mic open drops the sound to “phone call” quality. This mode works best with a separate mic (USB or built-in).
 
-Vitesse moyenne, mots dictés cette semaine, apps utilisées, temps gagné par rapport à la frappe au clavier : tout ça se calcule tout seul, à partir de l'historique de tes dictées, stocké en local.
+## 🔀 Voice shortcuts
 
-## ⚙️ Réglages
+You say one word, murmur writes another. Say “slash usage” and you get `/usage`, handy for typing a command without touching the keyboard. It also fixes words Whisper always gets wrong: if it keeps hearing “cloud code”, a shortcut turns it into “Claude Code”.
 
-Clic droit sur l'icône de la barre système → **Réglages**. Tout est dans la barre latérale : raccourci clavier, choix du micro, choix du modèle Whisper, dictionnaire personnel, raccourcis vocaux, mode mains libres, position et couleur de la pastille, historique des dictées.
+<div align="center">
+<img src="docs/en/shortcuts.png" width="600" alt="The Shortcuts tab in settings, with the list of spoken words and what gets written instead" />
+</div>
+
+Everything lives in Settings → **Shortcuts**: one row per shortcut, what you say on the left, what gets written on the right.
+
+## 🏠 A home screen that keeps count
+
+Average speed, words dictated this week, apps used, time saved over typing: all of it is worked out from your dictation history, stored locally, and shown on small LCD screens.
+
+The rest of the settings opens with a right-click on the system tray icon → **Settings**: keyboard shortcut, mic choice, Whisper model, personal dictionary, pill position, its screen color and dictation history.
+
+## 🌍 In English or in French
+
+The interface comes in English and French. By default murmur follows your system language, and you can force it in Settings → **General** → **Interface language**. Only the menus and labels change, the dictation stays French.
 
 ## 📥 Installation
 
-1. Télécharge `murmur-Setup-x.x.x.exe` sur la [page des versions](../../releases/latest).
-2. Double-clique dessus. Le raccourci se crée tout seul sur le Bureau et dans le menu Démarrer.
-3. C'est parti : l'icône apparaît dans la barre système, prête pour `Ctrl+Espace`.
+1. Download `murmur-Setup-x.x.x.exe` from the [releases page](../../releases/latest).
+2. Double-click it. The shortcut gets created on your Desktop and in the Start menu.
+3. You're set: the icon shows up in the system tray, ready for `Ctrl+Space`.
 
 > [!NOTE]
-> La première fois, Windows va sûrement afficher une fenêtre bleue « Windows a protégé votre ordinateur ». Il fait ça avec toutes les petites apps qu'il ne connaît pas encore. Clique sur « Informations complémentaires », puis sur « Exécuter quand même ».
+> The first time, Windows will probably show a blue “Windows protected your PC” window. It does that with every small app it doesn't know yet. Click “More info”, then “Run anyway”.
 
 > [!WARNING]
-> Il faut un GPU NVIDIA (CUDA). Sans ça, la transcription ne pourra pas tourner.
+> You need an NVIDIA GPU (CUDA). Without one, transcription can't run.
 
-### Sur Linux (KDE Plasma)
+### On Linux (KDE Plasma)
 
-Pas encore d'installeur : murmur se compile depuis les sources (voir plus bas), avec `pnpm build:linux`. Il faut KDE Plasma 6 et ces outils :
+No installer yet: murmur is built from source (see below) with `pnpm build:linux`. You need KDE Plasma 6 and these tools:
 
-- `wl-clipboard` pour le presse-papier, `ydotool` pour coller le texte (lance `systemctl --user enable --now ydotool`), `kdotool` pour savoir quelle app est au premier plan
-- `ffmpeg` et le CUDA Toolkit
+- `wl-clipboard` for the clipboard, `ydotool` to paste the text (run `systemctl --user enable --now ydotool`), `kdotool` to know which app is in front
+- `ffmpeg` and the CUDA Toolkit
 
-Le raccourci s'enregistre dans les raccourcis globaux de KDE : tu le retrouves dans Configuration du système → Raccourcis → murmur. Dans un terminal, murmur colle avec `Ctrl+Maj+V` au lieu de `Ctrl+V`.
+The shortcut is registered in KDE's global shortcuts: you'll find it in System Settings → Shortcuts → murmur. In a terminal, murmur pastes with `Ctrl+Shift+V` instead of `Ctrl+V`.
 
-## 🔄 Les mises à jour
+## 🔄 Updates
 
-Quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement. Sur Linux, pas de mise à jour automatique : recompile depuis les sources.
+On Windows, when I ship a new version, murmur downloads it in the background and offers to restart to install it. If you say no, it installs itself on the next launch. On Linux there are no automatic updates: rebuild from source.
 
-## 🔒 Et tes données ?
+## 🔒 What about your data?
 
-Tout tourne en local : l'audio ne quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque. Aucun serveur à moi entre les deux.
+Everything runs locally: audio never leaves your machine, transcription happens on your GPU through [whisper.cpp](https://github.com/ggml-org/whisper.cpp), and your dictation history stays in a file on your disk (`history.json`). No server of mine sits in between.
 
-Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases qui ressemblent à « murmur start » ou « murmur stop ». Elles servent à voir comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le reste de ce que tu dis n'est jamais enregistré. Le fichier reste sur ton disque (`%APPDATA%\murmur\voice-commands.json` sur Windows, `~/.config/murmur/voice-commands.json` sur Linux) et tu peux le supprimer quand tu veux.
+With hands-free mode on, murmur also keeps the last 500 phrases that sound like “murmur start” or “murmur stop”, in `voice-commands.json`. They help see how Whisper hears your commands to improve recognition. Nothing else you say is ever stored.
 
-## 🛠️ Si ça coince
+All of this lives in `%APPDATA%\murmur` on Windows and `~/.config/murmur` on Linux, and you can delete those files whenever you want.
+
+## 🤔 Troubleshooting
 
 <details>
-<summary><b>Le micro ne fonctionne pas</b></summary>
+<summary><b>The mic doesn't work</b></summary>
 <br />
-Vérifie dans Windows, Paramètres → Confidentialité et sécurité → Microphone, que l'accès micro est autorisé pour les applications de bureau.
+On Windows, check in Settings → Privacy & security → Microphone that desktop apps are allowed to use the mic. Then in murmur's Settings → Microphone, click “Detect available microphones” and pick the right one.
 </details>
 
 <details>
-<summary><b>Mon casque Bluetooth se déconnecte pendant la dictée</b></summary>
+<summary><b>My Bluetooth headset disconnects during dictation</b></summary>
 <br />
-C'est Windows qui bascule le casque du profil audio (A2DP) vers le profil mains-libres (HFP) dès qu'une app demande le micro ; certains casques gèrent mal cette bascule. Choisis un autre micro dans Réglages → Microphone si besoin.
+The system switches the headset from the audio profile (A2DP) to the hands-free profile (HFP) as soon as an app asks for the mic, and some headsets handle that switch badly. Pick another mic in Settings → Microphone.
 </details>
 
 <details>
-<summary><b>Ça ne fonctionne pas juste après le démarrage automatique de Windows</b></summary>
+<summary><b>The pill shows “ERROR” right after startup</b></summary>
 <br />
-Le pilote GPU n'est pas toujours prêt immédiatement au boot. murmur retente plusieurs fois automatiquement (jusqu'à ~30 secondes) ; sinon, clic droit sur l'icône de la barre système → « Réessayer de démarrer le moteur ». Le journal est dans <code>%APPDATA%\murmur\logs\main.log</code>.
+The GPU driver isn't always ready right away, so the transcription engine fails to start. murmur retries on its own for about thirty seconds. Otherwise, right-click the system tray icon → “Retry starting the engine”. The log is in <code>logs/main.log</code>, inside the data folder.
 </details>
 
 <details>
-<summary><b>Ctrl+Espace ne lance rien quand je joue</b></summary>
+<summary><b>Ctrl+Space does nothing while I'm gaming</b></summary>
 <br />
-C'est voulu : quand un jeu (ou n'importe quelle app) est en plein écran, murmur laisse le raccourci au jeu pour ne pas lancer une dictée par erreur. Tu peux couper ce comportement dans Réglages → Général.
+That's on purpose: when a game (or any app) is fullscreen, murmur leaves the shortcut to it so a dictation doesn't start by accident. You can turn this off in Settings → General.
 </details>
 
 <details>
-<summary><b>Rien ne se colle dans l'app active</b></summary>
+<summary><b>Nothing gets pasted in the active app</b></summary>
 <br />
-Certaines applications lancées en administrateur refusent les entrées clavier simulées par un process non élevé. Évite de dicter dans ce cas, ou lance murmur en administrateur.
+On Windows, apps running as administrator refuse keyboard input from a normal program. Run murmur as administrator too in that case. On Linux, check that <code>ydotool</code> is running (<code>systemctl --user status ydotool</code>).
 </details>
 
 <details>
-<summary><b>L'icône a disparu de la barre système</b></summary>
+<summary><b>The icon disappeared from the system tray</b></summary>
 <br />
-Elle se cache sûrement derrière la flèche <code>^</code> à côté de l'horloge. Fais-la glisser dans la barre des tâches pour la garder visible.
+On Windows, it's probably hiding behind the <code>^</code> arrow next to the clock. Drag it onto the taskbar to keep it visible.
 </details>
 
 ---
 
 <details>
-<summary>🛠️ <b>Pour bidouiller le code</b></summary>
+<summary>🛠️ <b>Hacking on the code</b></summary>
 
 <br />
 
-Electron, electron-vite et TypeScript strict. Node 24+ et pnpm 10+.
+Electron, electron-vite and strict TypeScript. Node 24+ and pnpm 10+.
 
-### Prérequis
+### Requirements
 
-- GPU NVIDIA, CUDA Toolkit 12.8+
-- CMake et Visual Studio 2022 Build Tools (workload « Desktop development with C++ ») sur Windows, CMake, Ninja et GCC sur Linux
-- git, ffmpeg accessibles dans le PATH
+- NVIDIA GPU, CUDA Toolkit 12.8+
+- CMake and Visual Studio 2022 Build Tools (“Desktop development with C++” workload) on Windows, CMake, Ninja and GCC on Linux
+- git and ffmpeg in your PATH
 
-### Commandes
+### Commands
 
 ```bash
 pnpm install
-./scripts/setup-whisper.ps1              # clone + compile whisper.cpp avec CUDA (Linux : ./scripts/setup-whisper.sh)
-./scripts/download-model.ps1 -Model large-v3-turbo   # Linux : ./scripts/download-model.sh large-v3-turbo
-pnpm dev                                  # mode développement
+./scripts/setup-whisper.ps1                          # clones and builds whisper.cpp with CUDA (Linux: ./scripts/setup-whisper.sh)
+./scripts/download-model.ps1 -Model large-v3-turbo   # Linux: ./scripts/download-model.sh large-v3-turbo
+pnpm dev                                             # development mode
 pnpm typecheck
 pnpm lint
-pnpm build:win                            # génère l'installeur dans dist/
-pnpm build:linux                          # génère dist/linux-unpacked
+pnpm build:win                                       # builds the installer in dist/
+pnpm build:linux                                     # builds dist/linux-unpacked
+node scripts/render-icons.mjs                        # regenerates the icons from resources/icons/*.svg
 ```
 
-Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique ne verra pas la nouvelle version.
+To ship a version: bump `version` in `package.json`, run `pnpm build:win`, then attach the three files from `dist/` to a GitHub release (the `.exe` installer, its `.blockmap` and `latest.yml`). If one is missing, auto-update won't see the new version.
 
-Pour refaire les captures du README : `MURMUR_SCREENSHOT=docs pnpm dev`. L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, Mains libres, pastille) avec un faux micro, enregistre les PNG dans le dossier donné, puis se ferme.
+To refresh the README screenshots: pick the interface language in settings, then run `MURMUR_SCREENSHOT=docs/en pnpm dev` (or `docs/fr`). The app takes pictures of its own windows (Home, Shortcuts, Hands-free, pill) with a fake mic, saves the PNGs in that folder, then quits.
 
-| Dossier                 | Rôle                                                                          |
-| ----------------------- | ----------------------------------------------------------------------------- |
-| `src/main`              | tray, raccourci global, moteur whisper-server, historique, mises à jour       |
-| `src/preload`           | ponts entre l'app et chaque fenêtre                                           |
-| `src/renderer/recorder` | capture micro (fenêtre cachée)                                                |
-| `src/renderer/overlay`  | la pastille flottante                                                         |
-| `src/renderer/settings` | la fenêtre Réglages                                                           |
-| `src/shared`            | types et canaux IPC partagés                                                  |
-| `whisper-engine`        | whisper.cpp compilé + modèles (généré, pas versionné)                         |
-| `scripts`               | compilation de whisper.cpp, génération des icônes, téléchargement des modèles |
+| Folder                  | Role                                                                  |
+| ----------------------- | --------------------------------------------------------------------- |
+| `src/main`              | system tray, global shortcut, whisper-server engine, history, updates |
+| `src/preload`           | bridges between the app and each window                               |
+| `src/renderer/recorder` | mic capture, voice level, hands-free mode (hidden window)             |
+| `src/renderer/overlay`  | the floating pill                                                     |
+| `src/renderer/settings` | the Settings window                                                   |
+| `src/shared`            | types, IPC channels and the interface text in English and French      |
+| `resources/icons`       | SVG sources of the app and tray icons                                 |
+| `site`                  | the landing page (Vite + TypeScript)                                  |
+| `whisper-engine`        | built whisper.cpp + models (generated, not versioned)                 |
+| `scripts`               | whisper.cpp build, model download, icon rendering                     |
 
 </details>
 
-## 📄 Licence
+## 📄 License
 
 [MIT](LICENSE)
