@@ -19,8 +19,6 @@ export const ENGLISH_PAGE: Record<string, string> = {
     "murmur is voice dictation for your PC: press [[kbd:Ctrl]] [[kbd:Space]], talk, and the text lands right where your cursor is. It's made for people who dictate in French, and it keeps your English words exactly as you say them. Everything runs on your own PC, so your voice never leaves it.",
   'hero.download': 'Download murmur for Windows',
   'hero.meta': `Version ${VERSION}, free and open source. You can also [[a:#essai|try it right below]]!`,
-  'pill.recording': 'Listening…',
-  'pill.transcribing': 'Transcribing…',
   'demo.title': 'Try it, right here',
   'demo.intro':
     'Click into one of the windows, press [[kbd:Ctrl]] [[kbd:Space]] and talk, then press it again to paste. The pill works just like on your PC, except here it pastes sample sentences.',
@@ -85,7 +83,7 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'extras.statsTitle': 'A home screen that keeps count',
   'extras.stats': 'Your average speed, your words this week, the apps you dictate in and the time saved over typing.',
   'extras.pillTitle': 'The pill, your way',
-  'extras.pill': 'Bottom center, in a corner or at the top, in your color, with the waveform if you want to see it.',
+  'extras.pill': 'Bottom center, in a corner or at the top, with the screen color you like, and the waveform if you want to see it.',
   'extras.updatesTitle': 'Updates on their own',
   'extras.updates': 'On Windows, murmur downloads the new version in the background and offers to restart to install it.',
   'extras.shotAlt': "murmur's home screen, with words per minute, words this week, apps used and time saved",

@@ -7,7 +7,7 @@
 .pc-box {
   flex: 1;
   padding: 1.5rem 1.75rem 2rem;
-  border: 2px dashed var(--line);
+  border: 2px dashed #3a414a;
   border-radius: 22px;
 }
 
@@ -33,7 +33,7 @@
   padding: 1rem 1.4rem;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background: var(--surface);
+  background: var(--panel);
   text-align: center;
 }
 
@@ -43,8 +43,8 @@
 
 .flow-node b {
   font-family: var(--display);
-  font-size: clamp(1.15rem, 1.8vw, 1.45rem);
-  font-variation-settings: 'wdth' 92;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  font-weight: 400;
 }
 
 .flow-node span {
@@ -53,13 +53,20 @@
 }
 
 .flow-node.node-hot {
-  border-color: var(--amber);
-  background: var(--amber);
-  color: var(--ink);
+  border-color: var(--lcd);
+  background: var(--lcd);
+  box-shadow: var(--lcd-inset), 0 0 30px rgba(143, 211, 255, 0.25);
+  color: var(--black);
+}
+
+.flow-node.node-hot b {
+  font-family: var(--screen);
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  font-weight: 900;
 }
 
 .flow-node.node-hot span {
-  color: rgba(21, 18, 14, 0.75);
+  color: rgba(0, 0, 0, 0.75);
 }
 
 .flow-node.node-off {
@@ -80,7 +87,7 @@
   top: 50%;
   left: -3rem;
   width: 2.5rem;
-  border-top: 4px dashed var(--amber);
+  border-top: 4px dashed var(--ice);
   animation: flow-dash 900ms linear infinite;
 }
 
@@ -100,7 +107,8 @@
   width: 1.9rem;
   height: 5px;
   border-radius: 3px;
-  background: var(--danger);
+  background: var(--led);
+  box-shadow: var(--led-glow);
 }
 
 .flow-cut::before {
@@ -134,7 +142,7 @@
     width: 0;
     height: 1.7rem;
     border-top: 0;
-    border-left: 4px dashed var(--amber);
+    border-left: 4px dashed var(--ice);
   }
 
   .flow-cut {

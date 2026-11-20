@@ -9,14 +9,12 @@ import { setupLanguageSwitch } from './languageSwitch'
 import { setupShortcutPlayground } from './shortcutPlayground'
 import { playVoiceHeadline } from './voiceHeadline'
 
-const FOOTER_MARK_WIDTH = 150
-
-function playWhenVisible(element: HTMLElement, restWidth: number): void {
+function playWhenVisible(element: HTMLElement): void {
   const observer = new IntersectionObserver(
     ([entry]) => {
       if (entry?.isIntersecting) {
         observer.disconnect()
-        playVoiceHeadline(element, restWidth)
+        playVoiceHeadline(element)
       }
     },
     { threshold: 0.6 }
@@ -36,5 +34,5 @@ setLanguage(detectLanguage(), false)
 if (!prefersReducedMotion()) {
   playVoiceHeadline(requireElement<HTMLElement>('#hero-title'))
   playHeroPill()
-  playWhenVisible(requireElement<HTMLElement>('#footer-mark'), FOOTER_MARK_WIDTH)
+  playWhenVisible(requireElement<HTMLElement>('#footer-mark'))
 }

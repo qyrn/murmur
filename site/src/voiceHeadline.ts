@@ -1,6 +1,7 @@
 export const SPEAKING_MS = 1500
 export const WRITING_MS = 1100
-const NARROWEST_WIDTH = 52
+const QUIET_WEIGHT = 200
+const LOUD_WEIGHT = 900
 
 interface VoiceLetter {
   element: HTMLSpanElement
@@ -36,18 +37,16 @@ function voiceLevelAt(letterIndex: number, elapsed: number): number {
   return envelope * syllable * breath
 }
 
-function applyLevel(letter: HTMLSpanElement, level: number, restWidth: number): void {
-  letter.style.setProperty('--wdth', (restWidth - (restWidth - NARROWEST_WIDTH) * level).toFixed(1))
-  letter.style.setProperty('--wght', (620 + 280 * level).toFixed(0))
+function applyLevel(letter: HTMLSpanElement, level: number): void {
+  letter.style.setProperty('--wght', (QUIET_WEIGHT + (LOUD_WEIGHT - QUIET_WEIGHT) * level).toFixed(0))
 }
 
 function settle(letter: HTMLSpanElement): void {
-  letter.style.removeProperty('--wdth')
   letter.style.removeProperty('--wght')
   letter.classList.add('is-written')
 }
 
-export function playVoiceHeadline(headline: HTMLElement, restWidth = 100): void {
+export function playVoiceHeadline(headline: HTMLElement): void {
   const lines = Array.from(headline.querySelectorAll<HTMLElement>('.voice-line'))
   const letters: VoiceLetter[] = lines.flatMap(splitIntoLetters).map((element, index, all) => ({
     element,
@@ -68,7 +67,7 @@ export function playVoiceHeadline(headline: HTMLElement, restWidth = 100): void 
         return
       }
       pending += 1
-      applyLevel(letter.element, voiceLevelAt(index, elapsed), restWidth)
+      applyLevel(letter.element, voiceLevelAt(index, elapsed))
     })
     if (pending > 0) {
       requestAnimationFrame(frame)

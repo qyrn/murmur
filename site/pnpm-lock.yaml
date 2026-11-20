@@ -8,10 +8,13 @@ importers:
 
   .:
     devDependencies:
-      '@fontsource-variable/anybody':
+      '@fontsource-variable/doto':
         specifier: ^5.3.0
         version: 5.3.0
-      '@fontsource-variable/familjen-grotesk':
+      '@fontsource-variable/sora':
+        specifier: ^5.3.0
+        version: 5.3.0
+      '@fontsource/krona-one':
         specifier: ^5.3.0
         version: 5.3.0
       typescript:
@@ -32,11 +35,14 @@ packages:
   '@emnapi/wasi-threads@2.2.0':
     resolution: {integrity: sha512-JP7OYH38Q7+pyTAe14raZHLQIK7BDKbdwji+Xi3pcd/6QkJYQH3SX4wu6EplGrGJWRepoNzedfm0G3B9Z4e9Rw==}
 
-  '@fontsource-variable/anybody@5.3.0':
-    resolution: {integrity: sha512-3u/FSV3mGv9xW3x+CdK9lAZYT1Y3NaRA1bexeoIuk9s5QE8sD8OOTcofvpPx0Z6M0Fq1WAJ06ZAw8hivdRQWHQ==}
+  '@fontsource-variable/doto@5.3.0':
+    resolution: {integrity: sha512-mzvYblQT8AD0tOdBvni6+5E25LMKXKDVqbUutGafV78rIIq1w9s4G1IBpDcHJp+u2+dzsO3zCSm75mBQLguJjw==}
 
-  '@fontsource-variable/familjen-grotesk@5.3.0':
-    resolution: {integrity: sha512-R9W0xEZRIHUV658cuOGRMAIcqX1QJ8p5/W6Boooa6zAw1BAozU//mr8C0VNggSE26/VHPwj2XNyMAG6yUJmjxA==}
+  '@fontsource-variable/sora@5.3.0':
+    resolution: {integrity: sha512-h8kHta4Z8SkfUGeI82TUy1n3rbrKpBRGwuk4t4qCwto5oEHxlbOFD2yGP+Df5fbmTXwKGn+o667vYp0E4K8Whw==}
+
+  '@fontsource/krona-one@5.3.0':
+    resolution: {integrity: sha512-rkJqRZHCLHKO3hl23Y0RVet1OZJfzGrXW/RRUNR3wxKQHTf/Pxh/F00z8s1Bzia+mAKflQJxFl1KApDo7xPRLg==}
 
   '@napi-rs/wasm-runtime@1.2.6':
     resolution: {integrity: sha512-mRyDmEw9/fCDXCGfL1sbgIw/GUK0PVxRW4YwgPN61F3LQ+fSyoBFarJVzgGyhF6kRzEQZ0FejDqm4WLXSeqQmw==}
@@ -455,9 +461,11 @@ snapshots:
       tslib: 2.9.1
     optional: true
 
-  '@fontsource-variable/anybody@5.3.0': {}
+  '@fontsource-variable/doto@5.3.0': {}
 
-  '@fontsource-variable/familjen-grotesk@5.3.0': {}
+  '@fontsource-variable/sora@5.3.0': {}
+
+  '@fontsource/krona-one@5.3.0': {}
 
   '@napi-rs/wasm-runtime@1.2.6(@emnapi/core@2.0.0-beta.2)(@emnapi/runtime@2.0.0-beta.2)':
     dependencies:

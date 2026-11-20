@@ -1,6 +1,8 @@
-@import '@fontsource-variable/anybody/standard.css';
-@import '@fontsource-variable/familjen-grotesk/wght.css';
+@import '@fontsource/krona-one/400.css';
+@import '@fontsource-variable/sora/wght.css';
+@import '@fontsource-variable/doto/full.css';
 @import './base.css';
+@import './pill.css';
 @import './hero.css';
 @import './demo.css';
 @import './playground.css';

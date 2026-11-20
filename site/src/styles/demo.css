@@ -1,18 +1,19 @@
 main > .demo-section {
-  background: var(--ink-deep);
+  border-top: 1px solid var(--line);
+  background: var(--black);
 }
 
 .desktop {
   position: relative;
-  aspect-ratio: 16 / 9;
-  max-height: min(44rem, 76vh);
   width: 100%;
+  max-height: min(44rem, 76vh);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background-color: #12100c;
-  background-image: radial-gradient(rgba(240, 236, 227, 0.07) 1px, transparent 1px);
+  background-color: #07080a;
+  background-image: radial-gradient(rgba(233, 238, 243, 0.06) 1px, transparent 1px);
   background-size: 22px 22px;
-  overflow: hidden;
 }
 
 .window {
@@ -21,16 +22,16 @@ main > .demo-section {
   flex-direction: column;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: var(--surface);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-  font-size: 0.98rem;
+  background: var(--panel);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+  font-size: 0.95rem;
   cursor: text;
   transition: border-color 160ms ease;
 }
 
 .window.is-focused {
   z-index: 2;
-  border-color: rgba(224, 162, 72, 0.6);
+  border-color: rgba(157, 242, 255, 0.55);
 }
 
 .window:focus-visible {
@@ -39,11 +40,11 @@ main > .demo-section {
 
 .window-bar {
   display: flex;
-  gap: 0.6rem;
   align-items: baseline;
+  gap: 0.6rem;
   padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--line);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
 }
 
 .window-title {
@@ -81,7 +82,7 @@ main > .demo-section {
   margin: 0.6rem 0.8rem 0.8rem;
   padding: 0.7rem 0.9rem;
   border-radius: 8px;
-  background: var(--surface-raised);
+  background: var(--panel-raised);
 }
 
 .window-terminal {
@@ -89,12 +90,12 @@ main > .demo-section {
   top: 5%;
   width: 40%;
   height: 40%;
-  background: #0c0b08;
+  background: #030405;
 }
 
 .terminal-body {
   padding: 0.9rem 1rem;
-  color: #d8d2c3;
+  color: #cfd6de;
 }
 
 .terminal-line {
@@ -111,7 +112,7 @@ main > .demo-section {
 .mail-fields {
   padding: 0.3rem 1rem;
   border-bottom: 1px solid var(--line);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .mail-fields p {
@@ -119,9 +120,9 @@ main > .demo-section {
   color: var(--muted);
 }
 
-.mail-fields span {
+.mail-fields span:first-child {
   display: inline-block;
-  min-width: 3.5rem;
+  min-width: 3.8rem;
   color: var(--text);
 }
 
@@ -136,94 +137,12 @@ main > .demo-section {
   height: 1.1em;
   margin-left: 1px;
   vertical-align: text-bottom;
-  background: var(--text);
+  background: var(--ice);
   animation: blink 1.05s steps(1) infinite;
 }
 
 .window.is-focused .caret {
   display: inline-block;
-}
-
-.pill {
-  position: absolute;
-  left: 50%;
-  bottom: 5%;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 124px;
-  height: 48px;
-  padding: 0 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  background: rgba(14, 12, 9, 0.94);
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.25),
-    0 16px 36px rgba(0, 0, 0, 0.45);
-  opacity: 0;
-  transform: translate(-50%, 8px) scale(0.92);
-  pointer-events: none;
-  transition:
-    opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
-    transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.pill.state-recording,
-.pill.state-transcribing {
-  opacity: 1;
-  transform: translate(-50%, 0) scale(1);
-}
-
-.pill.state-recording {
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.25),
-    0 16px 36px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(224, 162, 72, 0.3);
-}
-
-.bars,
-.spinner {
-  display: none;
-}
-
-.state-recording .bars {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  height: 26px;
-}
-
-.bar {
-  width: 3px;
-  height: calc(4px + var(--level, 0.08) * 22px);
-  border-radius: 3px;
-  background: linear-gradient(180deg, var(--amber), #edc788);
-}
-
-.state-transcribing .spinner {
-  display: block;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.08);
-  border-top-color: var(--amber);
-  border-radius: 50%;
-  animation: spin 800ms linear infinite;
-}
-
-.label {
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.state-recording .label::before {
-  content: attr(data-recording);
-}
-
-.state-transcribing .label::before {
-  content: attr(data-transcribing);
 }
 
 .demo-controls {
@@ -238,7 +157,7 @@ main > .demo-section {
   flex-basis: 100%;
   margin: 0.25rem 0 0;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
 @keyframes blink {
@@ -247,19 +166,13 @@ main > .demo-section {
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (max-width: 860px) {
   .desktop {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    aspect-ratio: auto;
     max-height: none;
+    aspect-ratio: auto;
     padding: 1rem 1rem 5.5rem;
   }
 

@@ -5,15 +5,20 @@ main > .hero {
   gap: clamp(2.5rem, 6vw, 4rem);
   padding-top: clamp(2rem, 6vw, 5rem);
   padding-bottom: clamp(2rem, 4vw, 3rem);
+  background:
+    radial-gradient(60rem 30rem at 85% 20%, rgba(157, 242, 255, 0.08), transparent 70%),
+    var(--black);
 }
 
 .voice-headline {
   margin: 0;
-  font-size: clamp(2rem, 11.2vw, 12rem);
-  font-variation-settings: 'wdth' 100, 'wght' 800;
-  line-height: 0.92;
-  letter-spacing: -0.03em;
-  text-wrap: nowrap;
+  font-size: clamp(1.7rem, 9.4vw, 10rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+}
+
+.voice-headline:lang(en) {
+  font-size: clamp(1.6rem, 8.6vw, 9.2rem);
 }
 
 .voice-line {
@@ -26,12 +31,26 @@ main > .hero {
 }
 
 .voice-letter {
-  font-variation-settings: 'wdth' var(--wdth, 100), 'wght' var(--wght, 800);
-  transition: color 400ms ease;
+  background: var(--chrome-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.voice-headline.is-speaking .voice-letter:not(.is-written) {
-  color: var(--amber);
+.voice-headline:not(.is-speaking) .voice-line:not(:has(.voice-letter)),
+.footer-mark:not(.is-speaking) .voice-line:not(:has(.voice-letter)) {
+  background: var(--chrome-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.is-speaking .voice-letter:not(.is-written) {
+  background: none;
+  color: var(--ice);
+  font-family: var(--screen);
+  font-variation-settings: 'wght' var(--wght, 600);
+  text-shadow: 0 0 14px rgba(157, 242, 255, 0.75);
 }
 
 .hero-foot {
@@ -44,10 +63,10 @@ main > .hero {
 }
 
 .hero-lead {
-  max-width: 48ch;
+  max-width: 50ch;
   margin: 0;
   color: var(--muted);
-  font-size: clamp(1.1rem, 1.5vw, 1.3rem);
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
 }
 
 .hero-actions {
@@ -60,13 +79,7 @@ main > .hero {
 .hero-meta {
   margin: 0;
   color: var(--muted);
-  font-size: 0.95rem;
-}
-
-@media (max-width: 820px) {
-  .hero-foot {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  font-size: 0.92rem;
 }
 
 .pill.hero-pill {
@@ -77,10 +90,12 @@ main > .hero {
 
 @media (min-width: 821px) {
   main > .hero {
-    min-height: calc(100svh - 5rem);
+    min-height: calc(100svh - 4.5rem);
   }
 }
 
-.voice-headline:lang(en) {
-  font-size: clamp(1.8rem, 10vw, 10.75rem);
+@media (max-width: 820px) {
+  .hero-foot {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

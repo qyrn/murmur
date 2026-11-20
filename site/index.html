@@ -14,7 +14,7 @@
       data-i18n-attr="content:meta.description"
       content="Une dictée vocale pour le français qui garde tes mots anglais. Tout tourne sur ta carte graphique, ta voix sort jamais de ton PC. Open source, Windows et Linux."
     />
-    <meta name="theme-color" content="#15120e" />
+    <meta name="theme-color" content="#000000" />
     <link rel="icon" type="image/png" href="./icon.png" />
     <link rel="stylesheet" href="./src/styles/index.css" />
   </head>
@@ -68,14 +68,13 @@
           </div>
         </div>
         <div class="pill hero-pill state-idle" id="hero-pill" aria-hidden="true">
-          <span class="bars"></span>
-          <span class="spinner"></span>
-          <span
-            class="label"
-            data-recording="Écoute…"
-            data-transcribing="Transcription…"
-            data-i18n-attr="data-recording:pill.recording;data-transcribing:pill.transcribing"
-          ></span>
+          <div class="screen">
+            <span class="led"></span>
+            <span class="counter">00:00</span>
+            <span class="bars"></span>
+            <span class="spinner"></span>
+            <span class="label">TRANSCRIPTION</span>
+          </div>
         </div>
       </section>
 
@@ -141,15 +140,14 @@
           </article>
 
           <div class="pill state-idle" id="demo-pill" aria-hidden="true">
+          <div class="screen">
+            <span class="led"></span>
+            <span class="counter">00:00</span>
             <span class="bars"></span>
             <span class="spinner"></span>
-            <span
-              class="label"
-              data-recording="Écoute…"
-              data-transcribing="Transcription…"
-              data-i18n-attr="data-recording:pill.recording;data-transcribing:pill.transcribing"
-            ></span>
+            <span class="label">TRANSCRIPTION</span>
           </div>
+        </div>
         </div>
 
         <div class="demo-controls">
@@ -314,7 +312,7 @@
             </div>
             <div>
               <dt data-i18n="extras.pillTitle">La pastille à ta façon</dt>
-              <dd data-i18n="extras.pill">En bas au centre, dans un coin ou en haut, avec ta couleur, et la forme d'onde si tu veux la voir.</dd>
+              <dd data-i18n="extras.pill">En bas au centre, dans un coin ou en haut, avec la couleur d'écran que tu veux, et la forme d'onde si tu veux la voir.</dd>
             </div>
             <div>
               <dt data-i18n="extras.updatesTitle">Les mises à jour toutes seules</dt>

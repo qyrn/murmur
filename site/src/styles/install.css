@@ -25,9 +25,9 @@
 }
 
 .tab[aria-selected='true'] {
-  border-color: var(--text);
-  background: var(--text);
-  color: var(--ink);
+  border-color: #ffffff;
+  background: var(--chrome-soft);
+  color: var(--black);
 }
 
 .tab-panel {
@@ -61,10 +61,12 @@
   width: 2.3rem;
   height: 2.3rem;
   border-radius: 50%;
-  background: var(--amber);
-  color: var(--ink);
-  font-family: var(--display);
-  font-weight: 800;
+  background: var(--black);
+  border: 1px solid var(--line);
+  color: var(--ice);
+  font-family: var(--screen);
+  font-weight: 900;
+  text-shadow: 0 0 8px rgba(157, 242, 255, 0.7);
   line-height: 2.3rem;
   text-align: center;
 }
@@ -74,7 +76,7 @@
   margin: 1.5rem 0;
   border: 1px solid var(--line);
   border-radius: 12px;
-  background: var(--ink-deep);
+  background: #030405;
 }
 
 .code-block pre {
@@ -85,7 +87,7 @@
 }
 
 .code-block code {
-  color: #d8d2c3;
+  color: var(--ice);
   font-family: ui-monospace, 'JetBrains Mono', monospace;
   font-weight: 400;
 }
@@ -95,7 +97,7 @@
   top: 0.75rem;
   right: 0.75rem;
   padding: 0.45rem 0.9rem;
-  background: var(--surface);
+  background: var(--panel-raised);
   font-size: 0.9rem;
 }
 
@@ -126,7 +128,7 @@
 
 .faq-list summary::after {
   content: '+';
-  color: var(--amber);
+  color: var(--ice);
   font-family: var(--display);
   font-size: 1.6rem;
   line-height: 1;

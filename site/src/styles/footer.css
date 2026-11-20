@@ -1,16 +1,15 @@
 .footer {
   padding: 0 var(--inline-pad) 3rem;
   overflow: hidden;
+  border-top: 1px solid var(--line);
 }
 
 .footer-mark {
-  margin: 0;
-  color: var(--surface-raised);
+  margin: 2.5rem 0 0;
   font-family: var(--display);
-  font-size: clamp(3rem, 12.6vw, 13.5rem);
-  font-variation-settings: 'wdth' 150, 'wght' 900;
-  line-height: 0.8;
-  letter-spacing: -0.04em;
+  font-size: clamp(2.6rem, 14.5vw, 15rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
   text-align: center;
   user-select: none;
 }
@@ -18,14 +17,5 @@
 .footer-note {
   margin: 2rem 0 0;
   color: var(--muted);
-  font-size: 1rem;
-}
-
-.footer-mark .voice-letter {
-  font-variation-settings: 'wdth' var(--wdth, 150), 'wght' var(--wght, 900);
-  transition: color 600ms ease;
-}
-
-.footer-mark.is-speaking .voice-letter:not(.is-written) {
-  color: var(--amber);
+  font-size: 0.95rem;
 }
