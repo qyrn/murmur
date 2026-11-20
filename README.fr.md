@@ -73,8 +73,8 @@ L'interface existe en français et en anglais. Par défaut, murmur suit la langu
 ## 📥 Installation
 
 1. Télécharge `murmur-Setup-x.x.x.exe` sur la [page des versions](../../releases/latest).
-2. Double-clique dessus. Le raccourci se crée tout seul sur le Bureau et dans le menu Démarrer.
-3. C'est parti : l'icône apparaît dans la barre système, prête pour `Ctrl+Espace`.
+2. Double-clique dessus et suis l'installeur, il crée le raccourci sur le Bureau et dans le menu Démarrer.
+3. Au premier lancement, murmur télécharge le modèle Whisper (1,6 Go) et la pastille affiche où il en est. Une fois à 100 %, c'est parti avec `Ctrl+Espace`.
 
 > [!NOTE]
 > La première fois, Windows va sûrement afficher une fenêtre bleue « Windows a protégé votre ordinateur ». Il fait ça avec toutes les petites apps qu'il connaît pas encore. Clique sur « Informations complémentaires », puis sur « Exécuter quand même ».
@@ -97,7 +97,7 @@ Sur Windows, quand je sors une nouvelle version, murmur la télécharge dans son
 
 ## 🔒 Et tes données ?
 
-Tout tourne en local : l'audio quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque (`history.json`). Aucun serveur à moi entre les deux.
+Tout tourne en local : l'audio quitte jamais ta machine, la transcription se fait sur ton GPU via [whisper.cpp](https://github.com/ggml-org/whisper.cpp), et l'historique des dictées reste dans un fichier sur ton disque (`history.json`). Aucun serveur à moi entre les deux, la seule connexion c'est le téléchargement du modèle depuis Hugging Face au premier lancement.
 
 Avec le mode mains libres activé, murmur garde aussi les 500 dernières phrases qui ressemblent à « murmur start » ou « murmur stop », dans `voice-commands.json`. Elles servent à voir comment Whisper comprend tes commandes pour améliorer la reconnaissance. Le reste de ce que tu dis est jamais enregistré.
 

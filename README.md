@@ -75,8 +75,8 @@ The interface comes in English and French. By default murmur follows your system
 ## 📥 Installation
 
 1. Download `murmur-Setup-x.x.x.exe` from the [releases page](../../releases/latest).
-2. Double-click it. The shortcut gets created on your Desktop and in the Start menu.
-3. You're set: the icon shows up in the system tray, ready for `Ctrl+Space`.
+2. Double-click it and follow the installer, it creates the shortcut on your Desktop and in the Start menu.
+3. On first launch, murmur downloads the Whisper model (1.6 GB) and the pill shows how far along it is. Once it hits 100%, you're set with `Ctrl+Space`.
 
 > [!NOTE]
 > The first time, Windows will probably show a blue “Windows protected your PC” window. It does that with every small app it doesn't know yet. Click “More info”, then “Run anyway”.
@@ -99,7 +99,7 @@ On Windows, when I ship a new version, murmur downloads it in the background and
 
 ## 🔒 What about your data?
 
-Everything runs locally: audio never leaves your machine, transcription happens on your GPU through [whisper.cpp](https://github.com/ggml-org/whisper.cpp), and your dictation history stays in a file on your disk (`history.json`). No server of mine sits in between.
+Everything runs locally: audio never leaves your machine, transcription happens on your GPU through [whisper.cpp](https://github.com/ggml-org/whisper.cpp), and your dictation history stays in a file on your disk (`history.json`). No server of mine sits in between, the only connection is the model download from Hugging Face on first launch.
 
 With hands-free mode on, murmur also keeps the last 500 phrases that sound like “murmur start” or “murmur stop”, in `voice-commands.json`. They help see how Whisper hears your commands to improve recognition. Nothing else you say is ever stored.
 
