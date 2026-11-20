@@ -55,6 +55,11 @@
     "files": [
       "out/**/*"
     ],
+    "electronLanguages": [
+      "fr",
+      "en-US"
+    ],
+    "compression": "maximum",
     "extraResources": [
       {
         "from": "resources/icon.ico",
