@@ -606,6 +606,20 @@ app.whenReady().then(async () => {
   createTray()
   recorderWindow = createRecorderWindow()
   overlayWindow = createOverlayWindow()
+  const screenshotDir = process.env['MURMUR_SCREENSHOT']
+  if (screenshotDir) {
+    createSettingsWindow()
+    if (settingsWindow) {
+      await captureScreenshots({
+        outputDir: screenshotDir,
+        settingsWindow,
+        overlayWindow,
+        showRecordingOverlay: () => setAppState('recording')
+      })
+    }
+    app.quit()
+    return
+  }
   await registerHotkey()
   watchFullscreenApps((active) => {
     fullscreenAppActive = active
@@ -614,20 +628,6 @@ app.whenReady().then(async () => {
   })
   applyLaunchAtStartup(settings.launchAtStartup)
   checkForUpdatesAtLaunch()
-  const screenshotDir = process.env['MURMUR_SCREENSHOT']
-  if (screenshotDir) {
-    createSettingsWindow()
-    if (settingsWindow && overlayWindow) {
-      await captureScreenshots({
-        outputDir: screenshotDir,
-        settingsWindow,
-        overlayWindow,
-        showRecordingOverlay: () => setAppState('recording')
-      })
-      app.quit()
-      return
-    }
-  }
   await startWhisperServerAtLaunch()
 })
 

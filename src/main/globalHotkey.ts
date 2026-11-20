@@ -143,6 +143,8 @@ function watchKdeShortcutPresses(): void {
   kdePressMonitor = monitor
 }
 
+let kdeHotkeyHeld = false
+
 async function registerKdeHotkey(accelerator: string, onPress: () => void): Promise<boolean> {
   const keyCombination = toQtKeyCombination(accelerator)
   if (keyCombination === null) {
@@ -154,7 +156,8 @@ async function registerKdeHotkey(accelerator: string, onPress: () => void): Prom
   await callKGlobalAccel('doRegister', actionId)
   watchKdeShortcutPresses()
   const assignedKeys = await callKGlobalAccel('setShortcutKeys', actionId, `[([${keyCombination}],)]`, KGLOBALACCEL_FLAGS)
-  return assignedKeys.includes(String(keyCombination))
+  kdeHotkeyHeld = assignedKeys.includes(String(keyCombination))
+  return kdeHotkeyHeld
 }
 
 export async function registerGlobalHotkey(accelerator: string, onPress: () => void): Promise<boolean> {
@@ -173,6 +176,7 @@ export async function unregisterGlobalHotkey(): Promise<void> {
     globalShortcut.unregisterAll()
     return
   }
+  kdeHotkeyHeld = false
   await callKGlobalAccel('setShortcutKeys', gvariantStringArray(KDE_ACTION_ID), EMPTY_KEY_LIST, KGLOBALACCEL_FLAGS).catch(
     (err: unknown) => console.error('[debug] libération du raccourci KDE impossible', err)
   )
@@ -184,6 +188,9 @@ export function releaseGlobalHotkeyOnQuit(): void {
     return
   }
   kdePressMonitor?.kill()
+  if (!kdeHotkeyHeld) {
+    return
+  }
   try {
     execFileSync(
       'gdbus',
