@@ -38,6 +38,14 @@ jobs:
         shell: pwsh
         run: ./scripts/download-model.ps1 -Model large-v3-turbo
 
+      - name: Prepare the draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="v$(node -p "require('./package.json').version")"
+          gh release view "$version" > /dev/null 2>&1 || gh release create "$version" --draft --verify-tag --title "murmur ${version#v}" --notes ""
+
       - name: Build and publish the installer as a draft release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

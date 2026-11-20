@@ -70,7 +70,14 @@
       },
       {
         "from": "whisper-engine/whisper.cpp/build/bin",
-        "to": "whisper-engine/whisper.cpp/build/bin"
+        "to": "whisper-engine/whisper.cpp/build/bin",
+        "filter": [
+          "whisper-server",
+          "whisper-server.exe",
+          "*.dll",
+          "*.so",
+          "*.so.*"
+        ]
       },
       {
         "from": "whisper-engine/models",
