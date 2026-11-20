@@ -5,10 +5,9 @@ const counter = document.querySelector<HTMLSpanElement>('#counter')!
 const label = document.querySelector<HTMLSpanElement>('.label')!
 const bars = Array.from(document.querySelectorAll<HTMLSpanElement>('.bar'))
 
-const BAR_SHAPE = [0.45, 0.7, 0.9, 1, 0.9, 0.7, 0.45]
 const QUIET_LEVEL = 0.08
 const COUNTER_REFRESH_MS = 250
-const displayed = new Array<number>(bars.length).fill(QUIET_LEVEL)
+const recentLevels = new Array<number>(bars.length).fill(QUIET_LEVEL)
 let recordingStartedAt = 0
 let counterTimer: number | undefined
 
@@ -35,9 +34,13 @@ function stopCounter(): void {
   counterTimer = undefined
 }
 
+function renderBars(): void {
+  bars.forEach((bar, index) => bar.style.setProperty('--h', String(recentLevels[index] ?? QUIET_LEVEL)))
+}
+
 function resetBars(): void {
-  displayed.fill(QUIET_LEVEL)
-  bars.forEach((bar) => bar.style.setProperty('--h', String(QUIET_LEVEL)))
+  recentLevels.fill(QUIET_LEVEL)
+  renderBars()
 }
 
 window.overlayApi.onStateChange((state) => {
@@ -60,11 +63,7 @@ window.overlayApi.onConfig((config) => {
 })
 
 window.overlayApi.onAudioLevel((level) => {
-  const clamped = Math.max(0, Math.min(1, level))
-  bars.forEach((bar, index) => {
-    const target = Math.max(QUIET_LEVEL, Math.min(1, clamped * (BAR_SHAPE[index] ?? 1)))
-    const current = displayed[index] ?? QUIET_LEVEL
-    displayed[index] = current + (target - current) * 0.5
-    bar.style.setProperty('--h', String(displayed[index]))
-  })
+  recentLevels.shift()
+  recentLevels.push(Math.max(QUIET_LEVEL, Math.min(1, level)))
+  renderBars()
 })

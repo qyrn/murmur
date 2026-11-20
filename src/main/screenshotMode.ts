@@ -54,10 +54,10 @@ export async function captureScreenshots(targets: ScreenshotTargets): Promise<vo
 
   await whenLoaded(overlayWindow)
   showRecordingOverlay()
-  const levels = [0.35, 0.6, 0.75, 0.55, 0.7]
+  const levels = [0.2, 0.55, 0.85, 0.45, 0.25, 0.6, 0.95, 0.7, 0.35, 0.5, 0.8]
   for (const level of levels) {
     overlayWindow.webContents.send(IpcChannel.AudioLevel, level)
-    await wait(120)
+    await wait(60)
   }
   await wait(300)
   await saveCapture(overlayWindow, join(outputDir, 'screenshot-overlay.png'))

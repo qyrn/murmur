@@ -1,7 +1,7 @@
 import { MicVAD, utils } from '@ricky0123/vad-web'
 import type { HandsFreeCommand } from '../../shared/types'
 import { closeMicrophone, openMicrophone } from './microphone'
-import { createLevelEnvelope, rootMeanSquare } from './levelEnvelope'
+import { createVoiceLevelMeter, rootMeanSquare } from './levelEnvelope'
 import { playWakeChime } from './wakeChime'
 import { SAMPLE_RATE, concatFrames, lastSeconds, trimToSeconds } from './audioFrames'
 import { createCommandChecker, type CommandWindow } from './commandChecker'
@@ -33,7 +33,7 @@ let speaking = false
 let uncheckedSpeechSeconds = 0
 let dictationStartedAt = 0
 let lastSpeechAt = 0
-let levelEnvelope = createLevelEnvelope()
+const measureVoiceLevel = createVoiceLevelMeter()
 let commandQueue: Promise<void> = Promise.resolve()
 const voiceLoudness = createVoiceLoudness()
 
@@ -119,7 +119,6 @@ function beginDictation(alreadyHeard: Float32Array, trigger: DictationTrigger): 
   forgetUncheckedSpeech()
   phase = 'dictating'
   dictationTrigger = trigger
-  levelEnvelope = createLevelEnvelope()
   dictationStartedAt = performance.now()
   lastSpeechAt = dictationStartedAt
 }
@@ -165,8 +164,8 @@ export function finishHotkeyDictation(): boolean {
   return true
 }
 
-function trackDictation(isSpeech: boolean, frame: Float32Array): void {
-  window.recorderApi.sendAudioLevel(levelEnvelope(rootMeanSquare(frame)))
+function trackDictation(isSpeech: boolean, voiceLevel: number): void {
+  window.recorderApi.sendAudioLevel(voiceLevel)
   if (dictationTrigger === 'hotkey') {
     return
   }
@@ -186,8 +185,9 @@ function handleFrame(isSpeech: boolean, frame: Float32Array): void {
   }
   activeFrames().push(frame)
   trackLoudness(isSpeech, frame)
+  const voiceLevel = measureVoiceLevel(rootMeanSquare(frame))
   if (phase === 'dictating') {
-    trackDictation(isSpeech, frame)
+    trackDictation(isSpeech, voiceLevel)
   } else {
     trimToSeconds(listenFrames, phase === 'standby' ? LISTEN_BUFFER_SECONDS : HOTKEY_PRE_ROLL_SECONDS)
   }

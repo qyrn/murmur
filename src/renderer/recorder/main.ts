@@ -1,5 +1,5 @@
 import { closeMicrophone, openMicrophone, withTimeout } from './microphone'
-import { createLevelEnvelope, rootMeanSquare } from './levelEnvelope'
+import { createVoiceLevelMeter, rootMeanSquare } from './levelEnvelope'
 import { finishHotkeyDictation, initHandsFree, startHotkeyDictation } from './handsFree'
 
 let activeStream: MediaStream | null = null
@@ -11,11 +11,11 @@ let analyser: AnalyserNode | null = null
 let levelTimer: number | null = null
 
 function startLevelMetering(stream: MediaStream): void {
-  const levelEnvelope = createLevelEnvelope()
+  const levelEnvelope = createVoiceLevelMeter()
   audioContext = new AudioContext()
   const source = audioContext.createMediaStreamSource(stream)
   analyser = audioContext.createAnalyser()
-  analyser.fftSize = 256
+  analyser.fftSize = 2048
   source.connect(analyser)
 
   const samples = new Float32Array(analyser.fftSize)
