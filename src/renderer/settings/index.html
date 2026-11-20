@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Réglages — murmur</title>
+    <title>Réglages de murmur</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
@@ -19,7 +19,7 @@
     <div class="app-shell">
       <nav class="sidebar">
         <div class="sidebar__brand">
-          <div class="sidebar__mark" aria-hidden="true"></div>
+          <span class="sidebar__led" aria-hidden="true"></span>
           <span>murmur</span>
         </div>
         <ul class="nav-list" role="tablist">
@@ -71,19 +71,19 @@
           <h2>Accueil</h2>
           <div class="stat-grid">
             <div class="stat-tile">
-              <span class="stat-tile__value" id="stat-wpm">—</span>
+              <span class="stat-tile__value" id="stat-wpm">--</span>
               <span class="stat-tile__label">mots / min en moyenne</span>
             </div>
             <div class="stat-tile">
-              <span class="stat-tile__value" id="stat-words">—</span>
+              <span class="stat-tile__value" id="stat-words">--</span>
               <span class="stat-tile__label">mots cette semaine</span>
             </div>
             <div class="stat-tile">
-              <span class="stat-tile__value" id="stat-apps">—</span>
+              <span class="stat-tile__value" id="stat-apps">--</span>
               <span class="stat-tile__label">apps utilisées</span>
             </div>
             <div class="stat-tile">
-              <span class="stat-tile__value" id="stat-saved">—</span>
+              <span class="stat-tile__value" id="stat-saved">--</span>
               <span class="stat-tile__label">économisées cette semaine</span>
             </div>
           </div>
@@ -156,8 +156,8 @@
           <div class="field">
             <label for="model">Modèle Whisper</label>
             <select id="model">
-              <option value="large-v3-turbo">large-v3-turbo — rapide (par défaut)</option>
-              <option value="large-v3">large-v3 — précision maximale</option>
+              <option value="large-v3-turbo">large-v3-turbo, rapide (par défaut)</option>
+              <option value="large-v3">large-v3, précision maximale</option>
             </select>
             <p class="field__hint">Le changement de modèle prend effet à la prochaine dictée.</p>
           </div>
@@ -177,8 +177,8 @@
         <section id="section-shortcuts" class="pane">
           <h2>Raccourcis vocaux</h2>
           <p class="field__hint">
-            Quand tu dis le mot de gauche, murmur écrit ce qu'il y a à droite. Pratique pour les symboles ("slash" donne
-            "/") ou pour les mots que Whisper comprend de travers.
+            Quand tu dis le mot de gauche, murmur écrit ce qu'il y a à droite. Pratique pour les symboles («&nbsp;slash&nbsp;» donne
+            «&nbsp;/&nbsp;») ou pour les mots que Whisper comprend de travers.
           </p>
           <div id="shortcut-list" class="dictionary-list"></div>
           <button id="add-shortcut" type="button" class="button button--ghost">Ajouter un raccourci</button>
@@ -224,14 +224,14 @@
           <div class="field">
             <label for="overlay-position">Position de la pastille</label>
             <select id="overlay-position">
-              <option value="bottom-center">Bas — centre</option>
-              <option value="bottom-left">Bas — gauche</option>
-              <option value="bottom-right">Bas — droite</option>
-              <option value="top-center">Haut — centre</option>
+              <option value="bottom-center">En bas, au centre</option>
+              <option value="bottom-left">En bas, à gauche</option>
+              <option value="bottom-right">En bas, à droite</option>
+              <option value="top-center">En haut, au centre</option>
             </select>
           </div>
           <div class="field">
-            <label>Couleur d'accent</label>
+            <label>Couleur de l'écran de la pastille</label>
             <div id="accent-swatches" class="swatches"></div>
           </div>
           <label class="toggle-row">

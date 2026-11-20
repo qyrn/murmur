@@ -10,7 +10,7 @@ import type {
 } from '../../shared/types'
 import { termsThatFitInPrompt } from '../../shared/promptTerms'
 
-const ACCENT_PRESETS = ['#e0a248', '#5b9279', '#c1653f', '#5b7a9d', '#8a8578']
+const ACCENT_PRESETS = ['#9df2ff', '#ffb547', '#7dffa1', '#ff8fd8', '#e9eef3']
 
 const navItems = Array.from(document.querySelectorAll<HTMLLIElement>('.nav-item'))
 const panes = Array.from(document.querySelectorAll<HTMLElement>('.pane'))
@@ -88,7 +88,7 @@ function renderStats(history: DictationRecord[]): void {
 
   const totalWords = history.reduce((sum, entry) => sum + entry.wordCount, 0)
   const totalMinutes = history.reduce((sum, entry) => sum + entry.durationMs / 60000, 0)
-  statWpm.textContent = totalMinutes > 0.05 ? Math.round(totalWords / totalMinutes).toString() : '—'
+  statWpm.textContent = totalMinutes > 0.05 ? Math.round(totalWords / totalMinutes).toString() : '--'
 
   const wordsThisWeek = thisWeek.reduce((sum, entry) => sum + entry.wordCount, 0)
   statWords.textContent = wordsThisWeek.toString()
