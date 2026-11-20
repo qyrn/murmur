@@ -11,7 +11,7 @@ const defaultSettings: DictationSettings = {
   launchAtStartup: false,
   startMinimized: false,
   overlayPosition: 'bottom-center',
-  accentColor: '#e0a248',
+  accentColor: '#9df2ff',
   showWaveform: true,
   handsFreeEnabled: false,
   handsFreeSilenceSeconds: 3

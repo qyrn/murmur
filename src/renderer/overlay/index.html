@@ -7,18 +7,21 @@
   </head>
   <body>
     <div id="pill" class="pill state-idle">
-      <div class="dot"></div>
-      <div class="bars" aria-hidden="true">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
+      <div class="screen">
+        <span class="led" aria-hidden="true"></span>
+        <span class="counter" id="counter">00:00</span>
+        <div class="bars" aria-hidden="true">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </div>
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="label"></span>
       </div>
-      <div class="spinner" aria-hidden="true"></div>
-      <span class="label"></span>
     </div>
     <script type="module" src="./main.ts"></script>
   </body>
