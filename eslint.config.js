@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint'
 import globals from 'globals'
 
 export default tseslint.config(
-  { ignores: ['out', 'dist', 'whisper-engine', 'node_modules', 'src/renderer/public'] },
+  { ignores: ['out', 'dist', 'whisper-engine', 'node_modules', 'src/renderer/public', 'site/dist', 'site/node_modules'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -13,7 +13,7 @@ export default tseslint.config(
     }
   },
   {
-    files: ['src/renderer/**/*.ts'],
+    files: ['src/renderer/**/*.ts', 'site/src/**/*.ts'],
     languageOptions: {
       globals: { ...globals.browser }
     }

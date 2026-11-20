@@ -1,0 +1,16 @@
+{
+  "name": "murmur-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "packageManager": "pnpm@10.23.0",
+  "devDependencies": {
+    "@fontsource-variable/familjen-grotesk": "^5.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8"
+  }
+}
