@@ -1,5 +1,5 @@
 import { createHash, type Hash } from 'node:crypto'
-import { createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, statSync, unlinkSync, type WriteStream } from 'node:fs'
+import { createReadStream, createWriteStream, existsSync, mkdirSync, renameSync, rmSync, statSync, unlinkSync, type WriteStream } from 'node:fs'
 import { once } from 'node:events'
 import { join } from 'node:path'
 import { app, net } from 'electron'
@@ -10,23 +10,29 @@ const MODEL_BASE_URL = 'https://huggingface.co/ggerganov/whisper.cpp/resolve/mai
 const STALL_TIMEOUT_MS = 60000
 
 interface ModelFile {
+  name: string
   bytes: number
   sha256: string
+  replacedName: string
 }
 
 const MODEL_FILES: Record<WhisperModel, ModelFile> = {
   'large-v3-turbo': {
-    bytes: 1624555275,
-    sha256: '1fc70f774d38eb169993ac391eea357ef47c88757ef72ee5943879b7e8e2bc69'
+    name: 'ggml-large-v3-turbo-q5_0.bin',
+    bytes: 574041195,
+    sha256: '394221709cd5ad1f40c46e6031ca61bce88931e6e088c188294c6d5a55ffa7e2',
+    replacedName: 'ggml-large-v3-turbo.bin'
   },
   'large-v3': {
-    bytes: 3095033483,
-    sha256: '64d182b440b98d5203c4f9bd541544d84c605196c4f7b845dfa11fb23594d1e2'
+    name: 'ggml-large-v3-q5_0.bin',
+    bytes: 1081140203,
+    sha256: 'd75795ecff3f83b5faa89d1900604ad8c780abd5739fae406de19f23ecd98ad1',
+    replacedName: 'ggml-large-v3.bin'
   }
 }
 
 function fileName(model: WhisperModel): string {
-  return `ggml-${model}.bin`
+  return MODEL_FILES[model].name
 }
 
 function downloadedModelsDir(): string {
@@ -132,6 +138,7 @@ async function fetchModel(model: WhisperModel, onProgress: (percent: number) => 
     throw new Error(`modèle ${model} corrompu après téléchargement, fichier supprimé`)
   }
   renameSync(partialPath, finalPath)
+  rmSync(join(directory, expected.replacedName), { force: true })
   return finalPath
 }
 

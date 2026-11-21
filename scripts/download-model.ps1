@@ -9,7 +9,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $modelsDir = Join-Path $root "whisper-engine\models"
 New-Item -ItemType Directory -Force -Path $modelsDir | Out-Null
 
-$fileName = "ggml-$Model.bin"
+$fileName = "ggml-$Model-q5_0.bin"
 $destination = Join-Path $modelsDir $fileName
 $url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/$fileName"
 

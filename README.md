@@ -76,7 +76,7 @@ The interface comes in English and French. By default murmur follows your system
 
 1. Download `murmur-Setup-x.x.x.exe` from the [releases page](../../releases/latest).
 2. Double-click it and follow the installer, it creates the shortcut on your Desktop and in the Start menu.
-3. On first launch, murmur downloads the Whisper model (1.6 GB) and the pill shows how far along it is. Once it hits 100%, you're set with `Ctrl+Space`.
+3. On first launch, murmur downloads the Whisper model (575 MB) and the pill shows how far along it is. Once it hits 100%, you're set with `Ctrl+Space`.
 
 > [!NOTE]
 > The first time, Windows will probably show a blue “Windows protected your PC” window. It does that with every small app it doesn't know yet. Click “More info”, then “Run anyway”.

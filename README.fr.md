@@ -74,7 +74,7 @@ L'interface existe en français et en anglais. Par défaut, murmur suit la langu
 
 1. Télécharge `murmur-Setup-x.x.x.exe` sur la [page des versions](../../releases/latest).
 2. Double-clique dessus et suis l'installeur, il crée le raccourci sur le Bureau et dans le menu Démarrer.
-3. Au premier lancement, murmur télécharge le modèle Whisper (1,6 Go) et la pastille affiche où il en est. Une fois à 100 %, c'est parti avec `Ctrl+Espace`.
+3. Au premier lancement, murmur télécharge le modèle Whisper (575 Mo) et la pastille affiche où il en est. Une fois à 100 %, c'est parti avec `Ctrl+Espace`.
 
 > [!NOTE]
 > La première fois, Windows va sûrement afficher une fenêtre bleue « Windows a protégé votre ordinateur ». Il fait ça avec toutes les petites apps qu'il connaît pas encore. Clique sur « Informations complémentaires », puis sur « Exécuter quand même ».
