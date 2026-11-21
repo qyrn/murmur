@@ -15,8 +15,8 @@ function containsWordCharacter(value: string): boolean {
   return /[\p{L}\p{N}]/u.test(value)
 }
 
-export function buildInitialPrompt(entries: DictionaryEntry[]): string {
-  return promptWithTerms(termsThatFitInPrompt(entries.map((entry) => entry.term)))
+export function buildInitialPrompt(entries: DictionaryEntry[], recentDictations: string[]): string {
+  return promptWithTerms(termsThatFitInPrompt(entries.map((entry) => entry.term), recentDictations))
 }
 
 export function applyVoiceShortcuts(text: string, shortcuts: VoiceShortcut[]): string {

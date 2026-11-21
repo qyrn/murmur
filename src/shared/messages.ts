@@ -55,7 +55,7 @@ const french = {
   'dictionary.title': 'Dictionnaire',
   'dictionary.hint': 'Termes techniques, noms propres et mots anglais que la dictée doit reconnaître tels quels.',
   'dictionary.overflow':
-    'Ta liste est un peu trop longue, du coup Whisper reçoit plus les termes grisés (les plus anciens). Retire ceux qui te servent plus pour leur faire de la place.',
+    'Ta liste est un peu trop longue, du coup Whisper reçoit plus les termes grisés. Ceux que tu dis le plus souvent passent en premier, retire ceux qui te servent plus pour faire de la place.',
   'dictionary.add': 'Ajouter un terme',
   'dictionary.termPlaceholder': 'terme',
   'dictionary.notePlaceholder': 'note (optionnel)',
@@ -180,7 +180,7 @@ const english: Record<MessageKey, string> = {
   'dictionary.title': 'Dictionary',
   'dictionary.hint': 'Technical terms, names and English words the dictation should keep as they are.',
   'dictionary.overflow':
-    'Your list is a bit too long, so Whisper no longer gets the greyed-out terms (the oldest ones). Remove the ones you no longer need to make room.',
+    'Your list is a bit too long, so Whisper no longer gets the greyed-out terms. The ones you say most often go first, remove the ones you no longer need to make room.',
   'dictionary.add': 'Add a term',
   'dictionary.termPlaceholder': 'term',
   'dictionary.notePlaceholder': 'note (optional)',

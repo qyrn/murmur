@@ -23,6 +23,7 @@ import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
 import { downloadModel, findModelFile, installedModels } from './modelStore'
 import { transcribeAudio, transcribeHandsFreeAudio, transcribeVoiceCommand } from './transcribe'
+import type { DictationVocabulary } from './transcribe'
 import { containsStopPhrase, containsWakePhrase, resemblesCommand } from './voiceCommands'
 import { removeHallucinations } from './hallucinationFilter'
 import { recordCommandAttempt } from './commandLog'
@@ -444,6 +445,14 @@ async function checkStopPhrase(wav: ArrayBuffer, voiceAboveNoiseDb: number | nul
   return (await listenForCommand('stop', wav, voiceAboveNoiseDb, containsStopPhrase)).recognized
 }
 
+function loadVocabulary(): DictationVocabulary {
+  return {
+    dictionary: loadDictionary(),
+    shortcuts: loadShortcuts(),
+    recentDictations: loadHistory().map((entry) => entry.text)
+  }
+}
+
 function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
   return completeDictation(async () => {
     const audioBuffer = Buffer.from(audio)
@@ -452,14 +461,14 @@ function handleRecordingStopped(audio: ArrayBuffer): Promise<void> {
     const wav = await convertToWav16kMono(audioBuffer)
     console.log(`[debug] wav converti : ${wav.byteLength} octets`)
     const wavArrayBuffer = wav.buffer.slice(wav.byteOffset, wav.byteOffset + wav.byteLength) as ArrayBuffer
-    return transcribeAudio(wavArrayBuffer, loadDictionary(), loadShortcuts())
+    return transcribeAudio(wavArrayBuffer, loadVocabulary())
   })
 }
 
 function handleHandsFreeAudio(wav: ArrayBuffer): Promise<void> {
   handsFreeDictating = false
   console.log(`[mains libres] audio recu : ${wav.byteLength} octets`)
-  return completeDictation(() => transcribeHandsFreeAudio(wav, loadDictionary(), loadShortcuts()))
+  return completeDictation(() => transcribeHandsFreeAudio(wav, loadVocabulary()))
 }
 
 async function completeDictation(transcribe: () => Promise<string>): Promise<void> {

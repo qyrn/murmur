@@ -42,33 +42,31 @@ async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string | nul
   return result.text
 }
 
-function polishDictation(
-  spokenText: string,
-  dictionary: DictionaryEntry[],
+export interface DictationVocabulary {
+  dictionary: DictionaryEntry[]
   shortcuts: VoiceShortcut[]
-): string {
+  recentDictations: string[]
+}
+
+function polishDictation(spokenText: string, vocabulary: DictationVocabulary): string {
   const spokenWords = removeFillerWords(removeTrailingThanks(removeHallucinations(spokenText)))
-  const withCorrections = applyDictionaryCorrections(spokenWords, dictionary)
-  const withShortcuts = applyVoiceShortcuts(withCorrections, shortcuts)
+  const withCorrections = applyDictionaryCorrections(spokenWords, vocabulary.dictionary)
+  const withShortcuts = applyVoiceShortcuts(withCorrections, vocabulary.shortcuts)
   return normalizeFrenchTypography(withShortcuts)
 }
 
-export async function transcribeAudio(
-  wavBuffer: ArrayBuffer,
-  dictionary: DictionaryEntry[],
-  shortcuts: VoiceShortcut[]
-): Promise<string> {
-  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
-  return polishDictation(spokenText, dictionary, shortcuts)
+function promptFor(vocabulary: DictationVocabulary): string {
+  return buildInitialPrompt(vocabulary.dictionary, vocabulary.recentDictations)
 }
 
-export async function transcribeHandsFreeAudio(
-  wavBuffer: ArrayBuffer,
-  dictionary: DictionaryEntry[],
-  shortcuts: VoiceShortcut[]
-): Promise<string> {
-  const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
-  return polishDictation(extractDictation(spokenText), dictionary, shortcuts)
+export async function transcribeAudio(wavBuffer: ArrayBuffer, vocabulary: DictationVocabulary): Promise<string> {
+  const spokenText = await requestTranscription(wavBuffer, promptFor(vocabulary))
+  return polishDictation(spokenText, vocabulary)
+}
+
+export async function transcribeHandsFreeAudio(wavBuffer: ArrayBuffer, vocabulary: DictationVocabulary): Promise<string> {
+  const spokenText = await requestTranscription(wavBuffer, promptFor(vocabulary))
+  return polishDictation(extractDictation(spokenText), vocabulary)
 }
 
 export function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {

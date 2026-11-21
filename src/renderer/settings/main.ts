@@ -180,7 +180,10 @@ function renderAccentSwatches(): void {
 }
 
 function refreshPromptOverflow(): void {
-  const termsSentToWhisper = new Set(termsThatFitInPrompt(dictionary.map((entry) => entry.term)))
+  const termsSentToWhisper = new Set(termsThatFitInPrompt(
+      dictionary.map((entry) => entry.term),
+      history.map((entry) => entry.text)
+    ))
   let anyTermLeftOut = false
   Array.from(dictionaryList.children).forEach((row, index) => {
     const term = dictionary[index]?.term.trim() ?? ''
