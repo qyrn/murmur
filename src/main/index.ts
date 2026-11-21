@@ -1,4 +1,5 @@
 import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, session } from 'electron'
+import { spawn } from 'node:child_process'
 import { join } from 'node:path'
 import { getActiveWindow } from './activeWindow'
 import { primaryWorkArea } from './displayGeometry'
@@ -44,7 +45,7 @@ const needsXwaylandRelaunch = process.platform === 'linux' && !process.argv.incl
 const isPrimaryInstance = !needsXwaylandRelaunch && app.requestSingleInstanceLock()
 
 if (needsXwaylandRelaunch) {
-  app.relaunch({ execPath: launcherPath, args: [...process.argv.slice(1), XWAYLAND_OZONE_SWITCH] })
+  spawn(launcherPath, [...process.argv.slice(1), XWAYLAND_OZONE_SWITCH], { detached: true, stdio: 'ignore' }).unref()
 }
 if (!isPrimaryInstance) {
   app.exit(0)
