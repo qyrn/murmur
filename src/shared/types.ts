@@ -83,6 +83,7 @@ export const IpcChannel = {
   GetAppVersion: 'app:get-version',
   GetInstalledModels: 'models:get-installed',
   GetHistory: 'history:get',
+  UpdateHistoryText: 'history:update-text',
   WindowMinimize: 'window:minimize',
   WindowToggleMaximize: 'window:toggle-maximize',
   WindowClose: 'window:close',

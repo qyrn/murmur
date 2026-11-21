@@ -21,6 +21,8 @@ const settingsApi = {
   getAppVersion: (): Promise<string> => ipcRenderer.invoke(IpcChannel.GetAppVersion),
   getInstalledModels: (): Promise<WhisperModel[]> => ipcRenderer.invoke(IpcChannel.GetInstalledModels),
   getHistory: (): Promise<DictationRecord[]> => ipcRenderer.invoke(IpcChannel.GetHistory),
+  updateHistoryText: (timestamp: number, text: string): Promise<void> =>
+    ipcRenderer.invoke(IpcChannel.UpdateHistoryText, timestamp, text),
   getHandsFreeStatus: (): Promise<HandsFreeStatus> => ipcRenderer.invoke(IpcChannel.GetHandsFreeStatus),
   getInterfaceLanguage: (): Promise<InterfaceLanguage> => ipcRenderer.invoke(IpcChannel.GetInterfaceLanguage),
   onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void): void => {

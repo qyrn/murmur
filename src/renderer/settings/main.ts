@@ -12,6 +12,7 @@ import type {
 import { termsThatFitInPrompt } from '../../shared/promptTerms'
 import type { MessageKey } from '../../shared/messages'
 import { setLanguage, t, translateStaticText } from './translations'
+import { createCorrectionButton } from './historyCorrection'
 
 const ACCENT_PRESETS = ['#9df2ff', '#ffb547', '#7dffa1', '#ff8fd8', '#e9eef3']
 
@@ -142,7 +143,7 @@ function renderHistory(history: DictationRecord[]): void {
 
     const copyButton = document.createElement('button')
     copyButton.type = 'button'
-    copyButton.className = 'button button--ghost history-row__copy'
+    copyButton.className = 'button button--ghost history-row__action'
     copyButton.textContent = t('history.copy')
     copyButton.addEventListener('click', () => {
       void navigator.clipboard.writeText(entry.text).then(() => {
@@ -153,7 +154,14 @@ function renderHistory(history: DictationRecord[]): void {
       })
     })
 
-    row.append(meta, text, copyButton)
+    const actions = document.createElement('div')
+    actions.className = 'history-row__actions'
+    actions.append(
+      createCorrectionButton(row, text, entry, { onCorrected: refreshPromptOverflow, onRuleLearned: learnShortcut }),
+      copyButton
+    )
+
+    row.append(meta, text, actions)
     historyList.append(row)
   }
 }
@@ -277,6 +285,17 @@ function renderShortcuts(): void {
   })
 }
 
+function filledShortcuts(): VoiceShortcut[] {
+  return shortcuts.filter((shortcut) => shortcut.spoken.trim().length > 0 && shortcut.written.length > 0)
+}
+
+function learnShortcut(rule: VoiceShortcut): void {
+  shortcuts = shortcuts.filter((shortcut) => shortcut.spoken.trim().toLowerCase() !== rule.spoken.toLowerCase())
+  shortcuts.push(rule)
+  renderShortcuts()
+  void window.settingsApi.setShortcuts(filledShortcuts())
+}
+
 addShortcutButton.addEventListener('click', () => {
   shortcuts.push({ spoken: '', written: '' })
   renderShortcuts()
@@ -374,9 +393,7 @@ saveButton.addEventListener('click', () => {
     }
     await window.settingsApi.setSettings(settings)
     await window.settingsApi.setDictionary(dictionary.filter((entry) => entry.term.trim().length > 0))
-    await window.settingsApi.setShortcuts(
-      shortcuts.filter((shortcut) => shortcut.spoken.trim().length > 0 && shortcut.written.length > 0)
-    )
+    await window.settingsApi.setShortcuts(filledShortcuts())
     await refreshLanguage()
     saveStatus.textContent = t('footer.saved')
     setTimeout(() => {

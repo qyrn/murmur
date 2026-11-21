@@ -17,7 +17,7 @@ import {
   loadShortcuts,
   saveShortcuts
 } from './settingsStore'
-import { loadHistory, appendHistoryEntry } from './historyStore'
+import { loadHistory, appendHistoryEntry, updateHistoryText } from './historyStore'
 import { captureScreenshots, prepareScreenshotSwitches } from './screenshotMode'
 import { watchFullscreenApps } from './fullscreenGuard'
 import { ensureWhisperServer, stopWhisperServer } from './whisperServer'
@@ -41,6 +41,7 @@ import {
 } from '../shared/types'
 
 const XWAYLAND_OZONE_SWITCH = '--ozone-platform=x11'
+const MAX_CORRECTED_TEXT_LENGTH = 20000
 
 const needsXwaylandRelaunch = process.platform === 'linux' && !process.argv.includes(XWAYLAND_OZONE_SWITCH)
 
@@ -598,6 +599,12 @@ function registerIpcHandlers(): void {
     overlayWindow?.webContents.send(IpcChannel.AudioLevel, level)
   })
   ipcMain.handle(IpcChannel.GetHistory, () => loadHistory())
+  ipcMain.handle(IpcChannel.UpdateHistoryText, (_event, timestamp: unknown, text: unknown) => {
+    const isValidText = typeof text === 'string' && text.trim().length > 0 && text.length <= MAX_CORRECTED_TEXT_LENGTH
+    if (typeof timestamp === 'number' && isValidText) {
+      updateHistoryText(timestamp, text.trim())
+    }
+  })
   ipcMain.on(IpcChannel.WindowMinimize, () => settingsWindow?.minimize())
   ipcMain.on(IpcChannel.WindowToggleMaximize, () => {
     if (!settingsWindow) {

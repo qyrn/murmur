@@ -22,6 +22,7 @@ declare global {
     getAppVersion: () => Promise<string>
     getInstalledModels: () => Promise<WhisperModel[]>
     getHistory: () => Promise<DictationRecord[]>
+    updateHistoryText: (timestamp: number, text: string) => Promise<void>
     getHandsFreeStatus: () => Promise<HandsFreeStatus>
     getInterfaceLanguage: () => Promise<InterfaceLanguage>
     onHandsFreeStatus: (callback: (status: HandsFreeStatus) => void) => void
