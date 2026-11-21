@@ -17,6 +17,7 @@
     transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.pill.state-ready,
 .pill.state-recording,
 .pill.state-transcribing {
   opacity: 1;
@@ -42,8 +43,16 @@
 .counter,
 .bars,
 .spinner,
-.label {
+.label,
+.hint {
   display: none;
+}
+
+.state-ready .hint {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 .state-recording .led {

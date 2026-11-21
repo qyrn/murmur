@@ -19,5 +19,5 @@ export function playHeroPill(): void {
   }
   requestAnimationFrame(frame)
   window.setTimeout(() => pill.setState('transcribing'), SPEAKING_MS)
-  window.setTimeout(() => pill.setState('idle'), SPEAKING_MS + WRITING_MS + SETTLE_MS)
+  window.setTimeout(() => pill.setState('ready'), SPEAKING_MS + WRITING_MS + SETTLE_MS)
 }

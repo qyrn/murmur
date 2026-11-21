@@ -8,7 +8,7 @@
       content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
     />
     <meta name="referrer" content="no-referrer" />
-    <title data-i18n="meta.title">murmur, la dictée vocale qui tourne sur ton PC</title>
+    <title data-i18n="meta.title">murmur</title>
     <meta
       name="description"
       data-i18n-attr="content:meta.description"
@@ -49,31 +49,32 @@
         </h1>
         <div class="hero-foot">
           <p class="hero-lead" data-i18n="hero.lead">
-            murmur, c'est une dictée vocale pour ton PC : tu appuies sur <kbd>Ctrl</kbd> <kbd>Espace</kbd>, tu parles,
-            et le texte se colle là où est ton curseur. Elle est faite pour le français et garde tes mots anglais comme
-            tu les dis. Tout tourne sur ton PC, du coup ta voix sort jamais de chez toi.
+            Appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd>, parle, et le texte se colle là où est ton curseur. C'est fait
+            pour le français, ça garde tes mots anglais, et tout tourne sur ta carte graphique, du coup ta voix sort
+            jamais de ton PC.
           </p>
           <div class="hero-actions">
-            <a
-              class="button"
-              href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe"
-              rel="noopener"
-              data-i18n="hero.download"
-              >Télécharge murmur pour Windows</a
-            >
-            <p class="hero-meta" data-i18n="hero.meta">
-              Version __MURMUR_VERSION__, gratuite et open source. Tu peux aussi
-              <a href="#essai">l'essayer juste en dessous</a> !
-            </p>
+            <div class="hero-buttons">
+              <a
+                class="button"
+                href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe"
+                rel="noopener"
+                data-i18n="hero.download"
+                >Télécharge pour Windows</a
+              >
+              <a class="ghost-button" href="#installer" data-i18n="hero.linux">Sur Linux</a>
+            </div>
+            <p class="hero-meta" data-i18n="hero.meta">Version __MURMUR_VERSION__, gratuite et open source.</p>
           </div>
         </div>
-        <div class="pill hero-pill state-idle" id="hero-pill" aria-hidden="true">
+        <div class="pill hero-pill state-ready" id="hero-pill" aria-hidden="true">
           <div class="screen">
             <span class="led"></span>
             <span class="counter">00:00</span>
             <span class="bars"></span>
             <span class="spinner"></span>
             <span class="label">TRANSCRIPTION</span>
+            <span class="hint" data-i18n="hero.pillHint">CTRL + ESPACE</span>
           </div>
         </div>
       </section>
@@ -140,14 +141,14 @@
           </article>
 
           <div class="pill state-idle" id="demo-pill" aria-hidden="true">
-          <div class="screen">
-            <span class="led"></span>
-            <span class="counter">00:00</span>
-            <span class="bars"></span>
-            <span class="spinner"></span>
-            <span class="label">TRANSCRIPTION</span>
+            <div class="screen">
+              <span class="led"></span>
+              <span class="counter">00:00</span>
+              <span class="bars"></span>
+              <span class="spinner"></span>
+              <span class="label">TRANSCRIPTION</span>
+            </div>
           </div>
-        </div>
         </div>
 
         <div class="demo-controls">
@@ -226,33 +227,35 @@
           </p>
         </div>
 
-        <ol class="track" id="track">
-          <li class="track-clip clip-wake">
-            <span class="clip-wave" data-wave="7"></span>
-            <span class="clip-text" data-i18n="handsfree.wake">Tu dis « murmur start »</span>
-          </li>
-          <li class="track-clip clip-chime">
-            <span class="clip-wave" data-wave="2"></span>
-            <span class="clip-text" data-i18n="handsfree.chime">Un petit bip te répond</span>
-          </li>
-          <li class="track-clip clip-speech">
-            <span class="clip-wave" data-wave="34"></span>
-            <span class="clip-text" data-i18n="handsfree.speech">Tu parles, aussi longtemps que tu veux</span>
-          </li>
-          <li class="track-clip clip-silence">
-            <span class="clip-wave clip-flat"></span>
-            <span class="clip-text" data-i18n="handsfree.silence">Tu te tais quelques secondes, ou tu dis « murmur stop »</span>
-          </li>
-          <li class="track-clip clip-paste">
-            <span class="clip-pasted" aria-hidden="true"><span></span><span></span><span></span></span>
-            <span class="clip-text" data-i18n="handsfree.paste">Le texte se colle tout seul</span>
-          </li>
-        </ol>
+        <div class="handsfree-screen">
+          <ol class="track" id="track">
+            <li class="track-clip clip-wake">
+              <span class="clip-wave" data-wave="7"></span>
+              <span class="clip-text" data-i18n="handsfree.wake">Tu dis « murmur start »</span>
+            </li>
+            <li class="track-clip clip-chime">
+              <span class="clip-wave" data-wave="2"></span>
+              <span class="clip-text" data-i18n="handsfree.chime">Un petit bip te répond</span>
+            </li>
+            <li class="track-clip clip-speech">
+              <span class="clip-wave" data-wave="34"></span>
+              <span class="clip-text" data-i18n="handsfree.speech">Tu parles, aussi longtemps que tu veux</span>
+            </li>
+            <li class="track-clip clip-silence">
+              <span class="clip-wave clip-flat"></span>
+              <span class="clip-text" data-i18n="handsfree.silence">Tu te tais quelques secondes, ou tu dis « murmur stop »</span>
+            </li>
+            <li class="track-clip clip-paste">
+              <span class="clip-pasted" aria-hidden="true"><span></span><span></span><span></span></span>
+              <span class="clip-text" data-i18n="handsfree.paste">Le texte se colle tout seul</span>
+            </li>
+          </ol>
+        </div>
 
         <div class="handsfree-notes">
           <p data-i18n="handsfree.noteChain">
-            Tu peux aussi tout enchaîner d'une traite : « murmur start, je voulais te dire… ». Le micro reste ouvert,
-            mais c'est un petit détecteur de voix en local qui écoute, et les voix au fond de la pièce sont ignorées.
+            Tu peux aussi tout dire d'une traite : « murmur start, je voulais te dire… ». C'est un petit
+            détecteur de voix en local qui écoute, et il ignore les voix au fond de la pièce.
           </p>
           <p data-i18n="handsfree.noteGames">
             Quand tu joues en plein écran, tout se met en pause, du coup un pote qui parle sur Discord lancera pas une
@@ -299,14 +302,6 @@
               </dd>
             </div>
             <div>
-              <dt data-i18n="extras.spaceTitle">Une espace après chaque dictée</dt>
-              <dd data-i18n="extras.space">Tu peux en enchaîner plusieurs dans le même message sans que les phrases se collent.</dd>
-            </div>
-            <div>
-              <dt data-i18n="extras.modelsTitle">Deux modèles Whisper</dt>
-              <dd data-i18n="extras.models">large-v3-turbo par défaut pour aller vite, large-v3 si tu veux la précision max.</dd>
-            </div>
-            <div>
               <dt data-i18n="extras.statsTitle">Un écran d'accueil qui compte pour toi</dt>
               <dd data-i18n="extras.stats">Ta vitesse moyenne, tes mots de la semaine, les apps où tu dictes et le temps gagné sur le clavier.</dd>
             </div>
@@ -317,7 +312,7 @@
             <div>
               <dt data-i18n="extras.updatesTitle">Les mises à jour toutes seules</dt>
               <dd data-i18n="extras.updates">
-                murmur télécharge la nouvelle version dans son coin et te propose de redémarrer pour l\'installer,
+                murmur télécharge la nouvelle version dans son coin et te propose de redémarrer pour l'installer,
                 sur Windows comme sur Linux.
               </dd>
             </div>
@@ -334,93 +329,91 @@
         </div>
       </section>
 
-      <section class="install-section" id="installer" aria-labelledby="installer-title">
-        <h2 id="installer-title" data-i18n="install.title">Installer murmur</h2>
-        <p class="install-lead" data-i18n="install.lead">
-          Il te faut juste une carte graphique NVIDIA, c'est elle qui fait tourner la transcription.
-        </p>
-
-        <div class="tabs" role="tablist" aria-label="Système" data-i18n-attr="aria-label:install.tabsLabel">
-          <button class="tab" type="button" role="tab" id="tab-windows" aria-controls="panel-windows" aria-selected="true" data-i18n="install.windowsTab">
-            Windows 10 et 11
-          </button>
-          <button class="tab" type="button" role="tab" id="tab-linux" aria-controls="panel-linux" aria-selected="false" tabindex="-1">
-            Linux, KDE Plasma 6
-          </button>
-        </div>
-
-        <div class="tab-panel" role="tabpanel" id="panel-windows" aria-labelledby="tab-windows">
-          <ol class="steps">
-            <li data-i18n="install.step1">
-              Télécharge
-              <a href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe" rel="noopener"
-                >murmur-Setup-__MURMUR_VERSION__.exe</a
-              >.
-            </li>
-            <li data-i18n="install.step2">
-              Lance-le. Windows va sûrement afficher « Windows a protégé votre ordinateur », il fait ça avec toutes les
-              petites apps qu'il connaît pas encore : clique sur « Informations complémentaires » puis « Exécuter quand
-              même ».
-            </li>
-            <li data-i18n="install.step3">L'icône apparaît dans la barre système, appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd> et parle !</li>
-          </ol>
-        </div>
-
-        <div class="tab-panel" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
-          <p data-i18n="install.linuxIntro">
-            Télécharge <a href="https://github.com/qyrn/murmur/releases/latest/download/murmur-x86_64.AppImage" rel="noopener">murmur-x86_64.AppImage</a> et range-le là où il va
-            rester, genre <code>~/Applications</code>, parce que les mises à jour remplacent ce fichier. Installe aussi
-            <code>wl-clipboard</code>, <code>ydotool</code>, <code>kdotool</code> et <code>ffmpeg</code>,
-            puis :
+      <div class="closing-section" id="installer">
+        <section class="install-block" aria-labelledby="installer-title">
+          <h2 id="installer-title" data-i18n="install.title">Installer murmur</h2>
+          <p class="install-lead" data-i18n="install.lead">
+            Il te faut juste une carte graphique NVIDIA, c'est elle qui fait tourner la transcription.
           </p>
-          <div class="code-block">
-            <pre><code id="linux-commands">chmod +x ~/Applications/murmur-x86_64.AppImage
-~/Applications/murmur-x86_64.AppImage</code></pre>
-            <button class="ghost-button copy-button" type="button" data-copy-target="linux-commands" data-i18n="install.copy">Copier</button>
+
+          <div class="tabs" role="tablist" aria-label="Système" data-i18n-attr="aria-label:install.tabsLabel">
+            <button class="tab" type="button" role="tab" id="tab-windows" aria-controls="panel-windows" aria-selected="true" data-i18n="install.windowsTab">
+              Windows 10 et 11
+            </button>
+            <button class="tab" type="button" role="tab" id="tab-linux" aria-controls="panel-linux" aria-selected="false" tabindex="-1">
+              Linux, KDE Plasma 6
+            </button>
           </div>
-          <p data-i18n="install.linuxAfter">
-            Lance aussi <code>systemctl --user enable --now ydotool</code> pour que murmur puisse coller le texte.
-          </p>
-        </div>
-      </section>
 
-      <section class="faq-section" aria-labelledby="faq-title">
-        <h2 id="faq-title" data-i18n="faq.title">Les questions qu'on se pose</h2>
-        <div class="faq-list">
-          <details>
-            <summary data-i18n="faq.gpuQuestion">Il faut vraiment une carte graphique NVIDIA ?</summary>
-            <p data-i18n="faq.gpuAnswer">
-              Oui, Whisper tourne dessus avec CUDA, c'est ce qui permet de transcrire vite sans rien envoyer sur
-              internet. Sans carte NVIDIA, la transcription peut malheureusement pas tourner.
-            </p>
-          </details>
-          <details>
-            <summary data-i18n="faq.macQuestion">Ça marche sur Mac ?</summary>
-            <p data-i18n="faq.macAnswer">Pas pour l'instant, murmur tourne sur Windows et sur Linux avec KDE Plasma 6.</p>
-          </details>
-          <details>
-            <summary data-i18n="faq.languageQuestion">Je peux dicter dans une autre langue que le français ?</summary>
-            <p data-i18n="faq.languageAnswer">
-              murmur est réglé pour le français. Les mots anglais au milieu de tes phrases passent sans souci, mais une
-              phrase entière dans une autre langue sera mal transcrite.
-            </p>
-          </details>
-          <details>
-            <summary data-i18n="faq.priceQuestion">C'est payant ?</summary>
-            <p data-i18n="faq.priceAnswer">
-              Non, t'as rien à payer. murmur est open source sous licence MIT, du coup tu peux lire le code, le modifier
-              et le compiler toi-même.
-            </p>
-          </details>
-          <details>
-            <summary data-i18n="faq.pasteQuestion">Ça colle dans n'importe quelle app ?</summary>
-            <p data-i18n="faq.pasteAnswer">
-              Dans presque toutes. Sur Windows, les apps lancées en administrateur refusent le collage d'un programme
-              normal, dans ce cas lance murmur en administrateur aussi.
-            </p>
-          </details>
-        </div>
-      </section>
+          <div class="tab-panel" role="tabpanel" id="panel-windows" aria-labelledby="tab-windows">
+            <ol class="steps">
+              <li data-i18n="install.step1">
+                Télécharge
+                <a href="https://github.com/qyrn/murmur/releases/download/v__MURMUR_VERSION__/murmur-Setup-__MURMUR_VERSION__.exe" rel="noopener"
+                  >murmur-Setup-__MURMUR_VERSION__.exe</a
+                >.
+              </li>
+              <li data-i18n="install.step2">
+                Lance-le. Si Windows affiche « Windows a protégé votre ordinateur », clique sur « Informations
+                complémentaires » puis « Exécuter quand même ».
+              </li>
+              <li data-i18n="install.step3">L'icône apparaît dans la barre système, appuie sur <kbd>Ctrl</kbd> <kbd>Espace</kbd> et parle !</li>
+            </ol>
+          </div>
+
+          <div class="tab-panel" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
+            <p data-i18n="install.linuxIntro">
+                Colle cette commande dans un terminal, elle installe tout ce qu'il faut et lance murmur :
+              </p>
+            <div class="code-block">
+              <pre><code id="linux-commands">curl -fsSL https://murmur.qyrn.dev/install.sh | sh</code></pre>
+              <button class="ghost-button copy-button" type="button" data-copy-target="linux-commands" data-i18n="install.copy">Copier</button>
+            </div>
+            <p data-i18n="install.linuxAfter">
+                Elle te demande ton mot de passe pour installer quelques outils, et tu peux
+                <a href="https://github.com/qyrn/murmur/blob/master/site/public/install.sh" rel="noopener">lire le script</a> avant de la lancer.
+              </p>
+          </div>
+        </section>
+
+        <section class="faq-block" aria-labelledby="faq-title">
+          <h2 id="faq-title" data-i18n="faq.title">Les questions qu'on se pose</h2>
+          <div class="faq-list">
+            <details>
+              <summary data-i18n="faq.gpuQuestion">Il faut vraiment une carte graphique NVIDIA ?</summary>
+              <p data-i18n="faq.gpuAnswer">
+                Oui, Whisper tourne dessus avec CUDA, c'est ce qui permet de transcrire vite sans rien envoyer sur
+                internet. Sans carte NVIDIA, la transcription peut malheureusement pas tourner.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="faq.macQuestion">Ça marche sur Mac ?</summary>
+              <p data-i18n="faq.macAnswer">Pas pour l'instant, murmur tourne sur Windows et sur Linux avec KDE Plasma 6.</p>
+            </details>
+            <details>
+              <summary data-i18n="faq.languageQuestion">Je peux dicter dans une autre langue que le français ?</summary>
+              <p data-i18n="faq.languageAnswer">
+                murmur est réglé pour le français. Les mots anglais au milieu de tes phrases passent sans souci, mais une
+                phrase entière dans une autre langue sera mal transcrite.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="faq.priceQuestion">C'est payant ?</summary>
+              <p data-i18n="faq.priceAnswer">
+                Non, t'as rien à payer. murmur est open source sous licence MIT, du coup tu peux lire le code, le modifier
+                et le compiler toi-même.
+              </p>
+            </details>
+            <details>
+              <summary data-i18n="faq.pasteQuestion">Ça colle dans n'importe quelle app ?</summary>
+              <p data-i18n="faq.pasteAnswer">
+                Dans presque toutes. Sur Windows, les apps lancées en administrateur refusent le collage d'un programme
+                normal, dans ce cas lance murmur en administrateur aussi.
+              </p>
+            </details>
+          </div>
+        </section>
+      </div>
     </main>
 
     <footer class="footer">

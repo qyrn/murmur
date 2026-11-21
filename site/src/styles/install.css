@@ -1,3 +1,17 @@
+.closing-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 4rem clamp(3rem, 7vw, 7rem);
+  align-items: start;
+  align-content: center;
+}
+
+.closing-section h2 {
+  margin: 0 0 1.25rem;
+  font-size: clamp(2rem, 3.6vw, 3.2rem);
+  line-height: 1.05;
+}
+
 .install-lead {
   max-width: 52ch;
   margin: 0 0 2.5rem;
@@ -102,8 +116,7 @@
 }
 
 .faq-list {
-  max-width: 58rem;
-  margin-top: 2rem;
+  margin-top: 2.25rem;
   border-top: 1px solid var(--line);
 }
 
@@ -115,8 +128,8 @@
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.25rem 0;
-  font-size: 1.2rem;
+  padding: 1.1rem 0;
+  font-size: 1.08rem;
   font-weight: 600;
   cursor: pointer;
   list-style: none;
@@ -143,4 +156,10 @@
   max-width: 62ch;
   margin: 0 0 1.4rem;
   color: var(--muted);
+}
+
+@media (max-width: 960px) {
+  .closing-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

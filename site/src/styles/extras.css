@@ -59,3 +59,16 @@ main > .extras-section {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+@media (min-width: 981px) and (min-height: 600px) {
+  .extras-layout {
+    margin-top: clamp(0.5rem, 2vh, 1.5rem);
+  }
+
+  .extras-shot {
+    width: auto;
+    max-width: 100%;
+    max-height: calc(var(--screen-height) - 9rem);
+    justify-self: end;
+  }
+}

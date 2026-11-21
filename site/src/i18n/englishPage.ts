@@ -1,10 +1,9 @@
 const VERSION = __MURMUR_VERSION__
 const INSTALLER = `murmur-Setup-${VERSION}.exe`
 const INSTALLER_URL = `https://github.com/qyrn/murmur/releases/download/v${VERSION}/${INSTALLER}`
-const LINUX_APPIMAGE_URL = 'https://github.com/qyrn/murmur/releases/latest/download/murmur-x86_64.AppImage'
 
 export const ENGLISH_PAGE: Record<string, string> = {
-  'meta.title': 'murmur, voice dictation that runs on your PC',
+  'meta.title': 'murmur',
   'meta.description':
     'Voice dictation for French that keeps your English words. Everything runs on your graphics card, your voice never leaves your PC. Open source, Windows and Linux.',
   skip: 'Skip to the demo',
@@ -17,9 +16,11 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'hero.line2': 'it types itself',
   'hero.line3': 'where you are.',
   'hero.lead':
-    "murmur is voice dictation for your PC: press [[kbd:Ctrl]] [[kbd:Space]], talk, and the text lands right where your cursor is. It's made for people who dictate in French, and it keeps your English words exactly as you say them. Everything runs on your own PC, so your voice never leaves it.",
-  'hero.download': 'Download murmur for Windows',
-  'hero.meta': `Version ${VERSION}, free and open source. You can also [[a:#essai|try it right below]]!`,
+    "Press [[kbd:Ctrl]] [[kbd:Space]], talk, and the text lands where your cursor is. It's made for French, it keeps your English words, and it all runs on your graphics card, so your voice never leaves your PC.",
+  'hero.download': 'Download for Windows',
+  'hero.linux': 'On Linux',
+  'hero.meta': `Version ${VERSION}, free and open source.`,
+  'hero.pillHint': 'CTRL + SPACE',
   'demo.title': 'Try it, right here',
   'demo.intro':
     'Click into one of the windows, press [[kbd:Ctrl]] [[kbd:Space]] and talk, then press it again to paste. The pill works just like on your PC, except here it pastes sample sentences.',
@@ -59,7 +60,7 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'handsfree.silence': 'You go quiet for a few seconds, or say “murmur stop”',
   'handsfree.paste': 'The text pastes itself',
   'handsfree.noteChain':
-    'You can also say it all in one go: “murmur start, je voulais te dire…”. The mic stays open, but a small voice detector listens locally, and voices from across the room are ignored.',
+    'You can also say it all in one go: “murmur start, I wanted to tell you…”. A small voice detector listens locally, and it ignores voices at the back of the room.',
   'handsfree.noteGames':
     "When you play a game in fullscreen, everything pauses, so a friend talking on Discord won't start a dictation by accident.",
   'privacy.title': 'Your voice stays on your PC',
@@ -77,10 +78,6 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'extras.firstWordTitle': 'Your first word comes through whole',
   'extras.firstWord':
     'The “Garder le micro ouvert” setting (keep the mic open) holds the last split second in memory, without recording anything, for when you start talking right as you press.',
-  'extras.spaceTitle': 'A space after every dictation',
-  'extras.space': 'You can chain several in the same message without the sentences sticking together.',
-  'extras.modelsTitle': 'Two Whisper models',
-  'extras.models': 'large-v3-turbo by default to go fast, large-v3 if you want maximum accuracy.',
   'extras.statsTitle': 'A home screen that keeps count',
   'extras.stats': 'Your average speed, your words this week, the apps you dictate in and the time saved over typing.',
   'extras.pillTitle': 'The pill, your way',
@@ -94,13 +91,12 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'install.windowsTab': 'Windows 10 and 11',
   'install.step1': `Download [[a:${INSTALLER_URL}|${INSTALLER}]].`,
   'install.step2':
-    "Run it. Windows will probably show “Windows protected your PC”, it does that with every small app it doesn't know yet: click “More info”, then “Run anyway”.",
+    'Run it. If Windows shows “Windows protected your PC”, click “More info”, then “Run anyway”.',
   'install.step3': 'The icon shows up in the system tray, press [[kbd:Ctrl]] [[kbd:Space]] and talk!',
-  'install.linuxIntro':
-    `Download [[a:${LINUX_APPIMAGE_URL}|murmur-x86_64.AppImage]] and put it where it's going to stay, like [[code:~/Applications]], because updates replace that file. Also install [[code:wl-clipboard]], [[code:ydotool]], [[code:kdotool]] and [[code:ffmpeg]], then:`,
+  'install.linuxIntro': 'Paste this command in a terminal, it installs everything murmur needs and starts it:',
   'install.copy': 'Copy',
   'install.linuxAfter':
-    'Also run [[code:systemctl --user enable --now ydotool]] so murmur can paste text.',
+    'It asks for your password to install a few tools, and you can [[a:https://github.com/qyrn/murmur/blob/master/site/public/install.sh|read the script]] before running it.',
   'faq.title': 'Questions people ask',
   'faq.gpuQuestion': 'Do I really need an NVIDIA graphics card?',
   'faq.gpuAnswer':

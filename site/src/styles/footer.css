@@ -7,7 +7,7 @@
 .footer-mark {
   margin: 2.5rem 0 0;
   font-family: var(--display);
-  font-size: clamp(2.6rem, 14.5vw, 15rem);
+  font-size: clamp(2.6rem, 11vw, 11rem);
   line-height: 1;
   letter-spacing: -0.03em;
   text-align: center;
@@ -15,7 +15,8 @@
 }
 
 .footer-note {
-  margin: 2rem 0 0;
+  margin: 1.5rem 0 0;
+  text-align: center;
   color: var(--muted);
   font-size: 0.95rem;
 }

@@ -1,4 +1,4 @@
-export type PillState = 'idle' | 'recording' | 'transcribing'
+export type PillState = 'idle' | 'ready' | 'recording' | 'transcribing'
 
 const BAR_COUNT = 11
 const QUIET_LEVEL = 0.08

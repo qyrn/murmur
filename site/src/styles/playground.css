@@ -189,3 +189,57 @@ main > .playground-section {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+@media (min-width: 901px) and (min-height: 600px) {
+  main > .playground-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    gap: 0 1.5rem;
+    align-content: center;
+  }
+
+  .playground {
+    display: contents;
+  }
+
+  .playground-section .section-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .playground-io {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .playground-rules {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .playground-io,
+  .playground-rules {
+    padding: clamp(1rem, 2.5vh, 1.75rem);
+  }
+
+  .playground-io .field-label:not(:first-child) {
+    margin-top: clamp(0.9rem, 2.5vh, 1.75rem);
+  }
+
+  .playground-rules h3:not(:first-child) {
+    margin-top: clamp(1rem, 2.5vh, 2rem);
+  }
+
+  .rules-help {
+    margin-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  }
+
+  .rule-form {
+    margin-top: clamp(0.5rem, 1.2vh, 0.9rem);
+  }
+
+  #spoken-input {
+    height: clamp(4.5rem, 10vh, 7rem);
+  }
+}
