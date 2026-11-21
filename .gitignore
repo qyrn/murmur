@@ -6,3 +6,4 @@ whisper-engine
 *.log
 *.tsbuildinfo
 src/renderer/public/vad
+.wrangler

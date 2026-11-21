@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "murmur-site",
+  "compatibility_date": "2026-11-21",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "routes": [{ "pattern": "murmur.qyrn.dev", "custom_domain": true }]
+}
