@@ -86,16 +86,16 @@ The interface comes in English and French. By default murmur follows your system
 
 ### On Linux (KDE Plasma)
 
-No installer yet: murmur is built from source (see below) with `pnpm build:linux`. You need KDE Plasma 6 and these tools:
+Download `murmur-x86_64.AppImage` from the [latest release](https://github.com/qyrn/murmur/releases/latest), make it executable (`chmod +x murmur-x86_64.AppImage`) and run it. Put it where it's going to stay first, like `~/Applications`, because updates replace that exact file. You need KDE Plasma 6, the NVIDIA driver and these small tools:
 
 - `wl-clipboard` for the clipboard, `ydotool` to paste the text (run `systemctl --user enable --now ydotool`), `kdotool` to know which app is in front
-- `ffmpeg` and the CUDA Toolkit
+- `ffmpeg`
 
 The shortcut is registered in KDE's global shortcuts: you'll find it in System Settings → Shortcuts → murmur. In a terminal, murmur pastes with `Ctrl+Shift+V` instead of `Ctrl+V`.
 
 ## 🔄 Updates
 
-On Windows, when I ship a new version, murmur downloads it in the background and offers to restart to install it. If you say no, it installs itself on the next launch. On Linux there are no automatic updates: rebuild from source.
+When I ship a new version, murmur downloads it in the background and offers to restart to install it. If you say no, it installs itself on the next launch. It works the same on Windows and with the AppImage on Linux, but if you build murmur yourself, rebuilding is up to you.
 
 ## 🔒 What about your data?
 
@@ -168,11 +168,11 @@ pnpm dev                                             # development mode
 pnpm typecheck
 pnpm lint
 pnpm build:win                                       # builds the installer in dist/
-pnpm build:linux                                     # builds dist/linux-unpacked
+pnpm build:linux                                     # builds the AppImage in dist/
 node scripts/render-icons.mjs                        # regenerates the icons from resources/icons/*.svg
 ```
 
-To ship a version: bump `version` in `package.json`, run `pnpm build:win`, then attach the three files from `dist/` to a GitHub release (the `.exe` installer, its `.blockmap` and `latest.yml`). If one is missing, auto-update won't see the new version.
+To ship a version: bump `version` in `package.json`, run `pnpm build:win` on Windows and `pnpm build:linux` on Linux, then attach the files from `dist/` to the GitHub release: the `.exe` installer, its `.blockmap` and `latest.yml` for Windows, `murmur-x86_64.AppImage` and `latest-linux.yml` for Linux. If one is missing, auto-update won't see the new version. For the AppImage to run on other cards than yours, build whisper.cpp first with `CUDA_ARCHITECTURES="75;80;86;89;120" ./scripts/setup-whisper.sh --bundle-cuda-runtime`, which also bundles the CUDA libraries.
 
 To refresh the README screenshots: pick the interface language in settings, then run `MURMUR_SCREENSHOT=docs/en pnpm dev` (or `docs/fr`). The app takes pictures of its own windows (Home, Shortcuts, Hands-free, pill) with a fake mic, saves the PNGs in that folder, then quits.
 

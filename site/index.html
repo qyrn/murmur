@@ -317,8 +317,8 @@
             <div>
               <dt data-i18n="extras.updatesTitle">Les mises à jour toutes seules</dt>
               <dd data-i18n="extras.updates">
-                Sur Windows, murmur télécharge la nouvelle version dans son coin et te propose de redémarrer pour
-                l'installer.
+                murmur télécharge la nouvelle version dans son coin et te propose de redémarrer pour l\'installer,
+                sur Windows comme sur Linux.
               </dd>
             </div>
           </dl>
@@ -368,22 +368,18 @@
 
         <div class="tab-panel" role="tabpanel" id="panel-linux" aria-labelledby="tab-linux" hidden>
           <p data-i18n="install.linuxIntro">
-            Y'a pas encore d'installeur sur Linux, murmur se compile depuis les sources. Installe d'abord
-            <code>wl-clipboard</code>, <code>ydotool</code>, <code>kdotool</code>, <code>ffmpeg</code> et le CUDA Toolkit,
+            Télécharge <a href="https://github.com/qyrn/murmur/releases/latest/download/murmur-x86_64.AppImage" rel="noopener">murmur-x86_64.AppImage</a> et range-le là où il va
+            rester, genre <code>~/Applications</code>, parce que les mises à jour remplacent ce fichier. Installe aussi
+            <code>wl-clipboard</code>, <code>ydotool</code>, <code>kdotool</code> et <code>ffmpeg</code>,
             puis :
           </p>
           <div class="code-block">
-            <pre><code id="linux-commands">git clone https://github.com/qyrn/murmur.git
-cd murmur
-pnpm install
-./scripts/setup-whisper.sh
-./scripts/download-model.sh large-v3-turbo
-pnpm build:linux</code></pre>
+            <pre><code id="linux-commands">chmod +x ~/Applications/murmur-x86_64.AppImage
+~/Applications/murmur-x86_64.AppImage</code></pre>
             <button class="ghost-button copy-button" type="button" data-copy-target="linux-commands" data-i18n="install.copy">Copier</button>
           </div>
           <p data-i18n="install.linuxAfter">
-            L'app arrive dans <code>dist/linux-unpacked</code>. Lance aussi
-            <code>systemctl --user enable --now ydotool</code> pour que murmur puisse coller le texte.
+            Lance aussi <code>systemctl --user enable --now ydotool</code> pour que murmur puisse coller le texte.
           </p>
         </div>
       </section>

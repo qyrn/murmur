@@ -1,6 +1,7 @@
 const VERSION = __MURMUR_VERSION__
 const INSTALLER = `murmur-Setup-${VERSION}.exe`
 const INSTALLER_URL = `https://github.com/qyrn/murmur/releases/download/v${VERSION}/${INSTALLER}`
+const LINUX_APPIMAGE_URL = 'https://github.com/qyrn/murmur/releases/latest/download/murmur-x86_64.AppImage'
 
 export const ENGLISH_PAGE: Record<string, string> = {
   'meta.title': 'murmur, voice dictation that runs on your PC',
@@ -85,7 +86,7 @@ export const ENGLISH_PAGE: Record<string, string> = {
   'extras.pillTitle': 'The pill, your way',
   'extras.pill': 'Bottom center, in a corner or at the top, with the screen color you like, and the waveform if you want to see it.',
   'extras.updatesTitle': 'Updates on their own',
-  'extras.updates': 'On Windows, murmur downloads the new version in the background and offers to restart to install it.',
+  'extras.updates': 'murmur downloads the new version in the background and offers to restart to install it, on Windows and on Linux.',
   'extras.shotAlt': "murmur's home screen, with words per minute, words this week, apps used and time saved",
   'install.title': 'Install murmur',
   'install.lead': "You just need an NVIDIA graphics card, it's what runs the transcription.",
@@ -96,10 +97,10 @@ export const ENGLISH_PAGE: Record<string, string> = {
     "Run it. Windows will probably show “Windows protected your PC”, it does that with every small app it doesn't know yet: click “More info”, then “Run anyway”.",
   'install.step3': 'The icon shows up in the system tray, press [[kbd:Ctrl]] [[kbd:Space]] and talk!',
   'install.linuxIntro':
-    "There's no Linux installer yet, murmur is built from source. First install [[code:wl-clipboard]], [[code:ydotool]], [[code:kdotool]], [[code:ffmpeg]] and the CUDA Toolkit, then:",
+    `Download [[a:${LINUX_APPIMAGE_URL}|murmur-x86_64.AppImage]] and put it where it's going to stay, like [[code:~/Applications]], because updates replace that file. Also install [[code:wl-clipboard]], [[code:ydotool]], [[code:kdotool]] and [[code:ffmpeg]], then:`,
   'install.copy': 'Copy',
   'install.linuxAfter':
-    'The app ends up in [[code:dist/linux-unpacked]]. Also run [[code:systemctl --user enable --now ydotool]] so murmur can paste text.',
+    'Also run [[code:systemctl --user enable --now ydotool]] so murmur can paste text.',
   'faq.title': 'Questions people ask',
   'faq.gpuQuestion': 'Do I really need an NVIDIA graphics card?',
   'faq.gpuAnswer':

@@ -84,16 +84,16 @@ L'interface existe en français et en anglais. Par défaut, murmur suit la langu
 
 ### Sur Linux (KDE Plasma)
 
-Pas encore d'installeur : murmur se compile depuis les sources (voir plus bas), avec `pnpm build:linux`. Il faut KDE Plasma 6 et ces outils :
+Télécharge `murmur-x86_64.AppImage` dans la [dernière release](https://github.com/qyrn/murmur/releases/latest), rends-le exécutable (`chmod +x murmur-x86_64.AppImage`) et lance-le. Range-le d'abord là où il va rester, genre `~/Applications`, parce que les mises à jour remplacent ce fichier-là. Il faut KDE Plasma 6, le pilote NVIDIA et ces petits outils :
 
 - `wl-clipboard` pour le presse-papier, `ydotool` pour coller le texte (lance `systemctl --user enable --now ydotool`), `kdotool` pour savoir quelle app est au premier plan
-- `ffmpeg` et le CUDA Toolkit
+- `ffmpeg`
 
 Le raccourci s'enregistre dans les raccourcis globaux de KDE : tu le retrouves dans Configuration du système → Raccourcis → murmur. Dans un terminal, murmur colle avec `Ctrl+Maj+V` au lieu de `Ctrl+V`.
 
 ## 🔄 Les mises à jour
 
-Sur Windows, quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement. Sur Linux, pas de mise à jour automatique : recompile depuis les sources.
+Quand je sors une nouvelle version, murmur la télécharge dans son coin et te propose de redémarrer pour l'installer. Si tu dis non, elle s'installera toute seule au prochain lancement. Ça marche pareil sur Windows et avec l'AppImage sur Linux, par contre si tu compiles murmur toi-même, c'est à toi de recompiler.
 
 ## 🔒 Et tes données ?
 
@@ -166,11 +166,11 @@ pnpm dev                                             # mode développement
 pnpm typecheck
 pnpm lint
 pnpm build:win                                       # génère l'installeur dans dist/
-pnpm build:linux                                     # génère dist/linux-unpacked
+pnpm build:linux                                     # génère l'AppImage dans dist/
 node scripts/render-icons.mjs                        # régénère les icônes depuis resources/icons/*.svg
 ```
 
-Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win`, puis joins à une release GitHub les trois fichiers de `dist/` (l'installeur `.exe`, son `.blockmap` et `latest.yml`). S'il en manque un, la mise à jour automatique verra pas la nouvelle version.
+Pour publier une version : monte `version` dans `package.json`, lance `pnpm build:win` sur Windows et `pnpm build:linux` sur Linux, puis joins à la release GitHub les fichiers de `dist/` : l'installeur `.exe`, son `.blockmap` et `latest.yml` côté Windows, `murmur-x86_64.AppImage` et `latest-linux.yml` côté Linux. S'il en manque un, la mise à jour automatique verra pas la nouvelle version. Pour que l'AppImage tourne sur d'autres cartes que la tienne, compile whisper.cpp avant avec `CUDA_ARCHITECTURES="75;80;86;89;120" ./scripts/setup-whisper.sh --bundle-cuda-runtime`, ça embarque aussi les bibliothèques CUDA.
 
 Pour refaire les captures du README : choisis la langue de l'interface dans les réglages, puis lance `MURMUR_SCREENSHOT=docs/fr pnpm dev` (ou `docs/en`). L'app photographie elle-même ses fenêtres (Accueil, Raccourcis, Mains libres, pastille) avec un faux micro, enregistre les PNG dans le dossier donné, puis se ferme.
 
