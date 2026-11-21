@@ -1,6 +1,7 @@
 import { serverBaseUrl } from './whisperServer'
 import { applyDictionaryCorrections, applyVoiceShortcuts, buildInitialPrompt } from './dictionary'
-import { removeHallucinations, removeShortClipHallucination } from './hallucinationFilter'
+import { removeFillerWords } from './fillerWords'
+import { removeHallucinations, removeTrailingThanks } from './hallucinationFilter'
 import { extractDictation } from './voiceCommands'
 import type { DictionaryEntry, VoiceShortcut } from '../shared/types'
 
@@ -15,14 +16,6 @@ function normalizeFrenchTypography(text: string): string {
     .replace(/\s+([?!;:])/g, ' $1')
     .replace(/«\s*/g, '« ')
     .replace(/\s*»/g, ' »')
-}
-
-const WAV_HEADER_BYTES = 44
-const WAV_BYTE_RATE_OFFSET = 28
-
-function wavDurationSeconds(wavBuffer: ArrayBuffer): number {
-  const byteRate = new DataView(wavBuffer).getUint32(WAV_BYTE_RATE_OFFSET, true)
-  return byteRate > 0 ? Math.max(0, wavBuffer.byteLength - WAV_HEADER_BYTES) / byteRate : 0
 }
 
 async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string | null): Promise<string> {
@@ -51,11 +44,10 @@ async function requestTranscription(wavBuffer: ArrayBuffer, prompt: string | nul
 
 function polishDictation(
   spokenText: string,
-  audioSeconds: number,
   dictionary: DictionaryEntry[],
   shortcuts: VoiceShortcut[]
 ): string {
-  const spokenWords = removeShortClipHallucination(removeHallucinations(spokenText), audioSeconds)
+  const spokenWords = removeFillerWords(removeTrailingThanks(removeHallucinations(spokenText)))
   const withCorrections = applyDictionaryCorrections(spokenWords, dictionary)
   const withShortcuts = applyVoiceShortcuts(withCorrections, shortcuts)
   return normalizeFrenchTypography(withShortcuts)
@@ -67,7 +59,7 @@ export async function transcribeAudio(
   shortcuts: VoiceShortcut[]
 ): Promise<string> {
   const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
-  return polishDictation(spokenText, wavDurationSeconds(wavBuffer), dictionary, shortcuts)
+  return polishDictation(spokenText, dictionary, shortcuts)
 }
 
 export async function transcribeHandsFreeAudio(
@@ -76,7 +68,7 @@ export async function transcribeHandsFreeAudio(
   shortcuts: VoiceShortcut[]
 ): Promise<string> {
   const spokenText = await requestTranscription(wavBuffer, buildInitialPrompt(dictionary))
-  return polishDictation(extractDictation(spokenText), wavDurationSeconds(wavBuffer), dictionary, shortcuts)
+  return polishDictation(extractDictation(spokenText), dictionary, shortcuts)
 }
 
 export function transcribeVoiceCommand(wavBuffer: ArrayBuffer): Promise<string> {
