@@ -3,6 +3,7 @@ import { promisify } from 'node:util'
 import { clipboard } from 'electron'
 import { getActiveWindow } from './activeWindow'
 import { scheduleClipboardRestore, takeClipboardToRestore, type ClipboardAccess } from './clipboardRestore'
+import { withoutInheritedFds } from './withoutInheritedFds'
 
 const execFileAsync = promisify(execFile)
 
@@ -58,7 +59,7 @@ async function readWaylandClipboard(): Promise<string | null> {
 
 function writeWaylandClipboard(text: string): Promise<void> {
   return new Promise((resolvePromise, rejectPromise) => {
-    const proc = spawn('wl-copy', ['--type', 'text/plain'], { stdio: ['pipe', 'ignore', 'ignore'] })
+    const proc = spawn(...withoutInheritedFds('wl-copy', ['--type', 'text/plain']), { stdio: ['pipe', 'ignore', 'ignore'] })
     proc.on('error', rejectPromise)
     proc.on('exit', (code) => {
       if (code === 0) {
