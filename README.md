@@ -86,10 +86,13 @@ The interface comes in English and French. By default murmur follows your system
 
 ### On Linux (KDE Plasma)
 
-Download `murmur-x86_64.AppImage` from the [latest release](https://github.com/qyrn/murmur/releases/latest), make it executable (`chmod +x murmur-x86_64.AppImage`) and run it. Put it where it's going to stay first, like `~/Applications`, because updates replace that exact file. You need KDE Plasma 6, the NVIDIA driver and these small tools:
+You need KDE Plasma 6 and the NVIDIA driver. Paste this command in a terminal:
 
-- `wl-clipboard` for the clipboard, `ydotool` to paste the text (run `systemctl --user enable --now ydotool`), `kdotool` to know which app is in front
-- `ffmpeg`
+```bash
+curl -fsSL https://murmur.qyrn.dev/install.sh | sh
+```
+
+It installs the small tools murmur needs (`wl-clipboard`, `ydotool`, `kdotool`, `ffmpeg`), puts the AppImage in `~/Applications`, adds it to the menu and starts murmur. It asks for your password for the tools, and you can [read the script](site/public/install.sh) first.
 
 The shortcut is registered in KDE's global shortcuts: you'll find it in System Settings → Shortcuts → murmur. In a terminal, murmur pastes with `Ctrl+Shift+V` instead of `Ctrl+V`.
 

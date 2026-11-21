@@ -84,10 +84,13 @@ L'interface existe en français et en anglais. Par défaut, murmur suit la langu
 
 ### Sur Linux (KDE Plasma)
 
-Télécharge `murmur-x86_64.AppImage` dans la [dernière release](https://github.com/qyrn/murmur/releases/latest), rends-le exécutable (`chmod +x murmur-x86_64.AppImage`) et lance-le. Range-le d'abord là où il va rester, genre `~/Applications`, parce que les mises à jour remplacent ce fichier-là. Il faut KDE Plasma 6, le pilote NVIDIA et ces petits outils :
+Il faut KDE Plasma 6 et le pilote NVIDIA. Colle cette commande dans un terminal :
 
-- `wl-clipboard` pour le presse-papier, `ydotool` pour coller le texte (lance `systemctl --user enable --now ydotool`), `kdotool` pour savoir quelle app est au premier plan
-- `ffmpeg`
+```bash
+curl -fsSL https://murmur.qyrn.dev/install.sh | sh
+```
+
+Elle installe les petits outils dont murmur a besoin (`wl-clipboard`, `ydotool`, `kdotool`, `ffmpeg`), range l'AppImage dans `~/Applications`, l'ajoute au menu et lance murmur. Elle te demande ton mot de passe pour les outils, et tu peux [lire le script](site/public/install.sh) avant.
 
 Le raccourci s'enregistre dans les raccourcis globaux de KDE : tu le retrouves dans Configuration du système → Raccourcis → murmur. Dans un terminal, murmur colle avec `Ctrl+Maj+V` au lieu de `Ctrl+V`.
 
