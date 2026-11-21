@@ -4,6 +4,7 @@ import { getActiveWindow } from './activeWindow'
 import { primaryWorkArea } from './displayGeometry'
 import { registerGlobalHotkey, releaseGlobalHotkeyOnQuit, unregisterGlobalHotkey } from './globalHotkey'
 import { applyLaunchAtStartup } from './launchAtStartup'
+import { launcherPath } from './launcherPath'
 import { initFileLogging } from './logger'
 import { checkForUpdatesAtLaunch, checkForUpdatesManually, supportsAutoUpdate } from './updater'
 import {
@@ -43,7 +44,7 @@ const needsXwaylandRelaunch = process.platform === 'linux' && !process.argv.incl
 const isPrimaryInstance = !needsXwaylandRelaunch && app.requestSingleInstanceLock()
 
 if (needsXwaylandRelaunch) {
-  app.relaunch({ args: [...process.argv.slice(1), XWAYLAND_OZONE_SWITCH] })
+  app.relaunch({ execPath: launcherPath, args: [...process.argv.slice(1), XWAYLAND_OZONE_SWITCH] })
 }
 if (!isPrimaryInstance) {
   app.exit(0)

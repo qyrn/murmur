@@ -2,6 +2,7 @@ import { app } from 'electron'
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
+import { launcherPath } from './launcherPath'
 
 function linuxAutostartEntryPath(): string {
   const configHome = process.env['XDG_CONFIG_HOME'] ?? join(homedir(), '.config')
@@ -14,7 +15,7 @@ function linuxAutostartEntry(): string {
     'Type=Application',
     'Name=murmur',
     'Comment=Dictée vocale privée et locale',
-    `Exec="${process.execPath}"`,
+    `Exec="${launcherPath}"`,
     'Icon=murmur',
     'Terminal=false',
     'X-GNOME-Autostart-enabled=true',

@@ -1,12 +1,13 @@
 import { app, dialog } from 'electron'
 import electronUpdater from 'electron-updater'
 import { t } from './interfaceLanguage'
+import { runsFromAppImage } from './launcherPath'
 
 const { autoUpdater } = electronUpdater
 
 let wired = false
 
-export const supportsAutoUpdate = process.platform === 'win32'
+export const supportsAutoUpdate = process.platform === 'win32' || runsFromAppImage
 
 function wireEvents(): void {
   if (wired) {

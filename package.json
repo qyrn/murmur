@@ -119,8 +119,9 @@
     },
     "linux": {
       "target": [
-        "dir"
+        "AppImage"
       ],
+      "artifactName": "${productName}-x86_64.${ext}",
       "icon": "resources/icon.png",
       "category": "Utility"
     },
